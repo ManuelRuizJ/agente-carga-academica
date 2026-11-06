@@ -1,0 +1,9 @@
+# Núcleo (lo único necesario para `python main.py recomendar` y `demo`)
+owlready2==0.51
+requests>=2.31
+
+# Opcional: solo para `python main.py crew` (orquestación con CrewAI)
+crewai==1.15.34
+
+# Opcional: para abrir demo.ipynb con este entorno
+ipykernel
