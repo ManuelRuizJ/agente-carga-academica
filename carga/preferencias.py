@@ -42,29 +42,55 @@ def _norm(t: str) -> str:
     return "".join(c for c in t if unicodedata.category(c) != "Mn")
 
 
-def _siglas(nombre: str) -> str:
-    return "".join(p[0] for p in _norm(nombre).split() if len(p) > 3)
-
-
 _GENERICAS = {"sistemas", "programacion", "desarrollo", "calculo", "computacion", "computadoras",
               "ingenieria", "fundamentos", "introduccion", "matematicas", "datos", "analisis",
-              "tecnologia", "tecnologico", "orientada", "ciencia", "arquitectura"}
+              "tecnologia", "tecnologico", "orientada", "ciencia", "arquitectura",
+              # comunes en los nombres reales del plan de la Ibero
+              "laboratorio", "proyecto", "proyectos", "topicos", "digital", "digitales", "diseno",
+              "gestion", "general", "computacionales", "computadora", "avanzada", "avanzados",
+              "aplicaciones", "servicios", "procesos", "informacion", "universitario",
+              "universitarias", "tecnologias", "actual", "sociedad", "ambientes"}
+
+# Palabras comunes del español que NO pueden contar como sigla ni palabra clave
+# ("sin viernes" no es "Sistemas Informáticos en los Negocios"; "por la tarde"
+# no es "Dibujo por Computadora"; "al" no es "Álgebra Lineal").
+_STOP = {"a", "al", "el", "la", "lo", "le", "les", "los", "las", "de", "del", "di", "en", "es",
+         "se", "si", "no", "un", "una", "uno", "sin", "con", "por", "para", "que", "mi", "me",
+         "te", "tu", "su", "ya", "yo", "ni", "y", "o", "e", "in", "pe", "ca", "hoy", "mas", "muy",
+         "dia", "son", "ser", "hay", "esa", "ese", "eso", "sus", "mis", "tus", "nos", "has",
+         "ha", "he", "da", "va", "ve", "ir", "fe", "ti", "id", "md", "mu", "ee", "ed"}
+
+
+def _siglas(nombre: str) -> str:
+    """'Fundamentos de Inteligencia Artificial' → 'ia' (sin palabras genéricas)."""
+    return "".join(p[0] for p in _norm(nombre).split()
+                   if len(p) > 3 and p not in _GENERICAS)
+
+
+def _sigla_util(sig: str) -> bool:
+    return len(sig) >= 2 and sig not in _STOP
 
 
 def _palabras_clave(nombre: str) -> set:
-    """Palabras distintivas de una materia: 'redes', 'compiladores', 'agentes'…"""
-    return {p for p in _norm(nombre).split() if len(p) >= 3 and p not in _GENERICAS}
+    """Palabras distintivas de una materia: 'redes', 'embebidos', 'nube'…"""
+    return {p for p in _norm(nombre).split()
+            if len(p) >= 3 and p not in _GENERICAS and p not in _STOP}
+
+
+def _puntaje(clave: str, m, frase: str, palabras: set) -> int:
+    """Qué tan claramente una frase habla de una materia: 3 = nombre completo,
+    clave o sigla; si no, cuántas palabras distintivas comparte."""
+    sig = _siglas(m.nombre)
+    if (_norm(m.nombre) in frase or clave.lower() in palabras
+            or (_sigla_util(sig) and sig in palabras)):
+        return 3
+    return len(_palabras_clave(m.nombre) & palabras)
 
 
 def _mencionada(clave: str, materias: dict, texto: str) -> bool:
     """¿Hay evidencia en el texto de que el alumno habló de esta materia?"""
     t = _norm(texto)
-    palabras = set(re.findall(r"\w+", t))
-    m = materias[clave]
-    sig = _siglas(m.nombre)
-    return bool(_norm(m.nombre) in t or clave.lower() in palabras
-                or (len(sig) >= 2 and sig in palabras)
-                or _palabras_clave(m.nombre) & palabras)
+    return _puntaje(clave, materias[clave], t, set(re.findall(r"\w+", t))) > 0
 
 
 def buscar_materia(texto: str, materias: dict) -> str | None:
@@ -76,7 +102,7 @@ def buscar_materia(texto: str, materias: dict) -> str | None:
         if t == clave.lower() or t == _norm(m.nombre):
             return clave
     for clave, m in materias.items():
-        if len(t) >= 2 and t == _siglas(m.nombre):
+        if _sigla_util(t) and t == _siglas(m.nombre):
             return clave
     for clave, m in materias.items():
         if len(t) >= 4 and t in _norm(m.nombre):
@@ -123,12 +149,10 @@ def _por_reglas(texto: str, materias: dict) -> dict:
     for f in frases:
         negativa = re.search(r"\b(no quiero|no me gusta|evitar|sin|odio|nada de)\b", f)
         palabras = set(re.findall(r"\w+", f))
-        for clave, mat in materias.items():
-            sig = _siglas(mat.nombre)
-            if (_norm(mat.nombre) in f or clave.lower() in palabras
-                    or (len(sig) >= 2 and sig in palabras)
-                    or _palabras_clave(mat.nombre) & palabras):
-                (evitar if negativa else interes).append(clave)
+        puntos = {c: _puntaje(c, mat, f, palabras) for c, mat in materias.items()}
+        mejor = max(puntos.values(), default=0)
+        if mejor:   # solo las que mejor coinciden: "inteligencia artificial" ≠ "inteligencia de datos"
+            (evitar if negativa else interes).extend(c for c, p in puntos.items() if p == mejor)
     r["materias_interes"] = sorted(set(interes))
     r["materias_evitar"] = sorted(set(evitar))
     return r
@@ -192,7 +216,7 @@ def construir_preferencias(est, materias: dict, texto: str = "", llm=None) -> di
         "tipo_carga": tipo, "creditos_objetivo": cobj, "max_materias": maxm,
         "turno": turno, "peso_turno": prio_t,
         "modalidad": modalidad, "peso_modalidad": prio_m,
-        "dias_libres": [], "peso_dias": 3,
+        "dias_libres": [], "peso_dias": 6,   # un día libre pedido explícitamente pesa el doble que el turno
         "materias_interes": [], "materias_evitar": [],
         "fuente": {k: "ontología" for k in ("tipo_carga", "turno", "modalidad")},
         "interpretado_por": "solo ontología",

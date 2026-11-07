@@ -34,11 +34,17 @@ PESOS = {
 }
 
 # Traducción de "tipo de carga" a metas concretas
+# Calibrado al plan real de la Ibero (materias de 2 a 8 créditos, ~6 en
+# promedio; el semestre ideal carga 32-42 créditos en 6-8 materias).
 CARGA_TIPO = {
-    "ligera": {"creditos": 32, "max_materias": 4, "max_dificiles": 1},
-    "normal": {"creditos": 40, "max_materias": 5, "max_dificiles": 2},
-    "pesada": {"creditos": 48, "max_materias": 6, "max_dificiles": 3},
+    "ligera": {"creditos": 30, "max_materias": 5, "max_dificiles": 2},
+    "normal": {"creditos": 40, "max_materias": 7, "max_dificiles": 3},
+    "pesada": {"creditos": 48, "max_materias": 8, "max_dificiles": 4},
 }
+
+# El plan real trae muchas optativas (13 de Reflexión Universitaria, 10 del
+# Área Menor): sin un tope, una carga "pesada" se llena de optativas.
+MAX_OPTATIVAS = 2         # optativas por periodo como máximo
 
 TOP_COMBINACIONES = 6     # propuestas que el AgenteCarga envía en el Contract Net
 MAX_CANDIDATAS = 12       # materias candidatas que se combinan como máximo

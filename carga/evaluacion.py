@@ -50,10 +50,15 @@ def analizar_elegibilidad(kb, est) -> tuple[dict, dict]:
 
 
 def prioridad_academica(kb, est, clave) -> float:
-    """0..1 — rezago, obligatoriedad, materias que desbloquea, recursamiento."""
+    """0..1 — rezago, obligatoriedad, materias que desbloquea, recursamiento.
+
+    En una optativa el "semestre ideal" solo indica desde cuándo se puede
+    tomar, así que su rezago pesa poco (si no, para una alumna de 6.º las
+    optativas de 4.º parecerían más urgentes que sus obligatorias)."""
     m = kb.materias[clave]
     rezago = est.semestre - m.semestre
-    p = 0.40 * max(0.0, min(1.0, (rezago + 1) / 3))
+    peso_rezago = 0.40 if m.obligatoria else 0.15
+    p = peso_rezago * max(0.0, min(1.0, (rezago + 1) / 3))
     p += 0.20 if m.obligatoria else 0.0
     p += 0.25 * min(1.0, len(m.desbloquea) / 3)
     p += 0.15 if clave in est.reprobadas else 0.0
@@ -131,6 +136,8 @@ def c_carga(kb, prop, prefs) -> float:
     s2 = 1.0 if n <= prefs["max_materias"] else max(0.0, 1 - 0.3 * (n - prefs["max_materias"]))
     dificiles = sum(kb.materias[c].dificultad >= 4 for c in prop.materias)
     exceso = max(0, dificiles - prefs["max_dificiles"])
+    optativas = sum(not kb.materias[c].obligatoria for c in prop.materias)
+    exceso += max(0, optativas - config.MAX_OPTATIVAS)
     s3 = max(0.0, 1 - 0.3 * exceso)
     return 100 * (0.5 * s1 + 0.25 * s2 + 0.25 * s3)
 

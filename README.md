@@ -10,6 +10,14 @@ Esta versión reemplaza a `../integracion_ontologica.ipynb` y conserva el diseñ
 del Proyecto 2: las mismas fichas de agentes, los mismos pesos de evaluación, la
 misma función v(S) y la misma ontología.
 
+> **Datos.** El plan de estudios es el **real** de Ingeniería en Sistemas
+> Computacionales de la Ibero Puebla (programa 2801): 79 materias con sigla,
+> créditos, semestre ideal, horas y seriación, exportadas del portal **Intrauia** e
+> importadas con `datos/importar_intrauia.py` → `datos/plan_ibero.json`. Son
+> **sintéticos**: la dificultad de cada materia (heurística), la oferta del periodo
+> (grupos, horarios, cupos y modalidades, generados de forma reproducible a partir del
+> plan real), los profesores, los alumnos y el rango de 24–48 créditos por periodo.
+
 ---
 
 ## 1. Por qué fallaba el prototipo anterior (y por qué se reiniciaba la laptop)
@@ -18,7 +26,7 @@ misma función v(S) y la misma ontología.
 |---|---|---|
 | Ollama intentaba usar la **GPU integrada Radeon (gfx90c)**, que ROCm no soporta | Última celda del notebook: `ROCm error: invalid device function` | `iniciar_ollama_cpu.sh` oculta todas las GPUs y fuerza CPU. Además, cada petición manda `num_gpu: 0` |
 | CrewAI usa el endpoint `/v1` de Ollama, que **ignora** `num_gpu` | código de `crewai/llms/providers/openai_compatible` | La GPU se desactiva en el **servidor**, no en la petición |
-| La ontología **no tenía individuos** (ni alumnos, ni materias, ni grupos) | `P2_ontologia_carga_academica.owx`: 0 `ClassAssertion` | `datos/semilla.py` + `carga/poblar.py` la pueblan con 203 individuos |
+| La ontología **no tenía individuos** (ni alumnos, ni materias, ni grupos) | `P2_ontologia_carga_academica.owx`: 0 `ClassAssertion` | `datos/semilla.py` + `carga/poblar.py` la pueblan con 449 individuos (con el plan real de Intrauia) |
 | La herramienta buscaba `"P2_ontologia_carga_academica (1).owx"`, un archivo que no existe | celda 3 del notebook | Rutas centralizadas en `carga/config.py` |
 | Todo el razonamiento dependía del LLM (4 agentes en modo jerárquico, más de 20 llamadas en CPU) | — | El razonamiento lo hacen Python y la ontología (milisegundos). El LLM solo hace **2 llamadas** |
 | El `venv` mezclaba Python 3.14 y 3.12 (`python` → 3.14, paquetes en 3.12) | `venv/pyvenv.cfg` | `.venv` nuevo y limpio con Python 3.12 |
@@ -117,7 +125,7 @@ Tiempos medidos en tu laptop:
 | Agente | Comportamiento experto | Comportamiento "ingenuo" (cuando no participa, para Shapley) |
 |---|---|---|
 | **A: Historial** | Kárdex (vía SPARQL), prerrequisitos, seriación y oferta del periodo. Prioriza materias reprobadas, rezagadas y "llave" | Supone que todo lo ofertado es válido |
-| **B: Carga** | Combina materias dentro de 24–48 créditos y de la meta del alumno (ligera, normal o pesada), y limita las materias difíciles | Toma 5 materias "de arriba hacia abajo" |
+| **B: Carga** | Combina materias dentro de 24–48 créditos y de la meta del alumno (ligera, normal o pesada), y limita las materias difíciles y las optativas (máx. 2) | Toma 5 materias "de arriba hacia abajo" |
 | **C: Horarios** | Interpreta las preferencias, asigna grupos sin choques que respeten turno, modalidad y días libres, y si hay choques propone una variante | Toma el primer grupo de cada materia sin revisar choques |
 | **Manager** | Evalúa con la función del Proyecto 2, adjudica, calcula Shapley y redacta | Siempre presente (coordinador) |
 
@@ -138,7 +146,7 @@ El LLM no decide nada: **interpreta** y **redacta**.
 ## 5. Integración ontológica (tema 5 del curso)
 
 - **TBox:** `ontologia/P2_ontologia_carga_academica.owx` (tu archivo original, sin cambios).
-- **ABox:** `python main.py poblar` genera `ontologia/carga_academica_poblada.owl` con 27 materias, 35 grupos, 7 profesores, 3 alumnos con registros y preferencias, y los 4 agentes. También materializa `enConflictoCon` (34 pares de grupos).
+- **ABox:** `python main.py poblar` genera `ontologia/carga_academica_poblada.owl` (449 individuos) con las 79 materias reales y su seriación, 97 grupos, 12 profesores ficticios, 3 alumnos con registros y preferencias, y los 4 agentes. También materializa `enConflictoCon` (295 pares de grupos).
 - **Clases definidas** (Lógica Descriptiva) que clasifica HermiT:
 
 | Clase | Definición (Manchester) |
@@ -150,6 +158,7 @@ El LLM no decide nada: **interpreta** y **redacta**.
 | `EstudianteConAdeudo` | `Estudiante and tieneRegistro some RegistroReprobado` |
 
   Para que `min 2` funcione se declara `AllDifferent` entre materias: OWL no asume nombres únicos (OWA).
+  Con el plan real, HermiT deduce 3 materias llave: Programación Avanzada y Algoritmos (LIIS2105), Diseño y Gestión de Bases de Datos I (LIIS2112) y Persona y Humanismo (LYRU2101).
 
 ### Consultas DL Query para Protégé
 Abre `salidas/kb_A001.owl`, inicia HermiT (Reasoner → Start reasoner) y prueba:
@@ -158,12 +167,12 @@ Abre `salidas/kb_A001.owl`, inicia HermiT (Reasoner → Start reasoner) y prueba
 Materia and puedeSerCursadaPor value est_A001
 MateriaLlave
 EstudianteConAdeudo
-Grupo and esOfertaDe value mat_IAR501 and tieneModalidad some ModalidadPresencial
-Grupo and enConflictoCon value grp_SOP401_B
+Grupo and esOfertaDe value mat_LIIS2109 and tieneModalidad some ModalidadPresencial
+Grupo and enConflictoCon value grp_LIIS2112_B
 GrupoVespertino and GrupoEnLinea
 Materia and tienePrerrequisito some (Materia and aprobadaPor value est_A002)
 PropuestaCarga and esValida value true
-PropuestaCarga and puntuacion some xsd:decimal[>= 88.0]
+PropuestaCarga and puntuacion some xsd:decimal[>= 92.0]
 Agente and valorShapley some xsd:decimal[> 25.0]
 ```
 
@@ -177,7 +186,11 @@ agente-carga3/
 ├── demo.ipynb               demostración paso a paso
 ├── iniciar_ollama_cpu.sh    Ollama sin GPU (evita el crash de ROCm)
 ├── requirements.txt
-├── datos/semilla.py         ← edita aquí materias, grupos y alumnos
+├── datos/
+│   ├── intrauia/            exportación del portal (NO se versiona: trae datos de sesión)
+│   ├── importar_intrauia.py exportación → plan_ibero.json (con validación)
+│   ├── plan_ibero.json      plan de estudios real (79 materias)
+│   └── semilla.py           ← oferta generada, profesores y alumnos
 ├── ontologia/
 │   ├── P2_ontologia_carga_academica.owx   TBox original
 │   └── carga_academica_poblada.owl        TBox + ABox (generada)
@@ -198,4 +211,7 @@ agente-carga3/
 └── salidas/                 reportes, trazas y ontologías de resultado
 ```
 
-Para agregar alumnos o materias, edita `datos/semilla.py` y ejecuta `python main.py poblar`.
+Para cambiar el plan: vuelve a exportar de Intrauia a `datos/intrauia/plan_isc.txt` y
+ejecuta `python datos/importar_intrauia.py`. Para agregar alumnos o cambiar la oferta,
+edita `datos/semilla.py`. En ambos casos, después, ejecuta `python main.py poblar`
+(detalle en la sección 14 de `GUIA_EJECUCION.md`).

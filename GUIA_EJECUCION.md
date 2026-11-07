@@ -2,9 +2,21 @@
 
 Esta guía explica, paso a paso, cómo correr el sistema y cómo funciona por dentro.
 **Todas las salidas que aparecen aquí son reales:** se obtuvieron ejecutando cada paso
-en tu laptop (Fedora 44, Ryzen 7 5700U, 14 GB de RAM) el 5 de noviembre de 2026.
-Las bitácoras completas de esas ejecuciones están en `salidas/_verificacion/`
-(sección 17).
+en tu laptop (Fedora 44, Ryzen 7 5700U, 14 GB de RAM). Las bitácoras completas están en
+`salidas/_verificacion/` (sección 17).
+
+> **Datos: qué es real y qué es sintético.** Desde el 6 de noviembre de 2026 el plan de
+> estudios es el **real** de Ingeniería en Sistemas Computacionales de la Ibero Puebla
+> (programa 2801): 79 materias con su sigla, créditos, semestre ideal, horas y seriación,
+> exportadas del portal **Intrauia** (sección 14). Son **sintéticos**: la dificultad de
+> cada materia (heurística), la oferta de Primavera 2027 (grupos, horarios, cupos y
+> modalidades, generados a partir del plan real), los profesores, los alumnos y el rango
+> de 24–48 créditos por periodo.
+>
+> Las salidas de los pasos 2 a 6 y 10 a 12 se regeneraron el 6 de noviembre con el plan
+> real. Las de los pasos 8 y 9 (LLM y CrewAI) son de la verificación del 5 de noviembre,
+> **con el catálogo sintético anterior** (claves como `IAR501` o `SOP401`): el
+> funcionamiento es el mismo, solo cambian los nombres de las materias.
 
 > **Convención:** las líneas que empiezan con `$` son comandos que escribes en la
 > terminal (sin el `$`). Lo demás es lo que debe aparecer en pantalla.
@@ -38,19 +50,24 @@ Las bitácoras completas de esas ejecuciones están en `salidas/_verificacion/`
 | # | Prueba | Resultado | Tiempo |
 |---|---|---|---|
 | 0 | Instalación limpia desde `requirements.txt` en un entorno nuevo | ✅ OK | 40 s |
-| 1 | `python main.py poblar` (genera la ontología con individuos) | ✅ 203 individuos | 0.2 s |
+| 1 | `python main.py poblar` (genera la ontología con individuos) | ✅ 449 individuos, 79 materias reales | 0.2 s |
 | 2 | `python main.py alumnos` | ✅ 3 alumnos | < 1 s |
-| 3 | `python main.py demo` (3 alumnos, sin LLM) | ✅ | 0.5 s |
-| 4 | `recomendar A001 --sin-llm` | ✅ 89.17/100 | < 1 s |
-| 5 | `recomendar A003 --razonador` (HermiT en Java) | ✅ 6 clases inferidas | 1.9 s |
+| 3 | `python main.py demo` (3 alumnos, sin LLM) | ✅ | 0.9 s |
+| 4 | `recomendar A001 --sin-llm` | ✅ 92.29/100 | < 1 s |
+| 5 | `recomendar A003 --razonador` (HermiT en Java) | ✅ 6 clases inferidas | 5 s |
 | 6 | 10 consultas DL Query sobre la ontología de salida | ✅ todas con resultado correcto | — |
-| 7 | `demo.ipynb` completo con su kernel | ✅ 7 celdas, 0 errores | 3 s |
+| 7 | `demo.ipynb` completo con su kernel | ✅ 7 celdas, 0 errores | 6 s |
 | 8 | Casos de error (alumno inexistente, Ollama apagado) | ✅ mensajes claros, no truena | — |
 | 9 | Ollama solo CPU: `library=cpu`, **VRAM = 0 bytes** | ✅ | — |
 | 10 | `recomendar` con LLM (interpretación + redacción) | ✅ | 67 s (1ª vez), 24 s (2ª), 0.4 s (caché) |
 | 11 | `crew A001` (CrewAI secuencial, 4 agentes, 4 herramientas) | ✅ | 4 min |
 | 12 | `crew A002 --proceso jerarquico` (Manager delega a los especialistas) | ✅ 4 herramientas | 5 min 20 s |
 | 13 | Agregar un alumno nuevo (A004) en `datos/semilla.py` | ✅ | < 1 s |
+| 14 | Importar el plan real de Intrauia (`datos/importar_intrauia.py`) | ✅ 79 materias, 0 errores de validación | < 1 s |
+| 15 | Reglas duras en las 3 recomendaciones (seriación, choques, créditos, optativas, días libres) | ✅ las 3 pasan | < 1 s |
+
+Las pruebas 0, 8 a 12 son de la verificación del 5 de noviembre (catálogo sintético). Las
+demás se repitieron el 6 de noviembre con el plan real.
 
 **Tres problemas que encontré durante esta verificación y ya están corregidos:**
 
@@ -163,8 +180,11 @@ los individuos definidos en `datos/semilla.py`:
 ```text
 $ python main.py poblar
 ✔ Ontología poblada: ontologia/carga_academica_poblada.owl
-  203 individuos | 27 materias | 35 grupos | 3 estudiantes | 34 pares de grupos en conflicto
+  449 individuos | 79 materias | 97 grupos | 3 estudiantes | 295 pares de grupos en conflicto
 ```
+
+Las 79 materias son las del plan real (`datos/plan_ibero.json`). Los 97 grupos se
+generan con una semilla fija a partir de ese plan, así que salen iguales en cada corrida.
 
 No es necesario ejecutarlo la primera vez, porque el archivo ya existe. Solo vuelve a
 correrlo cuando edites `datos/semilla.py`. Tu archivo original
@@ -174,9 +194,9 @@ correrlo cuando edites `datos/semilla.py`. Tu archivo original
 
 ```text
 $ python main.py alumnos
-A001  Ana Torres Medina        sem 5  prom 8.79  aprobadas 15  reprobadas ['SOP401']
-A002  Luis Hernández Rojas     sem 3  prom 7.93  aprobadas  6  reprobadas ['MAT201']
-A003  Sofía Ramírez Lara       sem 6  prom 9.56  aprobadas 18  reprobadas -
+A001  Ana Torres Medina        sem 5  prom 8.78  aprobadas 27  reprobadas ['LIIS2105']
+A002  Luis Hernández Rojas     sem 3  prom 7.79  aprobadas 14  reprobadas ['LICB2103']
+A003  Sofía Ramírez Lara       sem 6  prom 9.3  aprobadas 36  reprobadas -
 ```
 
 Cada dato sale de la ontología. Las materias aprobadas y reprobadas se obtienen con una
@@ -185,9 +205,13 @@ Cada dato sale de la ontología. Las materias aprobadas y reprobadas se obtienen
 
 | Alumno | Para qué sirve en la demo |
 |---|---|
-| **A001 Ana** | Reprobó Sistemas Operativos, que bloquea Sistemas Distribuidos. Sirve para ver si el sistema prioriza recursar. Prefiere la tarde y la modalidad presencial |
-| **A002 Luis** | Va atrasado y reprobó Cálculo Integral. Le quedan pocas materias válidas. Quiere una carga ligera |
-| **A003 Sofía** | Alumna avanzada que quiere adelantar (carga pesada) y prefiere en línea |
+| **A001 Ana** | Reprobó **Programación Avanzada y Algoritmos** (LIIS2105), una materia llave: bloquea Paradigmas, Móviles, Web y Ambientes Virtuales y Juegos. Sirve para ver si el sistema prioriza recursar. Trabaja en las mañanas: prefiere la tarde y la modalidad presencial |
+| **A002 Luis** | Reprobó **Cálculo Diferencial e Integral** (LICB2103), que bloquea Cálculo Multivariable. Quiere una carga ligera |
+| **A003 Sofía** | Alumna regular y sobresaliente (todo aprobado hasta 5.º) que quiere adelantar (carga pesada) y prefiere en línea |
+
+Los kárdex se generan con la función `_kardex` de `datos/semilla.py`: "todas las
+obligatorias hasta el semestre N, menos estas". La función verifica que nadie tenga
+aprobada una materia sin su prerrequisito real.
 
 ---
 
@@ -195,18 +219,18 @@ Cada dato sale de la ontología. Las materias aprobadas y reprobadas se obtienen
 
 ```text
 $ time python main.py demo
- CARGA RECOMENDADA (40 créditos · puntuación 89.17/100)       ← A001
- Shapley: Historial 41.91 | Carga 20.43 | Horarios 26.83
- CARGA RECOMENDADA (32 créditos · puntuación 96.25/100)       ← A002
- Shapley: Historial 42.87 | Carga 27.49 | Horarios 25.89
- CARGA RECOMENDADA (44 créditos · puntuación 84.7/100)        ← A003
- Shapley: Historial 37.16 | Carga 27.93 | Horarios 19.61
-python main.py demo  0.49s user 0.04s system 98% cpu 0.544 total
+ CARGA RECOMENDADA (40 créditos · puntuación 92.29/100)       ← A001
+ Shapley: Historial 40.04 | Carga 25.67 | Horarios 26.57
+ CARGA RECOMENDADA (30 créditos · puntuación 94.53/100)       ← A002
+ Shapley: Historial 42.12 | Carga 25.81 | Horarios 26.61
+ CARGA RECOMENDADA (48 créditos · puntuación 84.39/100)       ← A003
+ Shapley: Historial 28.1 | Carga 31.31 | Horarios 24.97
+python main.py demo  0.88s user 0.05s system 99% cpu 0.935 total
 ```
 
 (Arriba se muestra solo el resumen; en pantalla verás el bloque completo de cada alumno.)
 
-En **medio segundo** procesa a los 3 alumnos: Contract Net, 8 coaliciones de Shapley
+En **menos de un segundo** procesa a los 3 alumnos: Contract Net, 8 coaliciones de Shapley
 por alumno, el reporte y la escritura en la ontología. El prototipo anterior tardaba
 minutos y terminaba con el error de ROCm.
 
@@ -225,26 +249,29 @@ Salida real, comentada por bloques:
 ```text
 ▶ Contract Net para Ana Torres Medina (A001)
   [      cfp       ] AgenteManager → AgenteHistorial: ¿Qué materias puede cursar A001?
-  [    propose     ] AgenteHistorial → AgenteManager: válidas: SOP401, IAR501, OPT03, CMP501, SEG501, WEB501, OPT04, DSC601, OPT01, OPT02
+  [    propose     ] AgenteHistorial → AgenteManager: válidas: LIIS2105, LIIS2112, LIIB2104, LICB2102, LIIE2104, LIIS2113, LIIS2114, LIIN2103, LIIS2106, LIIS2108, LIIS2117, LICB1229, LIIE2103, LIII0428, LIIN2105, LIIN2106, LIIS2109, LIIS2120, LRSS2102, LYRU2118, LYRU2104, LYRU2110, LYRU2111, LYRU2113, LIIN2110, LIIS2122, LIIS2123, LIIS2124
   [      cfp       ] AgenteManager → AgenteCarga: Combinaciones entre 24-48 créditos, meta 40
-  [    propose     ] AgenteCarga → AgenteManager: 6 combinaciones (mejor: SOP401, IAR501, SEG501, WEB501, DSC601)
+  [    propose     ] AgenteCarga → AgenteManager: 6 combinaciones (mejor: LIIS2105, LIIS2112, LIIB2104, LICB2102, LIIE2104, LIIS2113)
   [      cfp       ] AgenteManager → AgenteHorarios: Asignar grupos a 6 combinaciones
   [    propose     ] AgenteHorarios → AgenteManager: 6 propuestas con horario
-  [accept-proposal ] AgenteManager → *: P1 (89.17): SOP401, IAR501, SEG501, WEB501, DSC601
-  [reject-proposal ] AgenteManager → *: P2 (89.02)
-  [reject-proposal ] AgenteManager → *: P3 (88.79)
-  [reject-proposal ] AgenteManager → *: P4 (88.64)
-  [reject-proposal ] AgenteManager → *: P5 (87.95)
-  [reject-proposal ] AgenteManager → *: P6 (87.35)
+  [accept-proposal ] AgenteManager → *: P3 (92.29): LIIS2105, LIIS2112, LIIB2104, LICB2102, LIIE2104, LIIS2106
+  [reject-proposal ] AgenteManager → *: P4 (92.29)
+  [reject-proposal ] AgenteManager → *: P1 (91.88)
+  [reject-proposal ] AgenteManager → *: P5 (91.79)
+  [reject-proposal ] AgenteManager → *: P6 (91.79)
+  [reject-proposal ] AgenteManager → *: P2 (91.38)
 ```
 
 Cómo leerlo:
 
 - **`cfp`** (*call for proposals*): el Manager pide propuestas a un especialista.
-- **`propose`**: el especialista responde. El Historial manda las 10 materias válidas,
-  ordenadas por prioridad. SOP401 va primero porque Ana la reprobó y bloquea SDI601.
+- **`propose`**: el especialista responde. El Historial manda las 28 materias válidas,
+  ordenadas por prioridad. LIIS2105 va primero porque Ana la reprobó y desbloquea 4
+  materias.
 - **`accept-proposal` / `reject-proposal`**: el Manager califica las 6 propuestas con la
-  función de evaluación, adjudica la mejor (P1) y rechaza las demás.
+  función de evaluación, adjudica la mejor y rechaza las demás. Aquí gana P3 y no P1: la
+  mejor combinación del AgenteCarga (P1) quedó por debajo una vez que el AgenteHorarios le
+  asignó grupos. P3 y P4 empatan en 92.29; el desempate es por identificador (P3 antes que P4).
 
 Son las performativas del protocolo Contract Net, con el estilo FIPA-ACL/KQML del tema 5.
 
@@ -253,41 +280,44 @@ Son las performativas del protocolo Contract Net, con el estilo FIPA-ACL/KQML de
 ```text
 ══════════════════════════════════════════════════════════════════════════════
  Ana Torres Medina (A001) · semestre 5 · Primavera 2027
- Preferencias: carga normal (~40 créditos, máx. 5 materias); turno vespertino; modalidad presencial
+ Preferencias: carga normal (~40 créditos, máx. 7 materias); turno vespertino; modalidad presencial
    ↳ interpretadas por: solo ontología
 ══════════════════════════════════════════════════════════════════════════════
- CARGA RECOMENDADA (40 créditos · puntuación 89.17/100)
-  • SOP401  Sistemas Operativos              SOP401-A  presencial Mar 09-11, Jue 09-11
-  • IAR501  Inteligencia Artificial          IAR501-B  presencial Lun 17-19, Mie 17-19
-  • SEG501  Seguridad Informática            SEG501-B  en_linea   Vie 15-19
-  • WEB501  Desarrollo Web                   WEB501-B  presencial Mar 07-09, Jue 07-09
-  • DSC601  Ciencia de Datos                 DSC601-A  hibrida    Lun 15-17, Mie 15-17
-  Criterios: avance 81.9 | compatibilidad 100 | carga 100.0 | preferencias 73.0
+ CARGA RECOMENDADA (40 créditos · puntuación 92.29/100)
+  • LIIS2105 Programación Avanzada y Algoritm LIIS2105-B presencial Mar 11-13, Jue 11-13
+  • LIIS2112 Diseño y Gestión de Bases de Dat LIIS2112-A presencial Lun 07-09, Mie 07-09
+  • LIIB2104 Proyecto de Ingeniería IV        LIIB2104-B presencial Lun 17-19
+  • LICB2102 Estadística y Probabilidad       LICB2102-A presencial Lun 19-21, Mie 19-21
+  • LIIE2104 Circuitos Electrónicos I         LIIE2104-B presencial Mar 17-19, Jue 17-19
+  • LIIS2106 Sistemas Embebidos I             LIIS2106-A presencial Vie 15-19
+  Criterios: avance 84.3 | compatibilidad 100 | carga 100.0 | preferencias 85.0
 
- Shapley: Historial 41.91 | Carga 20.43 | Horarios 26.83
+ Shapley: Historial 40.04 | Carga 25.67 | Horarios 26.57
 ```
 
 - **"interpretadas por: solo ontología"**: como no se escribió ninguna petición (`-p`), se
   usan las preferencias que Ana tiene guardadas en la ontología (`PreferenciaHorario`,
   `PreferenciaModalidad` y `PreferenciaCarga`).
 - **Los 4 criterios** son los del Proyecto 2 (0 a 100 cada uno). La puntuación es
-  0.30·81.9 + 0.25·100 + 0.25·100 + 0.20·73 = **89.17**. La [sección 15.3](#153-la-función-de-evaluación-paso-a-paso)
+  0.30·84.3 + 0.25·100 + 0.25·100 + 0.20·85 = **92.29**. La [sección 15.3](#153-la-función-de-evaluación-paso-a-paso)
   hace el cálculo completo.
-- **¿Por qué SOP401 va en la mañana si Ana prefiere la tarde?** Su grupo de la tarde
-  (SOP401-B, lunes y miércoles de 15 a 17) choca con Ciencia de Datos. El sistema prefirió
-  recursar SOP401 en la mañana antes que dejarla fuera.
-- **Shapley**: cuánto aportó cada especialista. La suma es 41.91 + 20.43 + 26.83 = 89.17,
-  igual a la puntuación final (propiedad de eficiencia).
+- **¿Por qué dos materias van en la mañana si Ana prefiere la tarde?** El grupo de la tarde
+  de LIIS2105 (A, lunes y miércoles de 17 a 19) choca con LIIB2104-B, y el de LIIS2112
+  (B, lunes y miércoles de 17 a 19) también. El sistema prefirió recursar la materia llave
+  y avanzar en Bases de Datos en la mañana antes que dejarlas fuera.
+- **Shapley**: cuánto aportó cada especialista. La suma es 40.04 + 25.67 + 26.57 = 92.28 ≈
+  92.29 (redondeo), igual a la puntuación final (propiedad de eficiencia).
 
 ### 6.3 La explicación y los archivos generados
 
 ```text
- Ana, para Primavera 2027 te recomendamos inscribir 5 materias (40 créditos): Sistemas
- Operativos, Inteligencia Artificial, Seguridad Informática, Desarrollo Web, Ciencia de
- Datos. Se prioriza recursar Sistemas Operativos porque es prerrequisito de materias
+ Ana, para Primavera 2027 te recomendamos inscribir 6 materias (40 créditos): Programación
+ Avanzada y Algoritmos, Diseño y Gestión de Bases de Datos I, Proyecto de Ingeniería IV,
+ Estadística y Probabilidad, Circuitos Electrónicos I, Sistemas Embebidos I. Se prioriza
+ recursar Programación Avanzada y Algoritmos porque es prerrequisito de materias
  posteriores. La combinación cumple el rango institucional de 24–48 créditos y obtuvo
- 89.17/100 en la evaluación del coordinador. No hay choques de horario y el ajuste a tus
- preferencias de turno, modalidad e intereses es de 73.0/100.
+ 92.29/100 en la evaluación del coordinador. No hay choques de horario y el ajuste a tus
+ preferencias de turno, modalidad e intereses es de 85.0/100.
    (plantilla (sin LLM))
 ══════════════════════════════════════════════════════════════════════════════
  reporte   → salidas/reporte_A001.md
@@ -306,8 +336,17 @@ $ python main.py recomendar A002 --sin-llm -p "quiero algo ligero, en la mañana
 
 Aunque uses `--sin-llm`, puedes escribir una petición con `-p`: el **analizador por
 reglas** la interpreta. Detecta tipo de carga, turno, modalidad, días libres, materias
-de interés o a evitar (por nombre, siglas como "IA" o "POO", o palabras como "redes") y
-un número de materias.
+de interés o a evitar (por nombre, sigla de Intrauia como `LIIS2109`, siglas como "IA"
+o palabras como "redes" o "nube") y un número de materias.
+
+Con los nombres reales hubo que cuidar dos cosas en `carga/preferencias.py`:
+- **Palabras comunes que parecían siglas o palabras clave.** "Sistemas Informáticos en los
+  Negocios" daría la sigla "sin", así que "sin viernes" la habría marcado para evitar. Lo
+  mismo pasaba con "por" (Dibujo por Computadora) y "al" (Álgebra Lineal). Esas palabras
+  ya no cuentan.
+- **Varias materias comparten palabras.** "Inteligencia artificial" también tocaba
+  "Inteligencia de Datos". Ahora, en cada frase, solo cuentan las materias que mejor
+  coinciden.
 
 ---
 
@@ -322,40 +361,47 @@ previa. Estas son sus secciones, con los valores reales de A003:
 | **Recomendación final** | La explicación y quién la redactó |
 | **Propuesta ganadora** | Clave, materia, créditos, grupo, modalidad, horario y profesor |
 | **Horario semanal** | Cuadrícula lunes a viernes por hora (un `⚠` marca los choques) |
-| **Materias descartadas** | P. ej. `AGI601 Agentes Inteligentes: falta prerrequisito: IAR501` |
+| **Materias descartadas** | P. ej. `LIIS2107 Sistemas Embebidos II: falta prerrequisito: LIIS2106` o `LYRU2102 …: no se oferta en Primavera 2027` |
 | **Propuestas evaluadas** | Las 6 propuestas con sus 4 criterios y su total. La ganadora lleva ✅ |
 | **Valores de Shapley** | La tabla v(S) de las 8 coaliciones y φ de cada agente, con su porcentaje |
 | **Inferencias de HermiT** | Solo si usaste `--razonador` |
 | **Mensajes del Contract Net** | El diálogo FIPA completo |
 | **Trazas de ejecución** | Hora, agente, tarea, salida, tiempo, éxito y score (sección 3.2 del Proyecto 2) |
 
-Fragmento real (A003, de la ejecución del paso 6; los números cambian si cambias la petición):
+Fragmento real (A003 de la demo, con la petición "quiero adelantar, en línea, me interesa
+IA y la nube, no quiero métodos numéricos"; los números cambian si cambias la petición):
 
 ```text
 | Coalición S | v(S) |          | Agente              | φ     | %     |
 |---|---|                       |---|---|---|
-| {}      | 0.0   |             | AgenteHistorial (A) | 37.16 | 43.9% |
-| {A}     | 70.38 |             | AgenteCarga (B)     | 27.93 | 33.0% |
-| {B}     | 58.4  |             | AgenteHorarios (C)  | 19.61 | 23.2% |
-| {C}     | 50.33 |             | Suma                | 84.7 = v(N) | 100% |
-| {A,B}   | 81.56 |
-| {A,C}   | 73.0  |
-| {B,C}   | 66.52 |
-| {A,B,C} | 84.7  |
+| {}      | 0.0   |             | AgenteCarga (B)     | 31.31 | 37.1% |
+| {A}     | 53.78 |             | AgenteHistorial (A) | 28.1  | 33.3% |
+| {B}     | 46.53 |             | AgenteHorarios (C)  | 24.97 | 29.6% |
+| {C}     | 52.82 |             | Suma                | 84.38 ≈ v(N) | 100% |
+| {A,B}   | 72.75 |
+| {A,C}   | 53.78 |
+| {B,C}   | 67.45 |
+| {A,B,C} | 84.39 |
 ```
+
+Con Sofía el agente más valioso es el **AgenteCarga**. Ella tiene 28 materias válidas y
+quiere una carga pesada, así que el problema difícil ya no es "qué puede cursar", sino
+"cuáles 8 de esas 28". Sin el AgenteCarga, la versión ingenua toma 5 materias en orden
+del plan.
 
 `salidas/trazas_<mat>.json` contiene lo mismo en formato JSON. Ejemplo de un evento real:
 
 ```json
 {
-  "timestamp": "2026-11-05T18:32:43",
+  "timestamp": "2026-11-06T21:46:38",
   "agent": "AgenteManager",
   "task": "evaluar_propuestas_contract_net",
   "input": "6 propuestas",
-  "output": "gana P3 con 85.94",
-  "execution_time": 0.0003,
+  "output": "gana P1 con 84.39",
+  "execution_time": 0.0004,
   "success": true,
-  "score": 85.94
+  "score": 84.39,
+  "detalles": {}
 }
 ```
 
@@ -364,10 +410,13 @@ Fragmento real (A003, de la ejecución del paso 6; los números cambian si cambi
 ## 8. Paso 6: el razonador HermiT
 
 ```text
-$ time python main.py recomendar A003 -q --sin-llm --razonador -p "quiero adelantar, en línea, me interesa IA y no quiero compiladores"
+$ time python main.py recomendar A003 -q --sin-llm --razonador -p "quiero adelantar, en línea, me interesa IA y la nube, no quiero métodos numéricos"
 ...
-python main.py recomendar A003 ...  1.884 total
+python main.py recomendar A003 ...  4.967 total
 ```
+
+Con el plan real la ontología tiene 449 individuos (antes 203), por eso HermiT tarda unos
+4 s en lugar de 2.
 
 `--razonador` ejecuta **HermiT** (en Java, con el límite de memoria en 512 MB) sobre la
 ontología. HermiT **clasifica automáticamente** los individuos en las clases definidas
@@ -375,16 +424,23 @@ que se agregaron a tu TBox. Resultado real (está en el reporte):
 
 | Clase definida (Manchester) | Individuos inferidos por HermiT |
 |---|---|
-| `MateriaLlave` ≡ `Materia and esPrerrequisitoDe min 2 Materia` | ARQ301, BDD301, MAT101, MAT301, PRG201, PRG301, PRG401, RED401 |
-| `MateriaSeriada` ≡ `Materia and tienePrerrequisito some Materia` | 21 materias (todas las que tienen prerrequisito) |
-| `GrupoVespertino` ≡ `Grupo and tieneBloqueHorario some (BloqueHorario and turno value "vespertino")` | 18 grupos |
-| `GrupoEnLinea` ≡ `Grupo and tieneModalidad some ModalidadEnLinea` | AGI601-B, MAT301-B, OPT02-A, OPT03-A, PRG301-B, RED401-B, SDI601-B, SEG501-B, WEB501-A |
+| `MateriaLlave` ≡ `Materia and esPrerrequisitoDe min 2 Materia` | LIIS2105, LIIS2112, LYRU2101 |
+| `MateriaSeriada` ≡ `Materia and tienePrerrequisito some Materia` | 35 materias (todas las que tienen seriación en Intrauia) |
+| `GrupoVespertino` ≡ `Grupo and tieneBloqueHorario some (BloqueHorario and turno value "vespertino")` | 48 grupos |
+| `GrupoMatutino` ≡ `Grupo and tieneBloqueHorario some (BloqueHorario and turno value "matutino")` | 49 grupos |
+| `GrupoEnLinea` ≡ `Grupo and tieneModalidad some ModalidadEnLinea` | 15 grupos: LHLF1201-B, LICB1202-B, LICB1229-A, LICB1231-A, LIIN2103-A, LIIN2103-B, LIIN2105-A, LIIN2106-B, LIIS2102-A, LIIS2106-B, LIIS2110-B, LIIS2111-A, LIIS2114-A, LIIS2116-B, LIIS2118-B |
 | `EstudianteConAdeudo` ≡ `Estudiante and tieneRegistro some RegistroReprobado` | A001, A002 |
 
-Nadie escribió "ARQ301 es MateriaLlave": **el razonador lo dedujo**, porque ARQ301 es
-prerrequisito de SOP401 y de RED401. Para que `min 2` funcione se declaró `AllDifferent`
-entre las materias. OWL no asume nombres únicos (supuesto de mundo abierto), así que sin
-esa declaración HermiT no podría contar.
+Nadie escribió "LIIS2112 es MateriaLlave": **el razonador lo dedujo**, porque en el plan
+real Diseño y Gestión de Bases de Datos I es seriación de Bases de Datos II (LIIS2115) y de
+Cómputo en la Nube (LIIS2118). Las otras dos son Programación Avanzada y Algoritmos
+(desbloquea 4) y Persona y Humanismo (desbloquea 15: las 13 optativas de Reflexión
+Universitaria, Dilemas Éticos en la Ingeniería y Reflexión y Acción Social). Para que `min 2` funcione se declaró `AllDifferent` entre las materias.
+OWL no asume nombres únicos (supuesto de mundo abierto), así que sin esa declaración
+HermiT no podría contar.
+
+En el plan real cada materia tiene **a lo más una** seriación, por eso no hay ninguna
+materia con dos prerrequisitos.
 
 ---
 
@@ -465,6 +521,13 @@ Modelo cargado: llama3.2:latest | RAM 2.48 GB | VRAM 0 bytes
 ---
 
 ## 10. Paso 8: recomendación con LLM (lenguaje natural)
+
+> ℹ️ Las salidas de este paso y del 9 son de la verificación del 5 de noviembre, **con el
+> catálogo sintético anterior** (IAR501 = Inteligencia Artificial, SEG501 = Seguridad,
+> CMP501 = Compiladores). Con el plan real el mecanismo es idéntico: el LLM recibe el
+> catálogo de 79 nombres reales y sus respuestas pasan por la misma validación. Para
+> repetirlo, conecta el cargador (sección 9.3) y usa, por ejemplo: *"me interesan la
+> inteligencia artificial y la seguridad computacional, pero no quiero métodos numéricos"*.
 
 Con Ollama encendido, ya **no** pongas `--sin-llm`:
 
@@ -558,6 +621,8 @@ mencionaba Compiladores (`False`).
 
 ## 11. Paso 9: orquestación con CrewAI
 
+> ℹ️ Salidas del 5 de noviembre, con el catálogo sintético anterior (ver la nota del paso 8).
+
 Este modo cumple la "capa de ejecución y orquestación mediante CrewAI" del Proyecto 2.
 Requiere Ollama encendido (paso 7).
 
@@ -628,8 +693,10 @@ En el reporte, las trazas incluyen las llamadas de CrewAI:
 $ python main.py crew A001
 ⚠ CrewAI necesita Ollama (http://127.0.0.1:11435: sin respuesta; http://127.0.0.1:11434: no tiene el modelo 'llama3.2').
   Levántalo con ./iniciar_ollama_cpu.sh  — mientras tanto se ejecuta el MAS sin CrewAI.
- CARGA RECOMENDADA (40 créditos · puntuación 89.17/100)
+ CARGA RECOMENDADA (40 créditos · puntuación 92.29/100)
 ```
+
+(Esta salida sí es del 6 de noviembre, con el plan real.)
 
 ### 11.4 Modo jerárquico
 
@@ -687,18 +754,25 @@ Para usar el LLM, enciende antes `./iniciar_ollama_cpu.sh` y cambia `USAR_LLM = 
 | Celda | Qué hace | Qué verás (salida real, con `USAR_LLM = False`) |
 |---|---|---|
 | 1 | Diagnóstico + carga la ontología | Estado de Ollama y RAM |
-| 2 | Alumno A001 según la ontología | `Ana Torres Medina \| semestre 5 \| promedio 8.79`, aprobadas y reprobadas |
-| 3 | Interpreta "Me interesa inteligencia artificial, prefiero la tarde y no quiero clases los viernes" | `...sin clases: Viernes; le interesa: IAR501` |
-| 4 | Contract Net | Mensajes FIPA y las 6 propuestas. Gana P1 con 90.45 |
-| 5 | Shapley | Las 8 coaliciones: `v({A})=75.09 … v({A,B,C})=90.45` y `suma: 90.45 = v(N)` |
+| 2 | Alumno A001 según la ontología | `Ana Torres Medina \| semestre 5 \| promedio 8.78`, aprobadas y reprobadas |
+| 3 | Interpreta "Me interesa inteligencia artificial, prefiero la tarde y no quiero clases los viernes" | `...sin clases: Viernes; le interesa: LIIS2109` |
+| 4 | Contract Net | Mensajes FIPA y las 6 propuestas. Gana P4 con 93.14 |
+| 5 | Shapley | Las 8 coaliciones: `v({A})=71.88 … v({A,B,C})=93.14` y `suma: 93.13 = v(N)` (redondeo) |
 | 6 | HermiT | Las 6 clases definidas con sus individuos |
 | 7 | Cierra y muestra el reporte | El reporte Markdown completo dentro del notebook |
 
-Verificación automática: **7 celdas de código ejecutadas, 0 con error, en 3 s.**
+Verificación automática: **7 celdas de código ejecutadas, 0 con error, en 6 s.**
 
-Observa que en la celda 3 se pidió "no quiero clases los viernes" y por eso Seguridad
-Informática se movió a lunes y miércoles (grupo SEG501-A). En el paso 4, sin esa
-petición, quedaba en viernes (SEG501-B).
+Observa el efecto de la petición de la celda 3:
+- **"Me interesa inteligencia artificial"** mete Fundamentos de Inteligencia Artificial
+  (LIIS2109, de 7.º semestre y sin seriación), que en el paso 4 no aparecía.
+- **"No quiero clases los viernes"** saca Sistemas Embebidos I, que en el paso 4 iba el
+  viernes de 15 a 19, y deja Fundamentos de Sistemas Operativos en su grupo de martes y
+  jueves (LIIS2114-A) en lugar del de viernes (LIIS2114-B).
+
+El día libre pedido pesa **6**, el doble que un turno pedido (3). Con peso 3, el grupo del
+viernes ganaba porque sí cumplía el turno vespertino; en la verificación del 6 de
+noviembre eso se detectó y se corrigió.
 
 ---
 
@@ -728,42 +802,105 @@ reales:
 
 | Consulta DL Query (sintaxis Manchester) | Resultado esperado |
 |---|---|
-| `Materia and puedeSerCursadaPor value est_A001` | 10: CMP501, DSC601, IAR501, OPT01, OPT02, OPT03, OPT04, SEG501, SOP401, WEB501 |
-| `MateriaLlave` | 8: ARQ301, BDD301, MAT101, MAT301, PRG201, PRG301, PRG401, RED401 |
+| `Materia and puedeSerCursadaPor value est_A001` | 28: LICB1229, LICB2102, LIIB2104, LIIE2103, LIIE2104, LIII0428, LIIN2103, LIIN2105, LIIN2106, LIIN2110, LIIS2105, LIIS2106, LIIS2108, LIIS2109, LIIS2112, LIIS2113, LIIS2114, LIIS2117, LIIS2120, LIIS2122, LIIS2123, LIIS2124, LRSS2102, LYRU2104, LYRU2110, LYRU2111, LYRU2113, LYRU2118 |
+| `MateriaLlave` | 3: LIIS2105, LIIS2112, LYRU2101 |
 | `EstudianteConAdeudo` | 2: est_A001, est_A002 |
-| `Grupo and esOfertaDe value mat_IAR501 and tieneModalidad some ModalidadPresencial` | 2: IAR501-A, IAR501-B |
-| `Grupo and enConflictoCon value grp_SOP401_B` | 3: DSC601-A, PRG301-B, WEB501-A |
-| `GrupoVespertino and GrupoEnLinea` | 8: MAT301-B, OPT02-A, OPT03-A, PRG301-B, RED401-B, SDI601-B, SEG501-B, WEB501-A |
-| `Materia and tienePrerrequisito some (Materia and aprobadaPor value est_A002)` | 7: BDD301, FIS201, MAT201, MAT202, OPT01, PRG201, PRG301 |
-| `PropuestaCarga and esValida value true` | 1: la propuesta ganadora (`prop_A001_<fecha>_P1`) |
-| `PropuestaCarga and puntuacion some xsd:decimal[>= 88.0]` | 4 propuestas (89.17, 89.02, 88.79, 88.64) |
-| `Agente and valorShapley some xsd:decimal[> 25.0]` | 2: AgenteHistorial (41.91), AgenteHorarios (26.83) |
+| `Grupo and esOfertaDe value mat_LIIS2109 and tieneModalidad some ModalidadPresencial` | 2: LIIS2109-A, LIIS2109-B |
+| `Grupo and enConflictoCon value grp_LIIS2112_B` | 4: LIIB2102-A, LIIB2104-B, LIIS2102-B, LIIS2105-A |
+| `GrupoVespertino and GrupoEnLinea` | 7: LICB1202-B, LICB1229-A, LICB1231-A, LIIN2103-B, LIIN2105-A, LIIN2106-B, LIIS2111-A |
+| `Materia and tienePrerrequisito some (Materia and aprobadaPor value est_A002)` | 5: LICB2103, LICB2108, LIIB2102, LIIB2103, LIIM2102 |
+| `PropuestaCarga and esValida value true` | 1: la propuesta ganadora (`prop_A001_<fecha>_P3`) |
+| `PropuestaCarga and puntuacion some xsd:decimal[>= 92.0]` | 2 propuestas: P3 y P4 (las dos con 92.29) |
+| `Agente and valorShapley some xsd:decimal[> 25.0]` | 3: AgenteHistorial (40.04), AgenteCarga (25.67), AgenteHorarios (26.57) |
 
-En Protégé los grupos aparecen con su nombre de individuo (por ejemplo `grp_IAR501_A`) y
-las materias como `mat_IAR501`.
+En Protégé los grupos aparecen con su nombre de individuo (por ejemplo `grp_LIIS2109_A`) y
+las materias como `mat_LIIS2109`.
 
 Cómo leer algunas:
-- **`enConflictoCon value grp_SOP401_B`** explica por qué Ana no tomó SOP401 en la tarde:
-  ese grupo choca con DSC601-A.
+- **`enConflictoCon value grp_LIIS2112_B`** explica por qué Ana tomó Bases de Datos I en la
+  mañana: el grupo de la tarde choca con LIIB2104-B (Proyecto de Ingeniería IV) y con
+  LIIS2105-A (la materia que recursa).
 - **`puedeSerCursadaPor`** es la inversa de `puedeCursar`. La escribió el AgenteHistorial,
   pero la consulta la resuelve el razonador.
-- **`tienePrerrequisito some (… aprobadaPor value est_A002)`** devuelve las materias de
-  las que Luis aprobó **al menos un** prerrequisito, porque `some` es existencial (∃).
-  Fíjate en dos cosas:
-  - **PRG201 y MAT202 aparecen aunque Luis ya las aprobó.** La consulta no las excluye
-    porque no se lo pediste.
-  - **`some` no significa "todos los prerrequisitos".** Una materia con dos requisitos
-    aparecería aunque solo tuviera uno aprobado. En OWL, "todos aprobados" no se puede
-    deducir por el supuesto de mundo abierto (no saber que algo está aprobado no
-    significa que no lo esté). Por eso esa regla la verifica el **AgenteHistorial en
-    Python**, y su conclusión se guarda como `puedeCursar`.
+- **`tienePrerrequisito some (… aprobadaPor value est_A002)`** devuelve las materias cuyo
+  prerrequisito ya aprobó Luis, porque `some` es existencial (∃). Fíjate en dos cosas:
+  - **LIIB2102 (Proyecto de Ingeniería II) aparece aunque Luis ya la aprobó.** La
+    consulta no la excluye porque no se lo pediste.
+  - **LICB2103 (Cálculo Diferencial e Integral) aparece aunque Luis la reprobó:** su
+    prerrequisito (Matemáticas Universitarias) sí está aprobado, que es lo que pregunta la
+    consulta.
+- **`some` no significa "todos los prerrequisitos".** En el plan real cada materia tiene
+  a lo más una seriación, así que aquí no se nota. Pero en general, en OWL "todos
+  aprobados" no se puede deducir por el supuesto de mundo abierto (no saber que algo está
+  aprobado no significa que no lo esté). Por eso esa regla la verifica el
+  **AgenteHistorial en Python**, y su conclusión se guarda como `puedeCursar`.
 
 ---
 
-## 14. Paso 12: agregar tus propios alumnos o materias
+## 14. Paso 12: el plan real, tus propios alumnos y la oferta
 
-Todos los datos están en **`datos/semilla.py`**; no tienes que tocar Protégé. Esto se
-probó agregando una alumna A004.
+### 14.1 De dónde salen las materias: Intrauia
+
+El plan de estudios **no se escribe a mano**: se exporta del portal y se importa con un
+script.
+
+**1.** En Intrauia → *Plan de estudios*, elige Licenciatura → (2801) Ingeniería en
+Sistemas Computacionales. Selecciona la tabla completa, cópiala y pégala en
+`datos/intrauia/plan_isc.txt`. Cada materia ocupa 3 líneas (clave, nombre, resto de
+columnas) y el encabezado debe ser el del portal.
+
+> ⚠️ `datos/intrauia/` está en `.gitignore` y **no se sube a git**. Si guardas la página
+> completa con Ctrl+S, la carpeta `Intrauia_files/` trae datos de tu sesión (por ejemplo
+> `Acceso.html`). Solo se versiona el catálogo limpio, `datos/plan_ibero.json`.
+
+**2.** Importa y valida:
+
+```text
+$ python datos/importar_intrauia.py
+✔ 79 materias importadas → datos/plan_ibero.json
+  obligatorias: 56 (332 créditos) | optativas: 23 | seriadas: 35
+```
+
+El importador **se detiene** si la exportación tiene alguno de estos problemas:
+- una seriación que apunta a una materia que no existe;
+- una clave y una sigla de seriación que no coinciden;
+- una materia seriada con otra de su mismo semestre o de uno posterior;
+- un ciclo de seriación;
+- claves o siglas duplicadas;
+- horas totales que no cuadran.
+
+Lo que viene del portal es real. Lo que el portal no trae se **deriva**, y así queda
+anotado en el propio JSON (`_derivados`):
+
+| Campo | Cómo se obtiene |
+|---|---|
+| `obligatoria` | Por área. Son optativas el Área Menor y las de Reflexión Universitaria, salvo Persona y Humanismo (LYRU2101) y Dilemas Éticos en la Ingeniería (LYRU2118) |
+| `horas_semana` | Horas con docente / 16 semanas |
+| `dificultad` (1–5) | **Sintética**: sube con el semestre, con 8 créditos y si la imparte una coordinación técnica. Reflexión y Servicio Social = 1, laboratorios ≤ 2 |
+
+**3.** Regenera la ontología: `python main.py poblar`.
+
+### 14.2 La oferta del periodo (sintética, pero generada del plan real)
+
+`_generar_grupos()`, en `datos/semilla.py`, crea los grupos de Primavera 2027 con una
+semilla fija (2027), así que siempre salen los mismos:
+- Las materias de 1.er semestre no se abren en Primavera (solo en Otoño).
+- Las obligatorias de semestre par o del Área Mayor tienen 2 grupos (uno matutino y otro
+  vespertino). Las demás tienen 1.
+- De las optativas, solo se abren las de `OPTATIVAS_OFERTADAS` (5 de Reflexión y 5 del
+  Área Menor). Las demás aparecen como `no se oferta en Primavera 2027`.
+- El horario depende de las horas con docente: 2 h son un bloque, 4 h son dos bloques
+  (o un bloque de 4 h el viernes) y 6 h son tres bloques de 2 h o dos de 3 h.
+- Un profesor (ficticio) nunca tiene dos grupos a la misma hora.
+
+Para cambiar la oferta, edita `OPTATIVAS_OFERTADAS`, `PROFESORES` o la semilla del
+generador.
+
+### 14.3 Agregar un alumno
+
+Esto se probó agregando una alumna A004. Los kárdex se arman con `_kardex(hasta_semestre,
+excepto=…, extra=…)`: todas las obligatorias hasta ese semestre, menos las de `excepto` y
+más las optativas de `extra`. Las calificaciones se generan alrededor de `media`.
 
 **1.** En `datos/semilla.py`, dentro del diccionario `ESTUDIANTES`, después del bloque
 de `"A003": {...},`, agrega:
@@ -773,58 +910,60 @@ de `"A003": {...},`, agrega:
         "id": "est_A004",
         "nombre": "Mariana López Cruz",
         "semestre": 4,
-        "aprobadas": {
-            "MAT101": 8.5, "PRG101": 9.0, "MAT102": 8.0, "ISC101": 9.2,
-            "MAT201": 7.8, "PRG201": 8.9, "MAT202": 8.1, "FIS201": 8.4,
-            "PRG301": 8.7, "BDD301": 9.1,
-        },
-        "reprobadas": {"ARQ301": 5.8},
+        "aprobadas": _kardex(3, excepto={"LICB0423"}, media=8.6, semilla=4),
+        "reprobadas": {"LICB0423": 5.8},                               # Formulación de Proyectos
         "preferencias": {
             "turno": ("matutino", 2, "Prefiero en la mañana"),          # (valor, prioridad 1-3, texto)
             "modalidad": ("hibrida", 1, "Híbrida está bien"),           # presencial | en_linea | hibrida
-            "carga": ("normal", 2, "Carga normal", 40, 5),              # (+ créditos objetivo, máx. materias)
+            "carga": ("normal", 2, "Carga normal", 40, 7),              # (+ créditos objetivo, máx. materias)
         },
     },
 ```
+
+Si el kárdex es incoherente, por ejemplo si dejas aprobada una materia cuya seriación
+quitaste con `excepto`, `_kardex` falla con `kárdex incoherente: … sin [...]`.
 
 **2.** Regenera la ontología y pruébala:
 
 ```text
 $ python main.py poblar
 ✔ Ontología poblada: ontologia/carga_academica_poblada.owl
-  218 individuos | 27 materias | 35 grupos | 4 estudiantes | 34 pares de grupos en conflicto
+  475 individuos | 79 materias | 97 grupos | 4 estudiantes | 295 pares de grupos en conflicto
 
 $ python main.py alumnos
 ...
-A004  Mariana López Cruz       sem 4  prom 8.57  aprobadas 10  reprobadas ['ARQ301']
+A004  Mariana López Cruz       sem 4  prom 8.66  aprobadas 21  reprobadas ['LICB0423']
 
 $ python main.py recomendar A004 --sin-llm -q
- CARGA RECOMENDADA (40 créditos · puntuación 93.41/100)
-  • ARQ301  Arquitectura de Computadoras     ARQ301-A  presencial Lun 09-11, Mie 09-11
-  • MAT301  Probabilidad y Estadística       MAT301-A  presencial Mar 11-13, Jue 11-13
-  • PRG401  Análisis de Algoritmos           PRG401-A  presencial Lun 11-13, Mie 11-13
-  • ISW401  Ingeniería de Software           ISW401-A  hibrida    Vie 09-13
-  • WEB501  Desarrollo Web                   WEB501-B  presencial Mar 07-09, Jue 07-09
- Shapley: Historial 33.79 | Carga 33.71 | Horarios 25.9
- ... Se prioriza recursar Arquitectura de Computadoras porque es prerrequisito de materias posteriores.
+ CARGA RECOMENDADA (40 créditos · puntuación 92.22/100)
+  • LICB0423 Formulación de Proyectos         LICB0423-A presencial Lun 07-09, Mie 07-09
+  • LIIB2103 Proyecto de Ingeniería III       LIIB2103-A presencial Mar 11-13
+  • LIIS2111 Diseño de Software I             LIIS2111-B presencial Vie 09-13
+  • LICB2110 Electromagnetismo                LICB2110-B presencial Lun 11-13, Mie 11-13
+  • LIIS2110 Paradigmas de Programación Avanz LIIS2110-B en_linea   Mar 07-09, Jue 07-09
+  • LIIS2108 Redes Digitales e Internet       LIIS2108-B presencial Mar 09-11, Jue 09-11
+ Shapley: Historial 37.92 | Carga 28.31 | Horarios 25.99
+ ... Se prioriza recursar Formulación de Proyectos porque es prerrequisito de materias posteriores.
 ```
 
-El promedio (8.57) y los créditos acumulados se calculan solos. Todos los grupos quedaron
-en la mañana, como pidió.
+El promedio (8.66) y los créditos acumulados se calculan solos. Todos los grupos quedaron
+en la mañana, como pidió. Formulación de Proyectos se prioriza porque es seriación de
+Desarrollo de Proyectos (LIIS2117), que a su vez lo es de Implementación y Evaluación de
+Proyectos.
 
-**Otras cosas que puedes editar en el mismo archivo:**
+**Otras cosas que puedes editar:**
 
 | Quieres… | Edita | Formato |
 |---|---|---|
-| Una materia nueva | `MATERIAS` | `"CLAVE": ("Nombre", créditos, semestre, horas, dificultad 1-5, ¿obligatoria?, ["PRERREQ1", ...])` |
-| Un grupo nuevo | `GRUPOS` | `"CLAVE-X": ("MATERIA", "prof_00N", "presencial/en_linea/hibrida", "PATRÓN", cupo_max, cupo_disp)` |
-| Un horario nuevo | `H` | `"NOMBRE": [("Lunes", 15, 17), ("Miercoles", 15, 17)]` (horas enteras, 24 h, días sin acento) |
-| El rango de créditos | `RESTRICCION_CREDITOS` | `minimos` / `maximos` |
+| Cambiar el plan de estudios | `datos/intrauia/plan_isc.txt` → `python datos/importar_intrauia.py` | Exportación de Intrauia |
+| Cambiar qué optativas se abren | `OPTATIVAS_OFERTADAS` en `datos/semilla.py` | Siglas de Intrauia |
+| Un horario nuevo | `H` en `datos/semilla.py` | `"NOMBRE": [("Lunes", 15, 17), ("Miercoles", 15, 17)]` (horas enteras, 24 h, días sin acento) |
+| El rango de créditos | `RESTRICCION_CREDITOS` en `datos/semilla.py` | `minimos` / `maximos` (24–48 es un supuesto, no viene de Intrauia) |
 
-Para pesos, metas de carga o el modelo de LLM, edita `carga/config.py` (`PESOS`,
-`CARGA_TIPO`, `MODELO`).
+Para pesos, metas de carga, el tope de optativas o el modelo de LLM, edita
+`carga/config.py` (`PESOS`, `CARGA_TIPO`, `MAX_OPTATIVAS`, `MODELO`).
 
-Siempre que edites `semilla.py`, ejecuta `python main.py poblar`.
+Siempre que cambies datos, ejecuta `python main.py poblar`.
 
 ---
 
@@ -865,21 +1004,38 @@ Siempre que edites `semilla.py`, ejecuta `python main.py poblar`.
 - si pasa todo, la marca válida y le calcula una **prioridad** de 0 a 1.
 
 ```text
-prioridad = 0.40·rezago + 0.20·(obligatoria) + 0.25·(cuántas desbloquea, máx 3) + 0.15·(la reprobó)
+prioridad = w·rezago + 0.20·(obligatoria) + 0.25·(cuántas desbloquea, máx 3) + 0.15·(la reprobó)
+            w = 0.40 si es obligatoria, 0.15 si es optativa
+            rezago = min(1, max(0, (semestre del alumno − semestre ideal + 1) / 3))
 ```
 
-Prioridades reales de Ana: **SOP401 0.70**, IAR501 0.417, OPT03 0.40, CMP501/SEG501/WEB501
-0.333, OPT04 0.267, DSC601 0.20, OPT01 0.133, OPT02 0.0. SOP401 sale tan alta porque está
-un semestre atrasada, es obligatoria, desbloquea SDI601 y Ana la reprobó.
+En una optativa el semestre ideal solo dice desde cuándo se puede tomar. Por eso su rezago
+pesa menos: si no, para una alumna de 6.º las optativas de Reflexión (semestre ideal 4)
+parecerían más urgentes que sus obligatorias.
 
-Descartadas: `AGI601: falta prerrequisito: IAR501` y `SDI601: falta prerrequisito: SOP401`.
+Prioridades reales de Ana (28 válidas). Las más altas: **LIIS2105 1.0**, LIIS2112 0.5,
+LIIB2104 0.417, y LICB2102, LIIE2104, LIIS2113 y LIIS2114 con 0.333. Al final quedan las
+optativas: las de Reflexión con 0.1 y las del Área Menor con 0.0. LIIS2105 llega al máximo:
+
+```text
+0.40·min(1, (5−3+1)/3) + 0.20 + 0.25·min(1, 4/3) + 0.15 = 0.40 + 0.20 + 0.25 + 0.15 = 1.0
+   (2 semestres de atraso)   (oblig.)  (desbloquea 4)     (la reprobó)
+```
+
+Ana tiene 24 materias descartadas. Algunos ejemplos:
+- `LIIS2110: falta prerrequisito: LIIS2105`, y lo mismo LIIS2116, LIIS2119 y LIIS2121:
+  las 4 que bloquea la materia llave reprobada;
+- `LIIS2115: falta prerrequisito: LIIS2112`;
+- `LYRU2102: no se oferta en Primavera 2027`.
 
 **AgenteCarga** (`agentes.py: AgenteCarga.proponer`):
 1. Toma hasta 12 materias candidatas: primero las de interés y luego las de mayor
    prioridad. Excluye las que el alumno quiere evitar.
-2. Prueba todas las combinaciones de 1 hasta `max_materias` materias. Ana tiene 10 válidas y
-   máximo 5 materias: C(10,1)+…+C(10,5) = 637 combinaciones, evaluadas en milisegundos.
-3. Descarta las que se salen del rango institucional (24–48 créditos).
+2. Prueba todas las combinaciones de 1 hasta `max_materias` materias. Ana tiene 28 válidas,
+   de las que se toman 12 candidatas, y máximo 7 materias:
+   C(12,1)+…+C(12,7) = 3,301 combinaciones, evaluadas en milisegundos.
+3. Descarta las que se salen del rango institucional (24–48 créditos) y las que llevan más
+   de `MAX_OPTATIVAS` = 2 optativas.
 4. Las califica así: 0.5·(carga equilibrada) + 0.3·(prioridad promedio) + 0.2·(materias de interés).
 5. Envía las 6 mejores al Manager.
 
@@ -891,21 +1047,27 @@ Descartadas: `AGI601: falta prerrequisito: IAR501` y `SDI601: falta prerrequisit
    prioridad que choca.
 
 El ajuste de un grupo es un promedio ponderado por la prioridad de cada preferencia. Con
-Ana (turno vespertino con peso 3, presencial con peso 2):
+Ana (turno vespertino con peso 3, presencial con peso 2; un día libre pedido pesaría 6):
 
 | Grupo | Turno | Modalidad | Ajuste |
 |---|---|---|---|
-| IAR501-B (Lun/Mié 17-19, presencial) | ✔ (3) | ✔ (2) | (3+2)/5 = **1.0** |
-| DSC601-A (Lun/Mié 15-17, híbrida) | ✔ (3) | híbrida = ½ (1) | (3+1)/5 = **0.8** |
-| SEG501-B (Vie 15-19, en línea) | ✔ (3) | ✘ (0) | 3/5 = **0.6** |
-| SOP401-A (Mar/Jue 9-11, presencial) | ✘ (0) | ✔ (2) | 2/5 = **0.4** |
-| WEB501-B (Mar/Jue 7-9, presencial) | ✘ (0) | ✔ (2) | 2/5 = **0.4** |
+| LIIB2104-B (Lun 17-19, presencial) | ✔ (3) | ✔ (2) | (3+2)/5 = **1.0** |
+| LICB2102-A (Lun/Mié 19-21, presencial) | ✔ (3) | ✔ (2) | **1.0** |
+| LIIE2104-B (Mar/Jue 17-19, presencial) | ✔ (3) | ✔ (2) | **1.0** |
+| LIIS2106-A (Vie 15-19, presencial) | ✔ (3) | ✔ (2) | **1.0** |
+| LIIS2105-B (Mar/Jue 11-13, presencial) | ✘ (0) | ✔ (2) | 2/5 = **0.4** |
+| LIIS2112-A (Lun/Mié 7-9, presencial) | ✘ (0) | ✔ (2) | 2/5 = **0.4** |
+
+Los grupos vespertinos de LIIS2105 y LIIS2112 chocan con LIIB2104-B y entre sí (sección
+13.2). El AgenteHorarios prueba todas las asignaciones y se queda con la de 0 choques y
+mejor ajuste.
 
 **AgenteManager** evalúa cada propuesta con la función del Proyecto 2.
 
 ### 15.3 La función de evaluación paso a paso
 
-Propuesta ganadora de Ana: SOP401, IAR501, SEG501, WEB501, DSC601 (40 créditos).
+Propuesta ganadora de Ana: LIIS2105 (6 cr), LIIS2112 (8), LIIB2104 (4), LICB2102 (6),
+LIIE2104 (8) y LIIS2106 (8): 40 créditos.
 
 **Avance académico (peso 0.30)**
 
@@ -913,9 +1075,9 @@ Propuesta ganadora de Ana: SOP401, IAR501, SEG501, WEB501, DSC601 (40 créditos)
 avance = 100 · r · (0.45·progreso + 0.30·prioridad_media + 0.25·cobertura_urgentes)
   r                  = créditos válidos / créditos totales     = 40/40 = 1.0
   progreso           = min(1, créditos válidos / meta)          = min(1, 40/40) = 1.0
-  prioridad_media    = (0.70+0.417+0.333+0.333+0.20)/5          = 0.3966
-  cobertura_urgentes = urgentes incluidas / urgentes             = 1/1 = 1.0   (urgente = SOP401, prioridad ≥ 0.6)
-avance = 100 · 1 · (0.45 + 0.119 + 0.25) = 81.9
+  prioridad_media    = (1.0+0.5+0.417+0.333+0.333+0.283)/6      = 0.4777
+  cobertura_urgentes = urgentes incluidas / urgentes             = 1/1 = 1.0   (urgente = LIIS2105, prioridad ≥ 0.6)
+avance = 100 · 1 · (0.45 + 0.1433 + 0.25) = 84.3
 ```
 
 Si una propuesta incluye materias no válidas (ya aprobadas o sin prerrequisitos), `r`
@@ -931,23 +1093,33 @@ horario = 100 − 35·(pares de grupos que chocan) − 35·(materias sin grupo) 
 
 ```text
 s1 = 1 − 2·|créditos − meta|/meta = 1 − 0 = 1.0     (×0.4 si sale de 24–48 créditos)
-s2 = 1.0  (5 materias ≤ máximo 5; si se pasa, −0.3 por cada materia extra)
-s3 = 1.0  (2 difíciles —SOP401 e IAR501, dificultad ≥ 4— ≤ máximo 2 para carga "normal")
+s2 = 1.0  (6 materias ≤ máximo 7; si se pasa, −0.3 por cada materia extra)
+s3 = 1.0  (3 difíciles —LIIS2112, LIIE2104 y LIIS2106, dificultad ≥ 4— ≤ máximo 3 para
+           carga "normal"; 0 optativas ≤ 2. Cada difícil u optativa de más resta 0.3)
 carga = 100 · (0.5·s1 + 0.25·s2 + 0.25·s3) = 100
 ```
+
+Las metas de `CARGA_TIPO` se recalibraron al plan real. Las materias valen de 2 a 8
+créditos (unos 6 en promedio) y el semestre ideal carga 32–42 créditos en 6–8 materias:
+
+| Tipo | Créditos | Máx. materias | Máx. difíciles |
+|---|---|---|---|
+| ligera | 30 | 5 | 2 |
+| normal | 40 | 7 | 3 |
+| pesada | 48 | 8 | 4 |
 
 **Preferencias (peso 0.20)**
 
 ```text
-ajuste_horario = promedio de ajustes = (0.4+1.0+0.6+0.4+0.8)/5 = 0.64
+ajuste_horario = promedio de ajustes = (0.4+0.4+1.0+1.0+1.0+1.0)/6 = 0.80
 intereses      = 1.0 (no pidió materias de interés ni a evitar)
-preferencias   = 100 · (0.75·0.64 + 0.25·1.0) = 73.0
+preferencias   = 100 · (0.75·0.80 + 0.25·1.0) = 85.0
 ```
 
 **Total**
 
 ```text
-0.30·81.9 + 0.25·100 + 0.25·100 + 0.20·73.0 = 24.57 + 25 + 25 + 14.6 = 89.17 ✔
+0.30·84.3 + 0.25·100 + 0.25·100 + 0.20·85.0 = 25.29 + 25 + 25 + 17.0 = 92.29 ✔
 ```
 
 ### 15.4 Shapley paso a paso
@@ -957,16 +1129,16 @@ no está en la coalición, su tarea se hace de forma **ingenua**:
 
 | Si falta… | La tarea se hace así | Efecto real con Ana |
 |---|---|---|
-| Historial (A) | Todo lo ofertado "parece válido" | Coalición {B,C}: propone ARQ301, BDD301, MAT301, PRG301 y PRG401, **todas ya aprobadas**. Avance = 0 → v = 64.6 |
-| Carga (B) | 5 materias "de arriba hacia abajo" del plan | Ignora la meta de créditos y los intereses |
-| Horarios (C) | El primer grupo de cada materia, sin revisar choques | Coalición {A,B}: preferencias 67 en lugar de 73 → v = 86.24 |
+| Historial (A) | Todo lo ofertado "parece válido" | Coalición {B,C}: propone LHLF1201, LICB1202, LICB1231, LICB2103, LICB2106, LICB2107 y LIIB2102, **todas de 2.º semestre y ya aprobadas**. Avance = 0 → v = 67.42 |
+| Carga (B) | 5 materias "de arriba hacia abajo" del plan | Coalición {A}: LIIS2105 y **4 optativas de Reflexión** (semestre ideal 4, antes que las de 5.º). Carga = 60 → v = 76.56 |
+| Horarios (C) | El primer grupo de cada materia, sin revisar choques | Coalición {A,B}: mismas 6 materias que la ganadora, pero todas en su grupo A. LIIB2104-A choca con LIIE2104-A (compatibilidad 65) y 3 grupos quedan en la mañana (preferencias 72.5) → v = 81.04 |
 
 El evaluador **siempre** usa la verdad de la ontología, así que una propuesta mala
 recibe una calificación baja. Los 8 valores reales de Ana:
 
 ```text
-v({})=0   v({A})=73.73   v({B})=52.25   v({C})=65.2
-v({A,B})=86.24   v({A,C})=86.09   v({B,C})=64.6   v({A,B,C})=89.17
+v({})=0   v({A})=76.56   v({B})=56.97   v({C})=63.25
+v({A,B})=81.04   v({A,C})=76.56   v({B,C})=67.42   v({A,B,C})=92.29
 ```
 
 Cálculo de φ para el Historial (A): contribución marginal promediada sobre todas las
@@ -974,18 +1146,25 @@ coaliciones S que no lo contienen, con el peso `|S|!·(n−|S|−1)!/n!`:
 
 | S (sin A) | Peso | v(S ∪ {A}) − v(S) | Peso × marginal |
 |---|---|---|---|
-| {} | 1/3 | 73.73 − 0 = 73.73 | 24.58 |
-| {B} | 1/6 | 86.24 − 52.25 = 33.99 | 5.67 |
-| {C} | 1/6 | 86.09 − 65.2 = 20.89 | 3.48 |
-| {B,C} | 1/3 | 89.17 − 64.6 = 24.57 | 8.19 |
-| | | **φ_A** | **41.91** ✔ |
+| {} | 1/3 | 76.56 − 0 = 76.56 | 25.52 |
+| {B} | 1/6 | 81.04 − 56.97 = 24.07 | 4.01 |
+| {C} | 1/6 | 76.56 − 63.25 = 13.31 | 2.22 |
+| {B,C} | 1/3 | 92.29 − 67.42 = 24.87 | 8.29 |
+| | | **φ_A** | **40.04** ✔ |
 
-De la misma forma φ_B = 20.43 y φ_C = 26.83. La suma da **89.17 = v(N)**.
+De la misma forma φ_B = 25.67 y φ_C = 26.57. La suma da 92.28, que es **92.29 = v(N)**
+salvo redondeo.
 
 **Interpretación:** para Ana, el Historial es el agente más valioso, porque sin él se
 recomiendan materias ya aprobadas. Le sigue Horarios, porque Ana tiene preferencias
-fuertes de turno. Con A004, en cambio, Historial (33.79) y Carga (33.71) quedan casi
-empatados: cada alumno produce un reparto distinto, que es justo lo que Shapley mide.
+fuertes de turno y los grupos de la tarde de sus materias clave chocan entre sí. Con Sofía
+(A003), en cambio, el más valioso es el AgenteCarga (31.31): tiene 28 materias válidas y
+el reto es elegir 8. Cada alumno produce un reparto distinto, que es justo lo que Shapley
+mide.
+
+Un detalle: v({A,C}) = v({A}) = 76.56. Sin el AgenteCarga, la combinación es LIIS2105 más
+4 optativas de Reflexión. Cada optativa tiene un solo grupo, y el primer grupo de LIIS2105
+ya es el de la tarde, así que el AgenteHorarios no tiene nada que mejorar.
 
 ### 15.5 Mapa de archivos
 
@@ -993,7 +1172,9 @@ empatados: cada alumno produce un reparto distinto, que es justo lo que Shapley 
 |---|---|
 | `main.py` | Comandos de terminal |
 | `carga/config.py` | Rutas, modelo, hilos, pesos y metas de carga |
-| `datos/semilla.py` | Datos: materias, grupos, profesores y alumnos |
+| `datos/importar_intrauia.py` | Exportación de Intrauia → `datos/plan_ibero.json` (con validación) |
+| `datos/plan_ibero.json` | Plan de estudios real (79 materias) |
+| `datos/semilla.py` | Materias (desde el JSON), oferta generada, profesores y alumnos |
 | `carga/poblar.py` | Semilla → individuos OWL + clases definidas |
 | `carga/kb.py` | Ontología → objetos Python; SPARQL; HermiT |
 | `carga/preferencias.py` | Lenguaje natural → preferencias (LLM con esquema + reglas + validación) |

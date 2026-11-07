@@ -57,7 +57,7 @@ def main():
         from carga import sistema
         kb, llm = BaseConocimiento(), ClienteLLM(habilitado=False)
         ejemplos = {"A001": "", "A002": "quiero algo ligero, en la mañana y sin clases el viernes",
-                    "A003": "quiero adelantar, en línea, me interesa IA y no quiero compiladores"}
+                    "A003": "quiero adelantar, en línea, me interesa IA y la nube, no quiero métodos numéricos"}
         for m, txt in ejemplos.items():
             s = sistema.nueva_sesion(m, txt, usar_llm=False, eco=False, kb=kb, llm=llm)
             sistema.correr_contract_net(s)

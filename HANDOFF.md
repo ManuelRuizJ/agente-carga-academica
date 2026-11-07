@@ -31,8 +31,7 @@ v(S) y su ontología (`P2_ontologia_carga_academica.owx`, que no se modifica).
 |---|---|
 | Carpeta | `~/Documentos/universidad/agentes/parcial-3/agente-carga3/` |
 | Repositorio | **Propio**, dentro de la carpeta: `github.com/ManuelRuizJ/agente-carga-academica`, rama `main` |
-| Último commit | `feb07e2 proyecto carga acedemica version 3` (ya está en `origin/main`) |
-| **Sin commit** | `carga/config.py` y `carga/llm.py`, con la protección de batería (ver §5.1) |
+| Commits | `2048d0c` (protección de batería y docs) y el del plan real de Intrauia (6 nov). **Sin push**: `origin/main` sigue en `feb07e2` |
 | Entorno | `.venv/` con Python **3.12.16** (CrewAI no soporta 3.14). Kernel de Jupyter registrado como `agente-carga3` |
 | Prototipo anterior | `../integracion_ontologica.ipynb` (reemplazado; no se tocó). `../venv` está roto: `python`→3.14 y los paquetes están en 3.12 |
 
@@ -43,13 +42,23 @@ v(S) y su ontología (`P2_ontologia_carga_academica.owx`, que no se modifica).
 
 ## 3. Qué ya está hecho
 
-- **La ontología ya tiene individuos.** La del Proyecto 2 solo tenía TBox, y por eso el
-  notebook nunca encontraba a `alumno_001`. `datos/semilla.py` → `python main.py poblar`
-  genera `ontologia/carga_academica_poblada.owl`: 203 individuos, 27 materias, 35 grupos,
-  7 profesores, 3 alumnos (A001, A002, A003), 34 pares `enConflictoCon` y 6 **clases
-  definidas** que HermiT clasifica (`MateriaLlave` con `min 2` + `AllDifferent`,
-  `MateriaSeriada`, `GrupoVespertino`, `GrupoMatutino`, `GrupoEnLinea`,
-  `EstudianteConAdeudo`).
+- **Plan de estudios REAL (6 nov).** El de Ingeniería en Sistemas Computacionales de la
+  Ibero Puebla (programa 2801), exportado de **Intrauia**:
+  - `datos/intrauia/plan_isc.txt` se importa con `python datos/importar_intrauia.py`, que
+    valida y genera `datos/plan_ibero.json`.
+  - Son 79 materias: 56 obligatorias (332 créditos), 23 optativas y 35 seriadas, cada una
+    con a lo más un prerrequisito.
+  - `datos/intrauia/` está en `.gitignore`, porque `Intrauia_files/Acceso.html` trae datos
+    de la sesión del portal.
+  - Lo derivado está documentado en el JSON: `obligatoria` sale del área, `horas_semana` de
+    las horas con docente / 16, y `dificultad` es heurística (sintética).
+- **La ontología ya tiene individuos.** `datos/semilla.py` → `python main.py poblar` genera
+  `ontologia/carga_academica_poblada.owl`. Trae 449 individuos: 79 materias, 97 grupos
+  (generados con semilla fija a partir del plan) y 12 profesores ficticios. También trae
+  3 alumnos, cuyo kárdex arma `_kardex()` respetando la seriación real. Además, 295 pares
+  `enConflictoCon` y 6 **clases definidas** que HermiT clasifica (`MateriaLlave` con
+  `min 2` + `AllDifferent`, `MateriaSeriada`, `GrupoVespertino`, `GrupoMatutino`,
+  `GrupoEnLinea`, `EstudianteConAdeudo`).
 - **Los 4 agentes y el Contract Net** (`cfp`, `propose`, `accept-proposal`,
   `reject-proposal`, con mensajes estilo FIPA). Cada especialista tiene un
   comportamiento experto y uno "ingenuo"; el ingenuo se usa cuando el agente no está
@@ -78,6 +87,17 @@ v(S) y su ontología (`P2_ontologia_carga_academica.owx`, que no se modifica).
   (guía paso a paso con salidas reales, ejemplo numérico y solución de problemas).
 - **Verificación completa** del 5 de noviembre. Las bitácoras están en
   `salidas/_verificacion/` (00–19); no están en git porque `salidas/` está ignorado.
+- **Reverificación con el plan real** (6 nov, sin LLM): `poblar`, `demo`, `--razonador`,
+  las 10 DL Query, `demo.ipynb` (7 celdas, 0 errores), agregar A004 (luego se revirtió) y
+  un chequeo de reglas duras de las 3 recomendaciones (seriación, choques, créditos,
+  optativas, días libres y materias a evitar). Todo pasa.
+- **Ajustes que salieron con los datos reales:**
+  - `MAX_OPTATIVAS = 2`, y el rezago de las optativas pesa 0.15 en vez de 0.40. Sin eso, a
+    A003 le tocaban 5 de Reflexión.
+  - `CARGA_TIPO` recalibrado a 30/40/48 créditos y 5/7/8 materias.
+  - En `preferencias.py`: lista `_STOP`, para que "sin", "por" o "al" no cuenten como
+    siglas de materias, y en cada frase solo se queda la materia que mejor coincide.
+  - `peso_dias` sube de 3 a 6, porque el viernes libre pedido no se respetaba.
 
 | Prueba | Resultado |
 |---|---|
@@ -91,8 +111,10 @@ v(S) y su ontología (`P2_ontologia_carga_academica.owx`, que no se modifica).
 | `crew` secuencial / jerárquico | ✅ 4 min / 5 min 20 s, 4 herramientas llamadas |
 | Agregar alumno A004 vía `semilla.py` | ✅ (y se revirtió) |
 
-Resultados de referencia para detectar regresiones: `python main.py demo` debe dar
-**89.17** (A001), **96.25** (A002) y **84.7** (A003), con Shapley de A001 = 41.91 / 20.43 / 26.83.
+Resultados de referencia para detectar regresiones (plan real, 6 nov): `python main.py demo`
+debe dar **92.29** (A001), **94.53** (A002) y **84.39** (A003). El Shapley de A001 debe ser
+**40.04 / 25.67 / 26.57**, y el de A003 28.1 / 31.31 / 24.97. Los
+valores anteriores (89.17 / 96.25 / 84.7) eran del catálogo sintético.
 
 ## 4. Decisiones tomadas (y por qué)
 
@@ -127,9 +149,8 @@ Resultados de referencia para detectar regresiones: `python main.py demo` debe d
   LLM hace caer el voltaje bajo el mínimo, lo que apaga la laptop sin dejar log. Esto se
   suma al problema de ROCm, que ya está resuelto con el modo CPU.
 - **Pendiente:**
-  - [ ] Hacer commit de estos dos archivos.
-  - [ ] Actualizar la documentación (la guía todavía muestra `hilos: 6` en §9.3 y no
-    menciona la batería).
+  - [x] Hacer commit de estos dos archivos (`2048d0c`).
+  - [x] Actualizar la documentación (§9.3 de la guía y su tabla de problemas, y el README).
   - [ ] Probar el camino "en batería". Solo se comprobó `diagnostico` con el cargador
     conectado; el caso "sin cargador" no se ha ejecutado.
 
@@ -137,7 +158,15 @@ Resultados de referencia para detectar regresiones: `python main.py demo` debe d
 - **Protégé:** abre solo un `kb_*.owl` a la vez. Cada archivo trae los agentes con un
   `valorShapley` distinto y esa propiedad es funcional, así que si mezclas dos, HermiT
   marca la ontología como inconsistente. Es correcto, no es un error del sistema.
-- **Los datos son sintéticos**, de `semilla.py`. Hay que decirlo en la entrega.
+- **Qué datos son reales:** solo el plan de estudios. La oferta, los profesores, los
+  alumnos, la dificultad y el rango de 24–48 créditos son sintéticos. Hay que decirlo en
+  la entrega; ya está en el README, en la guía y en el notebook.
+- **Datos que faltan del portal:** cuántas optativas de Reflexión Universitaria y del
+  Área Menor exige el plan. Por eso `creditos_totales` solo cuenta las obligatorias
+  (332). El rango real de créditos por periodo tampoco se conoce.
+- **LLM y CrewAI no se volvieron a probar con el plan real.** Las §10 y §11 de la guía muestran
+  salidas del catálogo viejo, con una nota que lo advierte. Para repetirlo hay que conectar
+  el cargador. El catálogo que recibe el LLM ahora tiene 79 nombres, unos 600 tokens más.
 - En `carga/__pycache__/` aparecen `.pyc` de cpython-314: en algún momento se ejecutó
   con el `python3` del sistema en vez del `.venv`. El núcleo podría funcionar así, pero
   **CrewAI no**. Usa siempre `source .venv/bin/activate`.
@@ -153,7 +182,8 @@ evaluación del 5 de noviembre):
 
 | # | Pendiente | Qué resuelve | Esfuerzo |
 |---|---|---|---|
-| 0 | **Hacer commit de la protección de batería y sincronizar `README.md` y `GUIA_EJECUCION.md`** | Que el repo refleje lo que corre | Bajo |
+| ✅ | ~~Commit de la protección de batería y documentación~~ (hecho) | — | — |
+| ✅ | ~~Materias reales de Intrauia~~ (hecho el 6 nov) | La crítica "los datos son inventados" | — |
 | 1 | **Contract Net "real":** 2 o 3 instancias de AgenteCarga con estrategias distintas ("máximo avance", "carga ligera", "prioriza intereses") que compitan con ofertas por el mismo `cfp`; el Manager adjudica | La crítica "es una cadena de pasos, no Contract Net". También hace más interesante a Shapley | Medio |
 | 2 | **Experimento comparativo:** MAS contra un LLM solo contra un solo agente, sobre unos 20 alumnos generados. Medir % de propuestas con materias inválidas, choques, puntuación y tiempo, en una tabla | La falta de una sección de resultados medibles | Medio |
 | 3 | **Sensibilidad de Shapley:** recalcular φ con otra definición de "ingenuo" y mostrar que el orden de los agentes se mantiene | La crítica "v(S) depende de tu baseline" | Bajo |
@@ -162,19 +192,19 @@ evaluación del 5 de noviembre):
 | — | Revisar la **rúbrica oficial del proyecto final**: nunca se tuvo; solo el PDF del Proyecto 2 y las presentaciones | Confirmar que no falta ningún entregable | — |
 | — | Decidir qué hacer con las carpetas vacías `../agente_carga` y `../agente_carga2` y con el `../venv` roto | Limpieza | Bajo |
 
-## 7. Cuál era el siguiente paso
+## 7. Cuál es el siguiente paso
 
-La última conversación terminó con una propuesta **todavía sin respuesta**: implementar
-las mejoras **#1 (Contract Net con AgentesCarga en competencia)** y **#2 (experimento
-comparativo)**, y redactar la sección de resultados para el reporte.
+Ya se decidió: sigue la mejora **#1 (Contract Net con 2 o 3 AgentesCarga en competencia)**.
+Después vendría la #2 (experimento comparativo) y la sección de resultados del reporte.
 
 Orden sugerido al retomar:
-1. Commit de `carga/config.py` y `carga/llm.py` (protección de batería).
-2. Actualizar la guía (§9.3 `hilos: 4`, nota sobre la batería y `LLM_EN_BATERIA`).
-3. Confirmar con el equipo si se hacen la #1 y la #2. Si sí, empezar por la #1, porque
-   cambia los valores de Shapley y de las tablas que usaría el experimento.
-4. Después de cualquier cambio, volver a correr `python main.py demo` y comparar contra
-   los valores de referencia de §3, o actualizarlos a propósito.
+1. `git push` del repo `agente-carga3`, si el equipo está de acuerdo (hay 2 commits sin
+   subir).
+2. Implementar la #1. Cambia los valores de Shapley, porque habría más jugadores o el
+   AgenteCarga pasaría a ser un "pool".
+3. Después de cualquier cambio, correr `python main.py demo` y comparar contra los valores
+   de referencia de §3, o actualizarlos a propósito.
+4. Opcional, con cargador: repetir §10 y §11 de la guía (LLM y CrewAI) con el plan real.
 
 ## 8. Cómo retomar en 1 minuto
 

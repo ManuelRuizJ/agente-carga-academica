@@ -50,6 +50,8 @@ class AgenteCarga:
                 cr = sum(kb.materias[c].creditos for c in combo)
                 if cr > kb.creditos_max:
                     continue
+                if sum(not kb.materias[c].obligatoria for c in combo) > config.MAX_OPTATIVAS:
+                    continue
                 if cr < kb.creditos_min and total_disp >= kb.creditos_min:
                     continue
                 prop = Propuesta("tmp", list(combo))
