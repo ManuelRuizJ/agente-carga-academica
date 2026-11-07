@@ -23,10 +23,12 @@ misma función v(S) y la misma ontología.
 | Todo el razonamiento dependía del LLM (4 agentes en modo jerárquico, más de 20 llamadas en CPU) | — | El razonamiento lo hacen Python y la ontología (milisegundos). El LLM solo hace **2 llamadas** |
 | El `venv` mezclaba Python 3.14 y 3.12 (`python` → 3.14, paquetes en 3.12) | `venv/pyvenv.cfg` | `.venv` nuevo y limpio con Python 3.12 |
 | Se recargaba el `.owx` en cada llamada a la herramienta | celda 3 | La ontología se carga una sola vez (0.13 s) |
+| La laptop **se apagaba en batería** al correr el LLM | apagado sin log (6 nov); batería a 8.02 V con mínimo de diseño 7.64 V | Sin cargador el LLM se desactiva solo (`LLM_EN_BATERIA=1` lo fuerza) y usa 4 hilos en vez de 6 |
 
 **Recomendaciones para tu laptop** (Ryzen 7 5700U, 14 GB de RAM, sin GPU dedicada):
 - Usa `llama3.2` (3B, unos 2.5 GB). Evita `llama3.1:8b`, que necesita más de 6 GB y te dejaría sin RAM.
 - Cierra el navegador antes de usar el LLM si `python main.py diagnostico` muestra menos de 3.5 GB libres.
+- Usa el LLM **con el cargador conectado**: en batería el pico de consumo puede apagar la laptop. `diagnostico` muestra la fuente de energía.
 - El servidor CPU se descarga de la RAM a los 2 minutos sin uso. Para liberarla de inmediato, presiona Ctrl+C.
 
 ---

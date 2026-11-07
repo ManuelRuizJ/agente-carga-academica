@@ -19,13 +19,47 @@ Reglas de uso en este proyecto:
 """
 import hashlib
 import json
+import os
 import time
+from pathlib import Path
 
 import requests
 
 from . import config
 
 _CACHE = config.DIR_SALIDAS / "cache_llm.json"
+_PS = Path("/sys/class/power_supply")
+
+
+def estado_energia() -> dict:
+    """Lee /sys/class/power_supply: ¿hay cargador?, % y voltaje de la batería.
+
+    Motivo: con la batería desgastada, el pico de consumo de la CPU al correr
+    el LLM hace caer el voltaje por debajo del mínimo y la laptop se APAGA de
+    golpe (sin log). Con el cargador conectado no pasa.
+    """
+    info = {"cargador": None, "bateria": None, "porcentaje": None,
+            "voltaje": None, "voltaje_min": None}
+    try:
+        for d in _PS.iterdir():
+            tipo = (d / "type").read_text().strip()
+            if tipo == "Mains":
+                info["cargador"] = (d / "online").read_text().strip() == "1"
+            elif tipo == "Battery":
+                info["bateria"] = d.name
+                leer = lambda f: int((d / f).read_text()) if (d / f).exists() else None
+                info["porcentaje"] = leer("capacity")
+                v, vmin = leer("voltage_now"), leer("voltage_min_design")
+                info["voltaje"] = v / 1e6 if v else None
+                info["voltaje_min"] = vmin / 1e6 if vmin else None
+    except OSError:
+        pass
+    return info
+
+
+def en_bateria() -> bool:
+    e = estado_energia()
+    return e["bateria"] is not None and e["cargador"] is False
 
 
 class ClienteLLM:
@@ -42,6 +76,11 @@ class ClienteLLM:
 
     # -------------------------------------------------------------- conexión
     def _detectar(self):
+        if en_bateria() and os.getenv("LLM_EN_BATERIA") != "1":
+            self.motivo = ("LLM desactivado: laptop en batería (riesgo de apagado). "
+                           "Conecta el cargador o usa LLM_EN_BATERIA=1")
+            print(f"⚠ {self.motivo}. Se continúa solo con reglas.")
+            return
         errores = []
         for url in config.OLLAMA_URLS:
             try:
@@ -151,6 +190,15 @@ def diagnostico() -> list[str]:
                           "(llama3.2 necesita ~2.5 GB).")
     except OSError:
         pass
+    e = estado_energia()
+    if e["bateria"]:
+        volt = (f", {e['voltaje']:.2f} V (mín. de diseño {e['voltaje_min']:.2f} V)"
+                if e["voltaje"] and e["voltaje_min"] else "")
+        fuente = "cargador conectado ✔" if e["cargador"] else "⚠ EN BATERÍA"
+        lineas.append(f"  Energía: {fuente} — batería {e['porcentaje']}%{volt}")
+        if not e["cargador"]:
+            lineas.append("  ⚠ Sin cargador el LLM queda desactivado: el pico de consumo "
+                          "puede apagar la laptop.")
     lineas.append(f"  Modelo configurado: {config.MODELO} | hilos: {config.HILOS_LLM} | "
                   f"contexto: {config.CTX_LLM}")
     return lineas

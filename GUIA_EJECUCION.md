@@ -434,8 +434,16 @@ $ python main.py diagnostico
 ✔ Ollama responde en http://127.0.0.1:11435 — modelos: llama3.1:8b, llama3.2:latest, gemma3:1b
 ✔ Ollama responde en http://127.0.0.1:11434 — modelos: NINGUNO
   RAM disponible: 5.4 GB de 14.9 GB
-  Modelo configurado: llama3.2 | hilos: 6 | contexto: 4096
+  Energía: cargador conectado ✔ — batería 100%, 8.02 V (mín. de diseño 7.64 V)
+  Modelo configurado: llama3.2 | hilos: 4 | contexto: 4096
 ```
+
+> **Batería.** Usa el LLM **con el cargador conectado**. Con la batería desgastada, el
+> pico de consumo de la CPU al correr el modelo puede bajar el voltaje por debajo del
+> mínimo y apagar la laptop de golpe (sin dejar log). Por eso, si no hay cargador,
+> `ClienteLLM` desactiva el LLM, avisa con `⚠ LLM desactivado: laptop en batería` y el
+> sistema sigue solo con reglas. Para forzarlo bajo tu riesgo: `LLM_EN_BATERIA=1`.
+> Por la misma razón el LLM usa 4 hilos por defecto (antes 6).
 
 Mientras un modelo está cargado, `diagnostico` muestra además:
 
@@ -1011,6 +1019,8 @@ empatados: cada alumno produce un reparto distinto, que es justo lo que Shapley 
 | `diagnostico` dice `11434 — modelos: NINGUNO` | Es el servicio de Fedora, que no tiene modelos | Normal; el sistema usa el 11435 |
 | `Ya hay un Ollama escuchando en 127.0.0.1:11435` | El script ya estaba corriendo | Úsalo; o ciérralo con Ctrl+C en su terminal |
 | `diagnostico` dice `⚠ USANDO GPU` | Algún Ollama se arrancó sin el script | Ctrl+C en ese Ollama y usa solo `./iniciar_ollama_cpu.sh` |
+| `⚠ LLM desactivado: laptop en batería` | No hay cargador conectado (protección contra apagados) | Conecta el cargador; o `LLM_EN_BATERIA=1` bajo tu riesgo |
+| La laptop se apaga de golpe al correr el LLM | Batería desgastada: el pico de consumo baja el voltaje | Usa el LLM solo con cargador; `HILOS_LLM=2` reduce el pico |
 | La laptop se pone lenta con el LLM | Poca RAM libre | Cierra el navegador; usa `llama3.2`, no `llama3.1:8b`; o `--sin-llm` |
 | El LLM tarda más de 4 min y se cancela | CPU saturada | `TIMEOUT_LLM=400 python main.py ...` o usa `--sin-llm` |
 | `plantilla (la redacción del LLM… se descartó)` | El guardia detectó un dato inventado | Normal y deseado; la recomendación es correcta |
@@ -1023,7 +1033,8 @@ Variables de entorno útiles (se ponen antes del comando):
 
 ```text
 $ MODELO_LLM=gemma3:1b python main.py recomendar A002 -p "..."   # modelo más ligero (1 GB), menos preciso
-$ HILOS_LLM=4 python main.py recomendar A001                     # menos hilos = laptop más fresca
+$ HILOS_LLM=2 python main.py recomendar A001                     # menos hilos = laptop más fresca (default 4)
+$ LLM_EN_BATERIA=1 python main.py recomendar A001                # usar el LLM aunque no haya cargador (riesgo de apagado)
 $ OLLAMA_URL=http://127.0.0.1:11435 python main.py diagnostico   # forzar un servidor específico
 ```
 

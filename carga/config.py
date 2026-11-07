@@ -18,8 +18,9 @@ OLLAMA_URLS = [u for u in [os.getenv("OLLAMA_URL"),
                            "http://127.0.0.1:11435",
                            "http://127.0.0.1:11434"] if u]
 MODELO = os.getenv("MODELO_LLM", "llama3.2")          # 3B: ~2 GB de RAM
-# La mitad de los hilos para que la laptop siga respondiendo y no se caliente
-HILOS_LLM = int(os.getenv("HILOS_LLM", max(2, min(6, (os.cpu_count() or 4) // 2))))
+# Pocos hilos: menos pico de consumo eléctrico y de temperatura (con 6 hilos
+# la laptop llegó a apagarse en batería). 4 basta para llama3.2 (3B).
+HILOS_LLM = int(os.getenv("HILOS_LLM", max(2, min(4, (os.cpu_count() or 4) // 2))))
 CTX_LLM = int(os.getenv("CTX_LLM", "4096"))
 TIMEOUT_LLM = int(os.getenv("TIMEOUT_LLM", "240"))
 
