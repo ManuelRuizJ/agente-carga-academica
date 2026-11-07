@@ -33,8 +33,9 @@ SIGLAS = {"AgenteHistorial": "A", "AgenteCarga": "B", "AgenteHorarios": "C"}
 CONTRATISTAS = tuple(config.ESTRATEGIAS_CARGA)          # CargaAvance, CargaEquilibrio, ...
 
 
-def crear_contratistas():
-    return [AgenteCarga(nombre, pesos) for nombre, pesos in config.ESTRATEGIAS_CARGA.items()]
+def crear_contratistas(estrategias=None):
+    estrategias = estrategias or config.ESTRATEGIAS_CARGA
+    return [AgenteCarga(nombre, pesos) for nombre, pesos in estrategias.items()]
 
 
 @dataclass
@@ -51,7 +52,11 @@ class ResultadoCN:
         return self.ganadora.puntuacion if self.ganadora else 0.0
 
 
-def ejecutar(kb, est, prefs, elegibles_reales, activos=ESPECIALISTAS, trazas=None) -> ResultadoCN:
+def ejecutar(kb, est, prefs, elegibles_reales, activos=ESPECIALISTAS, trazas=None,
+             estrategias=None, k_ofertas=None) -> ResultadoCN:
+    """`estrategias` y `k_ofertas` permiten cambiar a los contratistas; el
+    experimento (mejora 2) los usa para correr el sistema de ANTES de la mejora 1:
+    un solo AgenteCarga con los pesos originales y 6 ofertas."""
     trazas = trazas or Trazas(activo=False)
     activos = set(activos)
     if not activos:                     # v(∅) = 0: sin especialistas no hay propuestas
@@ -59,8 +64,9 @@ def ejecutar(kb, est, prefs, elegibles_reales, activos=ESPECIALISTAS, trazas=Non
     hist, hor, man = AgenteHistorial(), AgenteHorarios(), AgenteManager()
     # Qué contratistas participan: todos si está "AgenteCarga" (el equipo), o
     # solo los que se nombren uno por uno (para el Shapley entre contratistas).
-    contratistas = [c for c in crear_contratistas()
+    contratistas = [c for c in crear_contratistas(estrategias)
                     if "AgenteCarga" in activos or c.nombre in activos]
+    k_ofertas = k_ofertas or config.OFERTAS_POR_CONTRATISTA
     if contratistas:
         activos.add("AgenteCarga")
     etiqueta = "+".join(SIGLAS[a] for a in ESPECIALISTAS if a in activos)
@@ -94,7 +100,7 @@ def ejecutar(kb, est, prefs, elegibles_reales, activos=ESPECIALISTAS, trazas=Non
         for c in contratistas:          # 2. oferta: cada uno evalúa su capacidad
             with trazas.tarea(c.nombre, "ofertar_carga",
                               f"{len(elegibles)} materias candidatas") as t:
-                ofertas = c.ofertar(kb, est, prefs, elegibles, k=config.OFERTAS_POR_CONTRATISTA)
+                ofertas = c.ofertar(kb, est, prefs, elegibles, k=k_ofertas)
                 ofertas_de[c.nombre] = ofertas
                 t["output"] = f"{len(ofertas)} ofertas (mejor autoevaluación {ofertas[0][1] if ofertas else '-'})"
                 t["detalles"] = {"ofertas": ofertas, "estrategia": c.pesos}

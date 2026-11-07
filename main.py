@@ -11,6 +11,7 @@ Uso rápido:
     python main.py recomendar A003 --sin-llm --razonador
     python main.py crew A001 -p "me interesa IA"           # orquestación con CrewAI
     python main.py demo                                     # los 3 alumnos, sin LLM
+    python main.py experimento                              # mejora 2: compara sistemas
 """
 import argparse
 import sys
@@ -24,6 +25,10 @@ def main():
     sub.add_parser("alumnos", help="lista los estudiantes de la ontología")
     sub.add_parser("diagnostico", help="revisa Ollama (CPU/GPU) y memoria")
     sub.add_parser("demo", help="ejecuta los 3 alumnos sin LLM (segundos)")
+    ex = sub.add_parser("experimento", help="compara el MAS contra otros sistemas (mejora 2)")
+    ex.add_argument("-n", type=int, default=20, help="número de alumnos sintéticos")
+    ex.add_argument("--semilla", type=int, default=7)
+    ex.add_argument("--llm", action="store_true", help="agrega el 'LLM solo' (lento en CPU)")
 
     for nombre, ayuda in [("recomendar", "MAS en Python puro + LLM mínimo (recomendado)"),
                           ("crew", "misma lógica, orquestada por CrewAI (lento en CPU)")]:
@@ -63,6 +68,18 @@ def main():
             sistema.correr_contract_net(s)
             sistema.correr_shapley(s)
             sistema.cerrar(s)
+    elif a.cmd == "experimento":
+        from carga import experimento
+        from carga.kb import BaseConocimiento
+        from carga.llm import ClienteLLM
+        kb = BaseConocimiento()
+        llm = ClienteLLM(habilitado=True) if a.llm else None
+        if a.llm and not llm.disponible:
+            print(f"⚠ Sin LLM: {llm.motivo}. Se corre el experimento sin el 'LLM solo'.")
+        filas, resumen = experimento.correr(kb, a.n, a.semilla, llm)
+        print("\n" + experimento.tabla_markdown(resumen, a.n, a.semilla))
+        for r in experimento.guardar(filas, resumen, a.n, a.semilla):
+            print(f" → {r.relative_to(kb_raiz())}")
     elif a.cmd == "recomendar":
         from carga.sistema import recomendar
         recomendar(a.matricula, a.peticion, usar_llm=not a.sin_llm,
@@ -71,6 +88,11 @@ def main():
         from carga.crew import ejecutar_crew
         ejecutar_crew(a.matricula, a.peticion, proceso=a.proceso,
                       usar_llm=not a.sin_llm, razonador=a.razonador)
+
+
+def kb_raiz():
+    from carga import config
+    return config.RAIZ
 
 
 if __name__ == "__main__":

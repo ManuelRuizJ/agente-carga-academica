@@ -3,7 +3,7 @@
 Esta guía explica, paso a paso, cómo correr el sistema y cómo funciona por dentro.
 **Todas las salidas que aparecen aquí son reales:** se obtuvieron ejecutando cada paso
 en tu laptop (Fedora 44, Ryzen 7 5700U, 14 GB de RAM). Las bitácoras completas están en
-`salidas/_verificacion/` (sección 17).
+`salidas/_verificacion/` (sección 18).
 
 > **Datos: qué es real y qué es sintético.** Desde el 6 de noviembre de 2026 el plan de
 > estudios es el **real** de Ingeniería en Sistemas Computacionales de la Ibero Puebla
@@ -40,8 +40,9 @@ en tu laptop (Fedora 44, Ryzen 7 5700U, 14 GB de RAM). Las bitácoras completas 
 13. [Paso 11: consultar los resultados en Protégé (DL Query)](#13-paso-11-consultar-los-resultados-en-protégé-dl-query)
 14. [Paso 12: agregar tus propios alumnos o materias](#14-paso-12-agregar-tus-propios-alumnos-o-materias)
 15. [Cómo funciona por dentro (con un ejemplo numérico completo)](#15-cómo-funciona-por-dentro-con-un-ejemplo-numérico-completo)
-16. [Solución de problemas](#16-solución-de-problemas)
-17. [Apagar todo y bitácoras de verificación](#17-apagar-todo-y-bitácoras-de-verificación)
+16. [Resultados: experimento comparativo (mejora 2)](#16-resultados-experimento-comparativo-mejora-2)
+17. [Solución de problemas](#17-solución-de-problemas)
+18. [Apagar todo y bitácoras de verificación](#18-apagar-todo-y-bitácoras-de-verificación)
 
 ---
 
@@ -66,6 +67,8 @@ en tu laptop (Fedora 44, Ryzen 7 5700U, 14 GB de RAM). Las bitácoras completas 
 | 14 | Importar el plan real de Intrauia (`datos/importar_intrauia.py`) | ✅ 79 materias, 0 errores de validación | < 1 s |
 | 15 | Reglas duras en las 3 recomendaciones (seriación, choques, créditos, optativas, días libres) | ✅ las 3 pasan | < 1 s |
 | 16 | Mejora 1: licitación entre 3 AgentesCarga + Shapley entre contratistas (Σφ = v(N)) | ✅ en los 3 alumnos | — |
+| 17 | Mejora 2: `experimento` con 20 alumnos sintéticos y 6 sistemas (sección 16) | ✅ | 4 s |
+| 18 | Mejora 2: `experimento --llm` (agrega el "LLM solo", con cargador) | ✅ 20/20 respuestas | ~16 s por alumno |
 
 Las pruebas 0, 8 a 12 son de la verificación del 5 de noviembre (catálogo sintético). Las
 demás se repitieron el 6 de noviembre con el plan real.
@@ -557,7 +560,7 @@ Mientras un modelo está cargado, `diagnostico` muestra además:
     cargado: llama3.2:latest (2.5 GB) → CPU ✔
 ```
 
-Si alguna vez dice **`⚠ USANDO GPU`**, detén todo (Ctrl+C) y revisa la sección 16.
+Si alguna vez dice **`⚠ USANDO GPU`**, detén todo (Ctrl+C) y revisa la sección 17.
 También puedes comprobarlo directamente; esto se midió durante la prueba:
 
 ```text
@@ -1316,6 +1319,9 @@ subiendo a 3 ofertas por contratista. Lo que gana el sistema con la mejora no es
 puntuación, sino **transparencia**: ahora se sabe qué criterio sirvió para cada alumno y
 cuánto aportó cada contratista.
 
+Esta tabla de 4 casos fue el primer paso. El experimento de la sección 16 hace la misma
+comparación con 20 y con 50 alumnos.
+
 ### 15.6 Mapa de archivos
 
 | Archivo | Responsabilidad |
@@ -1336,11 +1342,131 @@ cuánto aportó cada contratista.
 | `carga/reporte.py` | Reporte Markdown y resumen en terminal |
 | `carga/sistema.py` | Orquestación del modo `recomendar` |
 | `carga/crew.py` | Orquestación con CrewAI |
+| `carga/experimento.py` | Mejora 2: alumnos sintéticos, sistemas a comparar, reglas duras y tablas |
+| `resultados/` | Copia versionada de la corrida del experimento para el reporte |
 | `carga/llm.py` | Cliente de Ollama (num_gpu=0, hilos, caché) y `diagnostico` |
 
 ---
 
-## 16. Solución de problemas
+## 16. Resultados: experimento comparativo (mejora 2)
+
+La pregunta: **¿el sistema multiagente de verdad sirve, o daría lo mismo un solo agente
+o un LLM?** Para contestarla, `carga/experimento.py` arma la carga de muchos alumnos con
+varios sistemas y los califica a todos con la misma regla.
+
+### 16.1 Cómo se hizo
+
+**Alumnos.** Se generan 20 alumnos sintéticos con semilla fija (`generar_alumnos`). Viven
+solo en memoria: no se agregan a la ontología.
+- Cada uno tiene un semestre del 2.º al 8.º y aprobó las obligatorias de los semestres
+  anteriores sobre el **plan real**.
+- Algunos reprueban 1 o 2 materias recientes (con probabilidad de 45%, ninguna). Si reprobó una materia,
+  tampoco tiene aprobado nada de lo que depende de ella: la seriación se respeta.
+- Las preferencias (turno, modalidad, tipo de carga) son al azar, y 13 de los 20 traen una
+  petición en lenguaje natural ("sin clases el viernes", "me interesa la nube"…).
+- La muestra de la semilla 7 tiene 12 alumnos con reprobadas y 8 sin ellas, de 2.º a 8.º
+  semestre.
+
+**Sistemas comparados:**
+
+| Sistema | Qué es |
+|---|---|
+| MAS (3 contratistas) | El sistema completo, con la mejora 1 |
+| MAS (1 AgenteCarga) | El sistema como estaba antes de la mejora 1: un solo AgenteCarga con pesos 0.5/0.3/0.2 y 6 ofertas |
+| Solo CargaAvance / Equilibrio / Preferencias | El MAS con un único contratista |
+| Monoagente simple | Solo revisa requisitos y toma las primeras 5 materias del plan, con el primer grupo de cada una (la coalición {A} del Shapley) |
+| LLM solo (llama3.2) | Recibe lo que un alumno le pegaría a un chatbot (el plan con seriación y oferta, su kárdex, su meta de créditos y su petición) y responde las siglas. No conoce los grupos, así que se toma el primero de cada materia |
+
+**Cómo se mide.** Todos los sistemas reciben las mismas preferencias, interpretadas por
+reglas para que sean iguales en todos. Se califican con la **misma** función oficial
+del Proyecto 2 y se revisan con las mismas reglas duras:
+- materias inválidas (ya aprobadas, sin prerrequisito o no ofertadas);
+- choques de horario;
+- créditos fuera de 24–48;
+- más de 2 optativas;
+- un día libre pedido que no se respetó.
+
+```text
+$ python main.py experimento            # 20 alumnos, sin LLM: ~4 s
+$ python main.py experimento --llm      # + LLM solo (con cargador y ./iniciar_ollama_cpu.sh)
+$ python main.py experimento -n 50 --semilla 2027
+```
+
+Las tablas quedan en `salidas/experimento.md` y los datos por alumno en
+`salidas/experimento.csv`. Una copia versionada de esta corrida está en `resultados/`.
+
+### 16.2 Resultados (20 alumnos, semilla 7, con LLM)
+
+| Sistema | Puntuación media | Mínima | Veces la mejor | Con materias inválidas | Con choques | Fuera de 24–48 cr | > 2 optativas | Día libre no respetado | Tiempo medio (s) |
+|---|---|---|---|---|---|---|---|---|---|
+| MAS (3 contratistas) | **89.57** | 84.06 | 12/20 | 0% | 0% | 0% | 0% | 0 de 2 | 0.066 |
+| MAS (1 AgenteCarga, antes de la mejora 1) | **88.9** | 77.66 | 14/20 | 0% | 0% | 0% | 0% | 1 de 2 | 0.027 |
+| Solo CargaAvance | **87.71** | 70.97 | 1/20 | 0% | 5.0% | 0% | 0% | 2 de 2 | 0.022 |
+| Solo CargaEquilibrio | **87.92** | 75.18 | 4/20 | 0% | 5.0% | 0% | 0% | 1 de 2 | 0.022 |
+| Solo CargaPreferencias | **88.48** | 84.06 | 8/20 | 0% | 0% | 0% | 0% | 0 de 2 | 0.022 |
+| Monoagente simple (solo requisitos) | **70.9** | 47.51 | 0/20 | 0% | 15.0% | 5.0% | 70.0% | 2 de 2 | 0.0 |
+| LLM solo (llama3.2) | **36.1** | 11.8 | 0/20 | 100% | 90.0% | 50.0% | 0% | 2 de 2 | 15.893 |
+
+Comparación alumno por alumno contra el MAS completo:
+
+| Sistema | Mejor que el MAS | Igual | Peor | Diferencia media |
+|---|---|---|---|---|
+| MAS (1 AgenteCarga, antes de la mejora 1) | 8 | 6 | 6 | -0.67 |
+| Solo CargaAvance | 0 | 3 | 17 | -1.86 |
+| Solo CargaEquilibrio | 0 | 8 | 12 | -1.65 |
+| Solo CargaPreferencias | 0 | 11 | 9 | -1.09 |
+| Monoagente simple (solo requisitos) | 0 | 0 | 20 | -18.67 |
+| LLM solo (llama3.2) | 0 | 0 | 20 | -53.47 |
+
+Sensibilidad a la muestra (sin LLM):
+
+| Muestra | MAS (3 contratistas) | MAS (1 AgenteCarga) | Mejor solo contratista | Monoagente simple | MAS vs 1 AgenteCarga (mejor / igual / peor) |
+|---|---|---|---|---|---|
+| 20 alumnos, semilla 7 | **89.57** | 88.9 | 88.48 (CargaPreferencias) | 70.9 | 6 / 6 / 8 |
+| 20 alumnos, semilla 11 | **88.57** | 87.73 | 86.63 (CargaPreferencias) | 65.56 | 9 / 6 / 5 |
+| 20 alumnos, semilla 13 | **89.03** | 88.56 | 88.27 (CargaPreferencias) | 65.81 | 7 / 10 / 3 |
+| 50 alumnos, semilla 2027 | **89.44** | 88.37 | 88.67 (CargaPreferencias) | 66.06 | 18 / 24 / 8 |
+
+### 16.3 Qué dicen los números
+
+1. **La coordinación entre especialistas es lo que más vale.** El monoagente simple queda
+   de 18 a 23 puntos abajo en todas las muestras. Rompe reglas que el MAS nunca rompe: el
+   70% de sus cargas lleva más de 2 optativas y el 15% tiene choques. Es la misma
+   conclusión que el Shapley: el Historial solo no basta.
+2. **El LLM solo de 3B no sirve para esta tarea.** Saca 36.1 de media, y el 100% de sus
+   cargas trae materias inválidas. Con frecuencia copia el catálogo en orden y elige
+   materias ya aprobadas: en un caso propuso 36 materias (224 créditos). Además tarda
+   unas 240 veces más que el MAS. Esto respalda la decisión de diseño del proyecto: que
+   el LLM solo interprete y redacte, y que el razonamiento lo hagan Python y la ontología.
+   **Ojo:** es un modelo de 3B en CPU. Un modelo grande lo haría mejor, y no se probó.
+3. **Los 3 contratistas nunca pierden contra uno solo de ellos.** Por construcción, el
+   equipo ve todas sus ofertas. CargaPreferencias es el mejor contratista individual en
+   las 4 muestras.
+4. **Contra el AgenteCarga único de antes, la mejora 1 gana en promedio, pero poco y no
+   siempre.**
+   - **Promedio:** de +0.5 a +1.1 puntos, en las 4 muestras.
+   - **Alumno por alumno:** el agente único sale mejor en 3 a 8 alumnos de cada muestra.
+     En la semilla 7 incluso gana en más alumnos (8) que el MAS (6); el MAS lo compensa
+     con menos casos malos (mínimo 84.06 contra 77.66).
+   - **Días libres:** el MAS respetó los 2 pedidos y el agente único solo 1, porque
+     CargaPreferencias mira los grupos antes de ofertar.
+   - **Dónde está la ventaja:** casi toda viene de los alumnos **sin** reprobadas
+     (89.23 contra 87.98). Con reprobadas, cualquier estrategia sensata prioriza
+     recursar, y las cargas se parecen (89.79 contra 89.52).
+5. **El costo es bajo.** El MAS tarda 0.07 s por alumno, contra 0.03 s del agente único.
+
+### 16.4 Límites del experimento
+
+- **Los alumnos y la oferta son sintéticos.** Lo único real es el plan.
+- **La métrica principal la definimos nosotros.** Es la función del Proyecto 2, y los
+  agentes se diseñaron pensando en ella; un sistema con otros objetivos podría parecer
+  peor sin serlo. Por eso también se reportan las reglas duras, que no dependen de pesos.
+- **Pocas peticiones de día libre** (2 de 20). Esa columna es solo indicativa.
+- **El LLM solo es uno:** `llama3.2` con un prompt, temperatura 0 y una sola corrida.
+
+---
+
+## 17. Solución de problemas
 
 | Síntoma | Causa | Solución |
 |---|---|---|
@@ -1359,6 +1485,8 @@ cuánto aportó cada contratista.
 | Protégé dice que la ontología es inconsistente | Abriste dos `kb_*.owl` juntos | Abre uno solo (sección 13.1) |
 | Cambié `semilla.py` y no veo el cambio | No regeneraste la ontología | `python main.py poblar` |
 | El notebook no encuentra `carga` | Kernel equivocado | Kernel "agente-carga3 (.venv)" |
+| `experimento --llm` dice `⚠ Sin LLM: …` y no aparece la fila "LLM solo" | Ollama apagado o laptop en batería | `./iniciar_ollama_cpu.sh` con el cargador conectado |
+| `experimento --llm` tarda mucho | Cada alumno es una llamada de ~1.5 min en CPU | Normal (~30 min para 20). La 2.ª vez sale de `salidas/cache_llm.json` al instante; para probar usa `-n 3` |
 
 Variables de entorno útiles (se ponen antes del comando):
 
@@ -1371,7 +1499,7 @@ $ OLLAMA_URL=http://127.0.0.1:11435 python main.py diagnostico   # forzar un ser
 
 ---
 
-## 17. Apagar todo y bitácoras de verificación
+## 18. Apagar todo y bitácoras de verificación
 
 ### Apagar
 

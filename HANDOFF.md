@@ -31,7 +31,7 @@ v(S) y su ontología (`P2_ontologia_carga_academica.owx`, que no se modifica).
 |---|---|
 | Carpeta | `~/Documentos/universidad/agentes/parcial-3/agente-carga3/` |
 | Repositorio | **Propio**, dentro de la carpeta: `github.com/ManuelRuizJ/agente-carga-academica`, rama `main` |
-| Commits | `2048d0c` (batería), `520a48c` (plan real de Intrauia) y el de la mejora 1 (licitación entre AgentesCarga), todos del 6 nov. **Sin push**: `origin/main` sigue en `feb07e2` |
+| Commits | `2048d0c` (batería), `520a48c` (plan real de Intrauia), `47ba72e` (mejora 1) y el de la mejora 2 (experimento), todos del 6 nov. **Sin push**: `origin/main` sigue en `feb07e2` |
 | Entorno | `.venv/` con Python **3.12.16** (CrewAI no soporta 3.14). Kernel de Jupyter registrado como `agente-carga3` |
 | Prototipo anterior | `../integracion_ontologica.ipynb` (reemplazado; no se tocó). `../venv` está roto: `python`→3.14 y los paquetes están en 3.12 |
 
@@ -105,6 +105,28 @@ v(S) y su ontología (`P2_ontologia_carga_academica.owx`, que no se modifica).
     transparencia (qué estrategia sirve para cada alumno), no de puntuación.
   - **CrewAI.** `evaluar_carga_academica` lista la mejor oferta de cada contratista.
     `AgenteCarga().proponer()` sin estrategia conserva los pesos originales 0.5/0.3/0.2.
+- **Mejora 2, experimento comparativo (6 nov).** Se corre con
+  `python main.py experimento [-n 20] [--semilla 7] [--llm]` y está en `carga/experimento.py`.
+  - **Alumnos.** 20 alumnos sintéticos en memoria, coherentes con la seriación real. No se
+    agregan a la ontología.
+  - **Sistemas.** Se comparan 7: MAS completo; MAS con 1 AgenteCarga (antes de la mejora
+    1); cada contratista solo; monoagente simple; y LLM solo (`llama3.2`).
+  - **Medición.** Todos con la función oficial y las mismas reglas duras.
+  - **Resultados.** Están en `resultados/experimento.md` y en la GUIA §16:
+
+    | Sistema | Puntuación media |
+    |---|---|
+    | MAS | 89.57 |
+    | MAS con 1 AgenteCarga | 88.9 |
+    | Monoagente simple | 70.9 |
+    | LLM solo | 36.1 (100% con materias inválidas) |
+
+  - **Sensibilidad.** Se probaron 4 muestras: semillas 7, 11 y 13, y 50 alumnos con la
+    semilla 2027. La mejora 1 gana en promedio en todas por 0.5–1.1 puntos, pero el agente
+    único sale mejor en 3 a 8 alumnos de cada muestra.
+  - **Corrida con LLM.** Con cargador y `./iniciar_ollama_cpu.sh`, unos 16 s por alumno.
+    La caché queda en `salidas/cache_llm.json`. Con `max_tokens=150`, 6 de las 20
+    respuestas salían cortadas; se subió a 400.
 - **Reverificación con el plan real** (6 nov, sin LLM): `poblar`, `demo`, `--razonador`,
   las 10 DL Query, `demo.ipynb` (7 celdas, 0 errores), agregar A004 (luego se revirtió) y
   un chequeo de reglas duras de las 3 recomendaciones (seriación, choques, créditos,
@@ -210,7 +232,7 @@ evaluación del 5 de noviembre):
 | ✅ | ~~Commit de la protección de batería y documentación~~ (hecho) | — | — |
 | ✅ | ~~Materias reales de Intrauia~~ (hecho el 6 nov) | La crítica "los datos son inventados" | — |
 | ✅ | ~~**1. Contract Net "real"**: 3 AgentesCarga compiten~~ (hecho el 6 nov, ver §3) | La crítica "es una cadena de pasos, no Contract Net" | — |
-| 2 | **Experimento comparativo:** MAS contra un LLM solo contra un solo agente, sobre unos 20 alumnos generados. Medir % de propuestas con materias inválidas, choques, puntuación y tiempo, en una tabla | La falta de una sección de resultados medibles | Medio |
+| ✅ | ~~**2. Experimento comparativo**~~ (hecho el 6 nov, ver §3 y GUIA §16) | La falta de una sección de resultados medibles | — |
 | 3 | **Sensibilidad de Shapley:** recalcular φ con otra definición de "ingenuo" y mostrar que el orden de los agentes se mantiene | La crítica "v(S) depende de tu baseline" | Bajo |
 | 4 | **Pruebas con pytest:** prerrequisitos, choques, eficiencia de Shapley (Σφ = v(N)) y guardias | "¿Cómo sabes que funciona?" | Bajo |
 | 5 | Modo conversacional ("quita Compiladores", "todo en la tarde") que vuelva a lanzar el Contract Net | Que se note más como agente y se luzca en la demo en vivo | Medio |
@@ -219,21 +241,18 @@ evaluación del 5 de noviembre):
 
 ## 7. Cuál es el siguiente paso
 
-La mejora #1 ya está. Lo natural ahora es la **#2 (experimento comparativo)** para la
-sección de resultados del reporte. Ya hay un primer resultado medible: la tabla "agente
-único contra 3 contratistas" de GUIA §15.5, en 4 casos. La #2 lo extendería a unos 20
-alumnos generados con `_kardex`.
+Las mejoras #1 y #2 ya están. Lo que más falta para la entrega:
 
-Orden sugerido al retomar:
-1. `git push` del repo `agente-carga3`, si el equipo está de acuerdo (hay 3 commits sin
-   subir).
-2. Si se hace la #2, conviene empezar por un generador de alumnos con `_kardex`
-   (semestre, materias reprobadas y preferencias al azar con semilla fija). Después se
-   comparan: sistema completo, agente único, cada contratista solo, y LLM solo si hay
-   cargador.
-3. Después de cualquier cambio, correr `python main.py demo` y comparar contra los valores
-   de referencia de §3, o actualizarlos a propósito.
-4. Opcional, con cargador: repetir §10 y §11 de la guía (LLM y CrewAI) con el plan real.
+1. **`git push`** del repo `agente-carga3`, si el equipo está de acuerdo (hay 4 commits
+   sin subir).
+2. **Redactar el reporte final** con la sección de resultados. Las tablas ya están en
+   `resultados/experimento.md` y la discusión en GUIA §16.3–16.4.
+3. **#3, sensibilidad de Shapley** (esfuerzo bajo). Ahora es más fácil: el experimento ya
+   genera alumnos, así que se puede recalcular φ con otra definición de "ingenuo" en los 20.
+4. **#4, pruebas con pytest** (esfuerzo bajo). La revisión de reglas duras de
+   `experimento.revisar` ya sirve de base.
+5. Opcional, con cargador: repetir las §10 y §11 de la guía (LLM y CrewAI) con el plan real.
+6. Revisar la rúbrica oficial del proyecto final, si la publican.
 
 ## 8. Cómo retomar en 1 minuto
 
@@ -247,5 +266,5 @@ python main.py demo              # debe dar 89.17 / 96.25 / 84.7
 ```
 
 Documentos de referencia: `README.md` (arquitectura), `GUIA_EJECUCION.md` (paso a
-paso, ejemplo numérico §15, problemas §16) y `salidas/_verificacion/` (evidencia de
+paso, ejemplo numérico §15, problemas §17, resultados del experimento §16) y `salidas/_verificacion/` (evidencia de
 pruebas, solo local).

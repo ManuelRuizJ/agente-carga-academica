@@ -61,7 +61,9 @@ Java solo se necesita para `--razonador` (HermiT). Ya lo tienes instalado (OpenJ
 # Terminal 2
 python main.py diagnostico                   # ¿Ollama en CPU? ¿cuánta RAM libre?
 python main.py alumnos                       # A001, A002, A003
-python main.py demo                          # los 3 alumnos sin LLM (menos de 1 s)
+python main.py demo                          # los 3 alumnos sin LLM (~3 s)
+python main.py experimento                   # mejora 2: compara el MAS contra otros sistemas (~4 s)
+python main.py experimento --llm             # ... y contra "LLM solo" (~1.5 min por alumno, con cargador)
 
 python main.py recomendar A001               # preferencias guardadas en la ontología
 python main.py recomendar A002 -p "trabajo, quiero pocas materias, en la mañana y sin viernes"
@@ -83,12 +85,15 @@ Cada ejecución genera en `salidas/`:
 | `reporte_<mat>.md` | Recomendación, horario semanal, tabla de las propuestas del Contract Net, tabla de v(S) y φ de Shapley, mensajes FIPA y trazas |
 | `trazas_<mat>.json` | Trace Collector (formato de la sección 3.2 del Proyecto 2) |
 | `kb_<mat>.owl` | Ontología con los resultados escritos de vuelta (`puedeCursar`, `PropuestaCarga`, `TrazaEjecucion`, `valorShapley`). Se abre en Protégé |
+| `experimento.md` · `experimento.csv` | Mejora 2: tabla comparativa y resultados por alumno y sistema |
 
 Tiempos medidos en tu laptop:
 
 | Modo | Tiempo | Llamadas al LLM |
 |---|---|---|
-| `demo` / `--sin-llm` | ~0.5 s | 0 |
+| `demo` / `--sin-llm` | ~3 s (3 alumnos) | 0 |
+| `experimento` (20 alumnos, 6 sistemas) | ~4 s | 0 |
+| `experimento --llm` | ~1.5 min por alumno | 1 por alumno |
 | `recomendar` con LLM | ~30–50 s | 2 (preferencias + redacción) |
 | `crew` (secuencial) | varios minutos | ~8 o más |
 
@@ -156,6 +161,26 @@ El LLM no decide nada: **interpreta** y **redacta**.
 - **Interpretación:** pide un JSON con esquema fijo (`format` de Ollama). Se descartan los valores fuera del esquema y las materias que no aparecen en el texto del alumno. Si el LLM no responde, se usan reglas.
 - **Redacción:** si el texto nombra una materia que no está en la propuesta, o inventa días de clase, se descarta y se usa una plantilla.
 - **Caché:** las respuestas se guardan en `salidas/cache_llm.json`, así que repetir una ejecución no vuelve a llamar al modelo.
+
+### Resultados: ¿sirve el MAS? (mejora 2)
+
+`python main.py experimento --llm` arma la carga de 20 alumnos sintéticos con 7 sistemas.
+Todos se califican con la misma función oficial y las mismas reglas duras. Detalle y
+discusión en `GUIA_EJECUCION.md` §16; tablas en `resultados/experimento.md`.
+
+| Sistema | Puntuación media | Con materias inválidas | Con choques | Fuera de 24–48 cr | Tiempo por alumno |
+|---|---|---|---|---|---|
+| **MAS (3 contratistas)** | **89.57** | 0% | 0% | 0% | 0.07 s |
+| MAS (1 AgenteCarga, antes de la mejora 1) | 88.9 | 0% | 0% | 0% | 0.03 s |
+| Mejor contratista solo (CargaPreferencias) | 88.48 | 0% | 0% | 0% | 0.02 s |
+| Monoagente simple (solo requisitos) | 70.9 | 0% | 15% | 5% | < 0.01 s |
+| LLM solo (llama3.2, 3B, CPU) | 36.1 | 100% | 90% | 50% | 16 s |
+
+En pocas palabras:
+- La coordinación entre especialistas es lo que más aporta.
+- El LLM de 3B, por sí solo, no respeta el kárdex ni la seriación.
+- La competencia entre contratistas (mejora 1) gana en promedio por 0.5–1.1 puntos en 4
+  muestras, pero no en todos los alumnos.
 
 ---
 
@@ -225,8 +250,10 @@ agente-carga3/
 │   ├── reporte.py           Markdown y salida en terminal
 │   ├── sistema.py           orquestación del modo normal
 │   ├── crew.py              orquestación con CrewAI
+│   ├── experimento.py       mejora 2: comparación contra otros sistemas
 │   └── llm.py               cliente de Ollama solo CPU + caché + diagnóstico
-└── salidas/                 reportes, trazas y ontologías de resultado
+├── resultados/              experimento comparativo (mejora 2), versionado para el reporte
+└── salidas/                 reportes, trazas y ontologías de resultado (no se versiona)
 ```
 
 Para cambiar el plan: vuelve a exportar de Intrauia a `datos/intrauia/plan_isc.txt` y

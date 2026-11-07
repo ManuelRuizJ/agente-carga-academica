@@ -1,0 +1,141 @@
+alumno,semestre,reprobadas,peticion,sistema,segundos,propuesta,puntuacion,invalidas,choques,fuera_rango,exceso_optativas,dia_libre_violado,creditos,materias
+E01,4,2,"no quiero métodos numéricos, me gustaría en línea",MAS (3 contratistas),0.101,True,87.46,0,0,False,False,False,48,LIIB2102 LICB2108 LIIS2111 LIIS2112 LICB2110 LIIS2102 LIIS2110 LIIN2103
+E01,4,2,"no quiero métodos numéricos, me gustaría en línea","MAS (1 AgenteCarga, antes de la mejora 1)",0.052,True,87.49,0,0,False,False,False,48,LIIB2102 LICB2108 LIIS2111 LICB2110 LIIS2110 LIIS2106 LIIS2117
+E01,4,2,"no quiero métodos numéricos, me gustaría en línea",Solo CargaAvance,0.033,True,86.5,0,0,False,False,False,48,LIIB2102 LICB2108 LIIS2111 LIIS2112 LICB2110 LIIS2110 LIIS2106
+E01,4,2,"no quiero métodos numéricos, me gustaría en línea",Solo CargaEquilibrio,0.036,True,87.46,0,0,False,False,False,48,LIIB2102 LICB2108 LIIS2111 LIIS2112 LICB2110 LIIS2102 LIIS2110 LIIN2103
+E01,4,2,"no quiero métodos numéricos, me gustaría en línea",Solo CargaPreferencias,0.033,True,84.22,0,0,False,False,False,48,LICB2108 LIIS2111 LIIS2112 LICB2110 LIIS2110 LIIS2106 LIIN2103
+E01,4,2,"no quiero métodos numéricos, me gustaría en línea",Monoagente simple (solo requisitos),0.0,True,68.85,0,0,True,False,False,22,LIIB2102 LICB2108 LICB2110 LICB2111 LIIS2102
+E01,4,2,"no quiero métodos numéricos, me gustaría en línea",LLM solo (llama3.2),19.671,True,13.81,19,7,True,False,False,104,LICB0423 LICB1202 LICB1219 LICB1224 LICB1231 LICB2101 LICB2103 LICB2105 LICB2106 LICB2107 LICB2109 LIIB2101 LIIE2102 LIIM2101 LIIM2102 LIIS1201 LIIS2101 LIIS2105 LYRU2101
+E02,3,0,prefiero la tarde,MAS (3 contratistas),0.083,True,87.71,0,0,False,False,False,40,LIIS2105 LIIS2112 LICB2108 LIIB2103 LIIS2111 LIIS2106
+E02,3,0,prefiero la tarde,"MAS (1 AgenteCarga, antes de la mejora 1)",0.029,True,77.66,0,0,False,False,False,32,LIIS2105 LYRU2101 LICB0423 LICB2108 LIIS2108
+E02,3,0,prefiero la tarde,Solo CargaAvance,0.027,True,70.97,0,1,False,False,False,34,LIIS2105 LYRU2101 LICB0423 LIIS2112 LICB2108
+E02,3,0,prefiero la tarde,Solo CargaEquilibrio,0.027,True,75.18,0,1,False,False,False,38,LIIS2105 LYRU2101 LICB0423 LIIS2112 LICB2108 LIIB2103
+E02,3,0,prefiero la tarde,Solo CargaPreferencias,0.028,True,87.71,0,0,False,False,False,40,LIIS2105 LIIS2112 LICB2108 LIIB2103 LIIS2111 LIIS2106
+E02,3,0,prefiero la tarde,Monoagente simple (solo requisitos),0.0,True,47.51,0,3,False,False,False,30,LICB0423 LICB2105 LICB2108 LICB2109 LIIM2102
+E02,3,0,prefiero la tarde,LLM solo (llama3.2),10.035,True,64.13,2,0,False,False,False,40,LICB2110 LICB2111 LIIB2103 LIIS2105 LYRU1213 LIII0428 LIIN1203
+E03,5,2,,MAS (3 contratistas),0.033,True,90.46,0,0,False,False,False,30,LIIM2102 LICB2111 LIIS2112 LICB2102 LIIE2104
+E03,5,2,,"MAS (1 AgenteCarga, antes de la mejora 1)",0.011,True,91.66,0,0,False,False,False,30,LIIM2102 LICB2111 LIIS2112 LIIE2104 LIIS2114
+E03,5,2,,Solo CargaAvance,0.011,True,90.46,0,0,False,False,False,30,LIIM2102 LICB2111 LIIS2112 LICB2102 LIIE2104
+E03,5,2,,Solo CargaEquilibrio,0.01,True,87.55,0,0,False,False,False,30,LIIM2102 LIIS2112 LIIB2104 LICB2102 LIIS2114
+E03,5,2,,Solo CargaPreferencias,0.011,True,86.86,0,0,False,False,False,30,LIIM2102 LIIB2104 LIIE2104 LIIS2113 LIIN2103
+E03,5,2,,Monoagente simple (solo requisitos),0.0,True,81.0,0,0,False,True,False,26,LIIM2102 LICB2111 LYRU2104 LYRU2105 LYRU2110
+E03,5,2,,LLM solo (llama3.2),13.733,True,25.25,9,1,True,False,False,54,LICB1202 LICB1231 LICB2103 LICB2106 LICB2107 LIIB2102 LIIE2102 LIIS2110 LYRU2101
+E04,8,0,,MAS (3 contratistas),0.067,True,91.56,0,0,False,False,False,40,LIIN2103 LIIN2105 LIIN2106 LYRU2118 LIII0428 LYRU2104
+E04,8,0,,"MAS (1 AgenteCarga, antes de la mejora 1)",0.024,True,91.56,0,0,False,False,False,40,LIIN2103 LIIN2105 LIIN2106 LYRU2118 LIII0428 LYRU2104
+E04,8,0,,Solo CargaAvance,0.022,True,91.35,0,0,False,False,False,40,LIIN2103 LIIN2105 LIIN2106 LIIS2121 LYRU2118 LYRU2104
+E04,8,0,,Solo CargaEquilibrio,0.022,True,87.48,0,0,False,False,False,38,LIIN2103 LIIN2105 LIIN2106 LYRU2118 LYRU2104 LYRU2110
+E04,8,0,,Solo CargaPreferencias,0.022,True,91.56,0,0,False,False,False,40,LIIN2103 LIIN2105 LIIN2106 LYRU2118 LIII0428 LYRU2104
+E04,8,0,,Monoagente simple (solo requisitos),0.0,True,69.03,0,0,False,True,False,28,LYRU2104 LYRU2110 LYRU2111 LYRU2113 LIIN2103
+E04,8,0,,LLM solo (llama3.2),34.46,True,11.8,36,32,True,False,False,224,LICB0423 LICB1202 LICB1219 LICB1224 LICB1231 LICB2101 LICB2102 LICB2103 LICB2105 LICB2106 LICB2107 LICB2108 LICB2109 LICB2110 LIIB2101 LIIE2102 LIIM2101 LIIS1201 LIIS2105 LIIS2106 LIIS2107 LIIS2108 LIIS2109 LIIS2110 LIIS2111 LIIS2112 LIIS2113 LIIS2114 LIIS2115 LIIS2116 LIIS2117 LIIS2118 LIIS2119 LRSS2102 LYRU2101 LYRU2105
+E05,7,0,"quiero adelantar materias, me gustaría en línea, no quiero clases los lunes",MAS (3 contratistas),0.103,True,87.45,0,0,False,False,False,44,LIIN2104 LIIS2107 LIIS2118 LRSS2102 LIIN2103 LIIN2105 LIIN2106
+E05,7,0,"quiero adelantar materias, me gustaría en línea, no quiero clases los lunes","MAS (1 AgenteCarga, antes de la mejora 1)",0.052,True,88.03,0,0,False,False,False,48,LIIS2108 LIIN2104 LIIS2107 LIIS2118 LIIS2119 LRSS2102 LIIN2103 LIIN2106
+E05,7,0,"quiero adelantar materias, me gustaría en línea, no quiero clases los lunes",Solo CargaAvance,0.037,True,87.09,0,0,False,False,True,48,LIIS2108 LIIN2104 LIIS2107 LIIS2109 LIIS2118 LRSS2102 LIIN2103 LIIN2106
+E05,7,0,"quiero adelantar materias, me gustaría en línea, no quiero clases los lunes",Solo CargaEquilibrio,0.033,True,87.45,0,0,False,False,False,44,LIIN2104 LIIS2107 LIIS2118 LRSS2102 LIIN2103 LIIN2105 LIIN2106
+E05,7,0,"quiero adelantar materias, me gustaría en línea, no quiero clases los lunes",Solo CargaPreferencias,0.035,True,87.45,0,0,False,False,False,44,LIIN2104 LIIS2107 LIIS2118 LRSS2102 LIIN2103 LIIN2105 LIIN2106
+E05,7,0,"quiero adelantar materias, me gustaría en línea, no quiero clases los lunes",Monoagente simple (solo requisitos),0.0,True,65.36,0,0,False,True,True,28,LYRU2104 LYRU2105 LYRU2110 LYRU2111 LIIN2104
+E05,7,0,"quiero adelantar materias, me gustaría en línea, no quiero clases los lunes",LLM solo (llama3.2),13.305,True,43.7,5,1,False,False,True,28,LICB2102 LIIB2104 LIIE2103 LIIS2110 LYRU2101
+E06,8,1,"nada de embebidos, no quiero clases los lunes",MAS (3 contratistas),0.031,True,84.06,0,0,False,False,False,30,LIIN2103 LIIN2105 LIIN2106 LIIS2120 LYRU2105
+E06,8,1,"nada de embebidos, no quiero clases los lunes","MAS (1 AgenteCarga, antes de la mejora 1)",0.011,True,82.99,0,0,False,False,True,30,LIIN2103 LIIN2105 LYRU2118 LYRU2104 LYRU2105
+E06,8,1,"nada de embebidos, no quiero clases los lunes",Solo CargaAvance,0.011,True,82.16,0,0,False,False,True,30,LIIN2103 LIIN2105 LIIN2106 LIIS2120 LYRU2118
+E06,8,1,"nada de embebidos, no quiero clases los lunes",Solo CargaEquilibrio,0.01,True,82.99,0,0,False,False,True,30,LIIN2103 LIIN2105 LYRU2118 LYRU2104 LYRU2105
+E06,8,1,"nada de embebidos, no quiero clases los lunes",Solo CargaPreferencias,0.01,True,84.06,0,0,False,False,False,30,LIIN2103 LIIN2105 LIIN2106 LIIS2120 LYRU2105
+E06,8,1,"nada de embebidos, no quiero clases los lunes",Monoagente simple (solo requisitos),0.0,True,80.02,0,0,False,True,True,32,LYRU2104 LYRU2105 LYRU2110 LYRU2113 LIIS2107
+E06,8,1,"nada de embebidos, no quiero clases los lunes",LLM solo (llama3.2),14.424,True,50.63,5,1,False,False,True,36,LICB1202 LICB1231 LICB2103 LICB2106 LICB0423
+E07,6,0,,MAS (3 contratistas),0.033,True,90.2,0,0,False,False,False,30,LIIS2106 LIIS2116 LIIN2103 LIIN2104 LIIS2118
+E07,6,0,,"MAS (1 AgenteCarga, antes de la mejora 1)",0.013,True,89.86,0,0,False,False,False,30,LIIS2106 LIIS2117 LIIS2116 LIIN2103 LIIN2104
+E07,6,0,,Solo CargaAvance,0.011,True,85.93,0,0,False,False,False,30,LIIS2106 LIIS2117 LIIS2115 LIIS2116
+E07,6,0,,Solo CargaEquilibrio,0.011,True,89.86,0,0,False,False,False,30,LIIS2106 LIIS2117 LIIS2116 LIIN2103 LIIN2104
+E07,6,0,,Solo CargaPreferencias,0.011,True,90.2,0,0,False,False,False,30,LIIS2106 LIIS2116 LIIN2103 LIIN2104 LIIS2118
+E07,6,0,,Monoagente simple (solo requisitos),0.0,True,76.22,0,0,False,True,False,30,LYRU2104 LYRU2105 LYRU2110 LYRU2111 LYRU2113
+E07,6,0,,LLM solo (llama3.2),11.398,True,60.09,5,0,False,False,False,32,LICB0423 LICB1202 LICB1231 LICB2106 LIIB2104
+E08,4,2,prefiero la tarde,MAS (3 contratistas),0.033,True,91.8,0,0,False,False,False,30,LHLF1201 LICB2105 LIIB2103 LIIS2111 LIIS2102
+E08,4,2,prefiero la tarde,"MAS (1 AgenteCarga, antes de la mejora 1)",0.012,True,91.94,0,0,False,False,False,30,LHLF1201 LICB2105 LIIB2103 LICB2110 LIIS2108
+E08,4,2,prefiero la tarde,Solo CargaAvance,0.011,True,91.8,0,0,False,False,False,30,LHLF1201 LICB2105 LIIB2103 LIIS2111 LIIS2102
+E08,4,2,prefiero la tarde,Solo CargaEquilibrio,0.011,True,89.45,0,0,False,False,False,28,LHLF1201 LICB2105 LIIB2103 LICB2110 LIIS2102
+E08,4,2,prefiero la tarde,Solo CargaPreferencias,0.011,True,90.0,0,0,False,False,False,30,LHLF1201 LIIB2103 LIIS2112 LICB2110 LIIS2108
+E08,4,2,prefiero la tarde,Monoagente simple (solo requisitos),0.0,True,75.92,0,1,False,False,False,26,LHLF1201 LICB2105 LICB2110 LICB2111 LIIB2103
+E08,4,2,prefiero la tarde,LLM solo (llama3.2),18.04,True,16.03,20,6,True,False,False,106,LICB0423 LICB1202 LICB1219 LICB1224 LICB1231 LICB2101 LICB2103 LICB2106 LICB2107 LICB2108 LICB2109 LIIB2101 LIIB2102 LIIE2102 LIIM2101 LIIM2102 LIIS1201 LIIS2101 LIIS2105 LYRU2101
+E09,8,1,,MAS (3 contratistas),0.079,True,89.9,0,0,False,False,False,40,LIIS2116 LIIN2103 LIIN2105 LIIS2120 LYRU2118 LYRU2104 LYRU2105
+E09,8,1,,"MAS (1 AgenteCarga, antes de la mejora 1)",0.029,True,89.9,0,0,False,False,False,40,LIIS2116 LIIN2103 LIIN2105 LIIS2120 LYRU2118 LYRU2104 LYRU2105
+E09,8,1,,Solo CargaAvance,0.027,True,89.12,0,0,False,False,False,40,LIIS2116 LIIN2103 LIIN2105 LIIN2106 LIIS2121 LYRU2118
+E09,8,1,,Solo CargaEquilibrio,0.027,True,89.9,0,0,False,False,False,40,LIIS2116 LIIN2103 LIIN2105 LIIS2120 LYRU2118 LYRU2104 LYRU2105
+E09,8,1,,Solo CargaPreferencias,0.026,True,87.36,0,0,False,False,False,38,LIIS2116 LIIN2103 LIIS2121 LYRU2118 LIIN1203 LYRU2104
+E09,8,1,,Monoagente simple (solo requisitos),0.0,True,62.84,0,0,False,True,False,30,LYRU2104 LYRU2105 LYRU2110 LYRU2111 LYRU2113
+E09,8,1,,LLM solo (llama3.2),14.992,True,35.45,6,3,False,False,False,44,LICB1202 LICB1231 LICB2105 LICB2108 LIIE2103 LIIS2114 LYRU2104
+E10,8,0,"nada de embebidos, me interesan las bases de datos, prefiero la tarde",MAS (3 contratistas),0.031,True,89.28,0,0,False,False,False,30,LIIN2103 LIIN2105 LIIN2106 LIIS2120 LYRU2118
+E10,8,0,"nada de embebidos, me interesan las bases de datos, prefiero la tarde","MAS (1 AgenteCarga, antes de la mejora 1)",0.011,True,87.49,0,0,False,False,False,30,LIIN2103 LIIN2105 LYRU2118 LYRU2104 LYRU2105
+E10,8,0,"nada de embebidos, me interesan las bases de datos, prefiero la tarde",Solo CargaAvance,0.011,True,89.28,0,0,False,False,False,30,LIIN2103 LIIN2105 LIIN2106 LIIS2120 LYRU2118
+E10,8,0,"nada de embebidos, me interesan las bases de datos, prefiero la tarde",Solo CargaEquilibrio,0.01,True,87.49,0,0,False,False,False,30,LIIN2103 LIIN2105 LYRU2118 LYRU2104 LYRU2105
+E10,8,0,"nada de embebidos, me interesan las bases de datos, prefiero la tarde",Solo CargaPreferencias,0.011,True,88.49,0,0,False,False,False,28,LIIN2103 LIIN2105 LIIN2106 LIII0428
+E10,8,0,"nada de embebidos, me interesan las bases de datos, prefiero la tarde",Monoagente simple (solo requisitos),0.0,True,74.5,0,0,False,True,False,28,LYRU2104 LYRU2105 LYRU2110 LYRU2111 LIIN2103
+E10,8,0,"nada de embebidos, me interesan las bases de datos, prefiero la tarde",LLM solo (llama3.2),7.168,True,46.69,5,1,False,False,False,34,LICB1202 LICB2103 LICB2110 LIIS2105 LIIS2112
+E11,6,1,"nada de embebidos, quiero algo ligero, no quiero métodos numéricos",MAS (3 contratistas),0.032,True,90.55,0,0,False,False,False,30,LIIS2112 LIIS2108 LIIN2105 LIIN2106
+E11,6,1,"nada de embebidos, quiero algo ligero, no quiero métodos numéricos","MAS (1 AgenteCarga, antes de la mejora 1)",0.012,True,90.86,0,0,False,False,False,30,LIIS2112 LIIS2117 LIIS2108 LIIN2103 LIIN2104
+E11,6,1,"nada de embebidos, quiero algo ligero, no quiero métodos numéricos",Solo CargaAvance,0.011,True,89.75,0,0,False,False,False,30,LIIS2112 LIIS2117 LIIS2116 LIIN2103 LIIN2104
+E11,6,1,"nada de embebidos, quiero algo ligero, no quiero métodos numéricos",Solo CargaEquilibrio,0.011,True,87.83,0,0,False,False,False,28,LIIS2112 LIIN2103 LIIN2104 LRSS2102 LIIN2105
+E11,6,1,"nada de embebidos, quiero algo ligero, no quiero métodos numéricos",Solo CargaPreferencias,0.011,True,90.55,0,0,False,False,False,30,LIIS2112 LIIS2108 LIIN2105 LIIN2106
+E11,6,1,"nada de embebidos, quiero algo ligero, no quiero métodos numéricos",Monoagente simple (solo requisitos),0.0,True,75.62,0,0,False,True,False,30,LYRU2104 LYRU2105 LYRU2110 LYRU2111 LYRU2113
+E11,6,1,"nada de embebidos, quiero algo ligero, no quiero métodos numéricos",LLM solo (llama3.2),24.78,True,17.95,26,15,True,False,False,142,LICB0423 LICB1202 LICB1219 LICB1224 LICB1231 LICB2101 LICB2102 LICB2103 LICB2105 LICB2106 LICB2107 LICB2108 LICB2109 LICB2110 LICB2111 LIIB2101 LIIB2102 LIIB2103 LIIB2104 LIIE2102 LIIE2104 LIIM2101 LIIM2102 LYRU2101 LYRU2109 LYRU2112
+E12,6,0,"quiero algo ligero, prefiero la tarde",MAS (3 contratistas),0.033,True,88.34,0,0,False,False,False,30,LIIS2106 LIIS2117 LICB1229 LIIN2103 LIIN2104
+E12,6,0,"quiero algo ligero, prefiero la tarde","MAS (1 AgenteCarga, antes de la mejora 1)",0.013,True,88.34,0,0,False,False,False,30,LIIS2106 LIIS2117 LICB1229 LIIN2103 LIIN2104
+E12,6,0,"quiero algo ligero, prefiero la tarde",Solo CargaAvance,0.011,True,86.85,0,0,False,False,False,30,LIIS2106 LIIS2117 LICB1229 LIIS2115
+E12,6,0,"quiero algo ligero, prefiero la tarde",Solo CargaEquilibrio,0.011,True,88.34,0,0,False,False,False,30,LIIS2106 LIIS2117 LICB1229 LIIN2103 LIIN2104
+E12,6,0,"quiero algo ligero, prefiero la tarde",Solo CargaPreferencias,0.012,True,88.34,0,0,False,False,False,30,LIIS2106 LIIS2117 LICB1229 LIIN2103 LIIN2104
+E12,6,0,"quiero algo ligero, prefiero la tarde",Monoagente simple (solo requisitos),0.0,True,78.48,0,0,False,True,False,30,LYRU2104 LYRU2105 LYRU2110 LYRU2111 LYRU2113
+E12,6,0,"quiero algo ligero, prefiero la tarde",LLM solo (llama3.2),6.583,True,52.08,5,1,False,False,False,28,LICB1202 LICB2110 LIIB2103 LIIS2105 LYRU2101
+E13,5,0,"me interesa la nube, no quiero métodos numéricos",MAS (3 contratistas),0.099,True,88.66,0,0,False,False,False,48,LIIS2112 LIIB2104 LICB2102 LIIE2104 LIIS2113 LIIS2114 LIIN2103 LIIE2103
+E13,5,0,"me interesa la nube, no quiero métodos numéricos","MAS (1 AgenteCarga, antes de la mejora 1)",0.036,True,89.01,0,0,False,False,False,48,LIIS2112 LICB2102 LIIE2104 LIIS2113 LIIS2114 LIIS2106 LIIN2103
+E13,5,0,"me interesa la nube, no quiero métodos numéricos",Solo CargaAvance,0.032,True,88.11,0,0,False,False,False,48,LIIS2112 LIIB2104 LICB2102 LIIE2104 LIIS2113 LIIS2114 LIIS2106
+E13,5,0,"me interesa la nube, no quiero métodos numéricos",Solo CargaEquilibrio,0.035,True,88.66,0,0,False,False,False,48,LIIS2112 LIIB2104 LICB2102 LIIE2104 LIIS2113 LIIS2114 LIIN2103 LIIE2103
+E13,5,0,"me interesa la nube, no quiero métodos numéricos",Solo CargaPreferencias,0.034,True,86.69,0,0,False,False,False,48,LIIS2112 LIIB2104 LIIE2104 LIIS2113 LIIS2114 LIIS2117 LIIS2108
+E13,5,0,"me interesa la nube, no quiero métodos numéricos",Monoagente simple (solo requisitos),0.0,True,67.33,0,0,False,True,False,30,LYRU2104 LYRU2105 LYRU2110 LYRU2111 LYRU2113
+E13,5,0,"me interesa la nube, no quiero métodos numéricos",LLM solo (llama3.2),14.449,True,31.39,6,4,True,False,False,64,LIIS2118 LIII0428 LIIN2107 LICB2110 LICB2111 LIIB2103 LIIE2104 LIIS2112 LIIS2113 LIIS2115
+E14,8,1,,MAS (3 contratistas),0.087,True,89.15,0,0,False,False,False,48,LIIS2116 LIIN2103 LIIN2105 LIIN2106 LIIS2120 LYRU2118 LYRU2104 LYRU2105
+E14,8,1,,"MAS (1 AgenteCarga, antes de la mejora 1)",0.036,True,89.15,0,0,False,False,False,48,LIIS2116 LIIN2103 LIIN2105 LIIN2106 LIIS2120 LYRU2118 LYRU2104 LYRU2105
+E14,8,1,,Solo CargaAvance,0.029,True,88.88,0,0,False,False,False,46,LIIS2116 LIIN2103 LIIN2105 LIIN2106 LIIS2121 LYRU2118 LYRU2104
+E14,8,1,,Solo CargaEquilibrio,0.029,True,89.15,0,0,False,False,False,48,LIIS2116 LIIN2103 LIIN2105 LIIN2106 LIIS2120 LYRU2118 LYRU2104 LYRU2105
+E14,8,1,,Solo CargaPreferencias,0.028,True,84.06,0,0,False,False,False,48,LIIN2103 LIIN2105 LIIN2106 LIIS2121 LYRU2118 LIII0428 LYRU2104
+E14,8,1,,Monoagente simple (solo requisitos),0.0,True,56.28,0,0,False,True,False,30,LYRU2104 LYRU2105 LYRU2110 LYRU2111 LYRU2113
+E14,8,1,,LLM solo (llama3.2),16.513,True,45.87,7,1,True,False,False,50,LICB1202 LICB1231 LIIB2103 LIIE2104 LIIS2115 LIII0428 LIIN2107 LRSS2102
+E15,5,2,me interesa la nube,MAS (3 contratistas),0.083,True,92.62,0,0,False,False,False,40,LICB2105 LICB2110 LIIS2112 LIIB2104 LIIE2104 LIIS2114
+E15,5,2,me interesa la nube,"MAS (1 AgenteCarga, antes de la mejora 1)",0.028,True,92.62,0,0,False,False,False,40,LICB2105 LICB2110 LIIS2112 LIIB2104 LIIE2104 LIIS2114
+E15,5,2,me interesa la nube,Solo CargaAvance,0.027,True,91.38,0,0,False,False,False,40,LICB2105 LICB2110 LIIS2112 LIIB2104 LICB2102 LIIE2104
+E15,5,2,me interesa la nube,Solo CargaEquilibrio,0.028,True,90.31,0,0,False,False,False,40,LICB2105 LICB2110 LIIB2104 LICB2102 LIIS2114 LIIS2108 LIIN2103
+E15,5,2,me interesa la nube,Solo CargaPreferencias,0.027,True,92.62,0,0,False,False,False,40,LICB2105 LICB2110 LIIS2112 LIIB2104 LIIE2104 LIIS2114
+E15,5,2,me interesa la nube,Monoagente simple (solo requisitos),0.0,True,81.81,0,0,False,True,False,32,LICB2105 LICB2110 LYRU2105 LYRU2110 LYRU2111
+E15,5,2,me interesa la nube,LLM solo (llama3.2),11.601,True,49.34,3,1,False,False,False,32,LIIS2118 LICB1229 LIII0428 LIIN2107 LYRU2104
+E16,4,2,quiero algo ligero,MAS (3 contratistas),0.032,True,93.47,0,0,False,False,False,30,LHLF1201 LICB2108 LIIB2103 LIIS2112 LICB2110
+E16,4,2,quiero algo ligero,"MAS (1 AgenteCarga, antes de la mejora 1)",0.012,True,93.47,0,0,False,False,False,30,LHLF1201 LICB2108 LIIB2103 LIIS2111 LIIS2108
+E16,4,2,quiero algo ligero,Solo CargaAvance,0.011,True,92.56,0,0,False,False,False,30,LHLF1201 LICB2108 LIIB2103 LIIS2111 LICB2110
+E16,4,2,quiero algo ligero,Solo CargaEquilibrio,0.011,True,93.47,0,0,False,False,False,30,LHLF1201 LICB2108 LIIB2103 LIIS2112 LICB2110
+E16,4,2,quiero algo ligero,Solo CargaPreferencias,0.011,True,90.82,0,0,False,False,False,30,LICB2108 LIIB2103 LIIS2102 LIIS2110 LIIS2106
+E16,4,2,quiero algo ligero,Monoagente simple (solo requisitos),0.0,True,84.71,0,0,False,False,False,24,LHLF1201 LICB2108 LICB2110 LICB2111 LIIB2103
+E16,4,2,quiero algo ligero,LLM solo (llama3.2),20.356,True,17.25,20,8,True,False,False,108,LICB0423 LICB1202 LICB1219 LICB1224 LICB1231 LICB2101 LICB2103 LICB2105 LICB2106 LICB2107 LICB2109 LIIB2101 LIIB2102 LIIE2102 LIIM2101 LIIM2102 LIIS1201 LIIS2101 LIIS2105 LYRU2101
+E17,2,2,"me interesa la nube, quiero adelantar materias",MAS (3 contratistas),0.109,True,90.02,0,0,False,False,False,48,LIIS2105 LICB2103 LICB2106 LHLF1201 LICB1202 LICB1231 LIIS2111
+E17,2,2,"me interesa la nube, quiero adelantar materias","MAS (1 AgenteCarga, antes de la mejora 1)",0.044,True,87.07,0,0,False,False,False,48,LIIS2105 LYRU2101 LICB2103 LICB2106 LIIS2112 LICB1202 LICB1231
+E17,2,2,"me interesa la nube, quiero adelantar materias",Solo CargaAvance,0.035,True,86.53,0,0,False,False,False,48,LIIS2105 LYRU2101 LICB2103 LICB2106 LIIS2112 LHLF1201 LICB1231
+E17,2,2,"me interesa la nube, quiero adelantar materias",Solo CargaEquilibrio,0.036,True,88.83,0,0,False,False,False,48,LIIS2105 LYRU2101 LICB2103 LICB2106 LHLF1201 LICB1202 LICB1231 LICB2107
+E17,2,2,"me interesa la nube, quiero adelantar materias",Solo CargaPreferencias,0.04,True,90.02,0,0,False,False,False,48,LIIS2105 LICB2103 LICB2106 LHLF1201 LICB1202 LICB1231 LIIS2111
+E17,2,2,"me interesa la nube, quiero adelantar materias",Monoagente simple (solo requisitos),0.0,True,66.08,0,1,False,False,False,34,LHLF1201 LICB1202 LICB1231 LICB2103 LICB2106
+E17,2,2,"me interesa la nube, quiero adelantar materias",LLM solo (llama3.2),8.096,True,56.38,1,1,False,False,False,32,LIIS2105 LIIE2103 LICB1229 LIIN1203 LIII0428
+E18,7,2,quiero algo ligero,MAS (3 contratistas),0.034,True,86.94,0,0,False,False,False,30,LIIB2104 LIIS2113 LIIS2108 LIIS2118 LIIN2103
+E18,7,2,quiero algo ligero,"MAS (1 AgenteCarga, antes de la mejora 1)",0.012,True,87.23,0,0,False,False,False,30,LIIB2104 LIIS2113 LIIS2108 LIIS2107 LIIN2103
+E18,7,2,quiero algo ligero,Solo CargaAvance,0.011,True,85.22,0,0,False,False,False,30,LIIB2104 LIIS2113 LIIS2108 LIIS2107 LRSS2102
+E18,7,2,quiero algo ligero,Solo CargaEquilibrio,0.011,True,86.09,0,0,False,False,False,28,LIIB2104 LIIS2113 LIIS2107 LRSS2102 LIIN2103
+E18,7,2,quiero algo ligero,Solo CargaPreferencias,0.011,True,86.94,0,0,False,False,False,30,LIIB2104 LIIS2113 LIIS2108 LIIS2118 LIIN2103
+E18,7,2,quiero algo ligero,Monoagente simple (solo requisitos),0.0,True,67.83,0,0,False,True,False,30,LYRU2104 LYRU2105 LYRU2110 LYRU2111 LYRU2113
+E18,7,2,quiero algo ligero,LLM solo (llama3.2),13.495,True,49.23,5,1,False,False,False,26,LICB1202 LICB1231 LICB2107 LIIB2103 LYRU2101
+E19,4,0,,MAS (3 contratistas),0.116,True,90.65,0,0,False,False,False,48,LIIB2103 LIIS2111 LIIS2112 LICB2110 LIIS2102 LIIS2110 LIIN2103 LICB2102
+E19,4,0,,"MAS (1 AgenteCarga, antes de la mejora 1)",0.065,True,91.88,0,0,False,False,False,48,LIIB2103 LIIS2111 LIIS2112 LICB2110 LIIS2102 LIIS2110 LIIS2108 LIIN2103
+E19,4,0,,Solo CargaAvance,0.041,True,90.42,0,0,False,False,False,48,LIIB2103 LIIS2111 LIIS2112 LICB2110 LICB2111 LIIS2102 LIIS2110 LIIS2106
+E19,4,0,,Solo CargaEquilibrio,0.036,True,90.65,0,0,False,False,False,48,LIIB2103 LIIS2111 LIIS2112 LICB2110 LIIS2102 LIIS2110 LIIN2103 LICB2102
+E19,4,0,,Solo CargaPreferencias,0.039,True,90.59,0,0,False,False,False,48,LIIB2103 LIIS2111 LIIS2112 LICB2110 LICB2111 LIIS2117 LIIS2108 LICB2102
+E19,4,0,,Monoagente simple (solo requisitos),0.0,True,67.7,0,0,False,False,False,24,LICB2110 LICB2111 LIIB2103 LIIS2102 LIIS2110
+E19,4,0,,LLM solo (llama3.2),19.876,True,17.25,21,9,True,False,False,114,LICB0423 LICB1202 LICB1219 LICB1224 LICB1231 LICB2101 LICB2103 LICB2105 LICB2106 LICB2107 LICB2108 LICB2109 LIIB2101 LIIB2102 LIIE2102 LIIM2101 LIIM2102 LIIS1201 LIIS2101 LIIS2105 LYRU2101
+E20,5,1,,MAS (3 contratistas),0.109,True,91.05,0,0,False,False,False,48,LICB2110 LIIS2112 LIIB2104 LICB2102 LIIE2104 LIIS2108 LIIN2103 LICB1229
+E20,5,1,,"MAS (1 AgenteCarga, antes de la mejora 1)",0.038,True,89.81,0,0,False,False,False,48,LICB2110 LIIS2112 LIIB2104 LICB2102 LIIE2104 LIIS2113 LIIS2106
+E20,5,1,,Solo CargaAvance,0.031,True,89.81,0,0,False,False,False,48,LICB2110 LIIS2112 LIIB2104 LICB2102 LIIE2104 LIIS2113 LIIS2106
+E20,5,1,,Solo CargaEquilibrio,0.034,True,90.26,0,0,False,False,False,48,LICB2110 LIIS2112 LIIB2104 LICB2102 LIIE2104 LIIS2114 LIIS2108 LIIN2103
+E20,5,1,,Solo CargaPreferencias,0.034,True,91.05,0,0,False,False,False,48,LICB2110 LIIS2112 LIIB2104 LICB2102 LIIE2104 LIIS2108 LIIN2103 LICB1229
+E20,5,1,,Monoagente simple (solo requisitos),0.0,True,70.88,0,0,False,True,False,30,LICB2110 LYRU2104 LYRU2105 LYRU2110 LYRU2111
+E20,5,1,,LLM solo (llama3.2),24.893,True,17.63,27,15,True,False,False,146,LHLF1201 LICB0423 LICB1202 LICB1219 LICB1224 LICB1231 LICB2101 LICB2103 LICB2105 LICB2106 LICB2107 LICB2108 LICB2109 LICB2111 LIIB2101 LIIB2102 LIIB2103 LIIE2102 LIIM2101 LIIM2102 LIIS1201 LIIS2101 LIIS2102 LIIS2105 LIIS2110 LIIS2111 LYRU2101
