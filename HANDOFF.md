@@ -31,7 +31,7 @@ v(S) y su ontología (`P2_ontologia_carga_academica.owx`, que no se modifica).
 |---|---|
 | Carpeta | `~/Documentos/universidad/agentes/parcial-3/agente-carga3/` |
 | Repositorio | **Propio**, dentro de la carpeta: `github.com/ManuelRuizJ/agente-carga-academica`, rama `main` |
-| Commits | `2048d0c` (protección de batería y docs) y el del plan real de Intrauia (6 nov). **Sin push**: `origin/main` sigue en `feb07e2` |
+| Commits | `2048d0c` (batería), `520a48c` (plan real de Intrauia) y el de la mejora 1 (licitación entre AgentesCarga), todos del 6 nov. **Sin push**: `origin/main` sigue en `feb07e2` |
 | Entorno | `.venv/` con Python **3.12.16** (CrewAI no soporta 3.14). Kernel de Jupyter registrado como `agente-carga3` |
 | Prototipo anterior | `../integracion_ontologica.ipynb` (reemplazado; no se tocó). `../venv` está roto: `python`→3.14 y los paquetes están en 3.12 |
 
@@ -87,6 +87,24 @@ v(S) y su ontología (`P2_ontologia_carga_academica.owx`, que no se modifica).
   (guía paso a paso con salidas reales, ejemplo numérico y solución de problemas).
 - **Verificación completa** del 5 de noviembre. Las bitácoras están en
   `salidas/_verificacion/` (00–19); no están en git porque `salidas/` está ignorado.
+- **Mejora 1, Contract Net con competencia (6 nov).** Tres `AgenteCarga` contratistas,
+  definidos en `config.ESTRATEGIAS_CARGA`: CargaAvance, CargaEquilibrio y
+  CargaPreferencias. Son la misma clase con distintos pesos.
+  - **Protocolo.** Siguen los 4 pasos de la diapositiva de clase (tema 2): anuncio `cfp`,
+    oferta (2 por contratista, con su autoevaluación), adjudicación con la función
+    **oficial** (`accept`/`reject` dirigidos a cada contratista) y resultado `inform`.
+  - **Ontología.** `generadaPor` de cada propuesta apunta al contratista, y en la
+    ontología hay 3 individuos nuevos de `AgenteCarga`. El razonador deduce la inversa
+    `generaPropuesta`: "¿quién ganó?".
+  - **Shapley.** El juego entre roles sigue igual, con B = el equipo de contratistas.
+    Además hay un 2.º juego entre los 3 contratistas (`shapley_contratistas`): Historial y
+    Horarios fijos, y v(S) = mejor oferta de S − carga ingenua. Es un juego de máximo, con
+    fórmula a mano en GUIA §15.5. Con A003 los 3 empatan: simetría.
+  - **Hallazgo honesto.** Frente al AgenteCarga único de antes, empata en 3 de 4 casos y
+    pierde por 0.13 en uno (A001 con la petición del notebook). La ganancia es de
+    transparencia (qué estrategia sirve para cada alumno), no de puntuación.
+  - **CrewAI.** `evaluar_carga_academica` lista la mejor oferta de cada contratista.
+    `AgenteCarga().proponer()` sin estrategia conserva los pesos originales 0.5/0.3/0.2.
 - **Reverificación con el plan real** (6 nov, sin LLM): `poblar`, `demo`, `--razonador`,
   las 10 DL Query, `demo.ipynb` (7 celdas, 0 errores), agregar A004 (luego se revirtió) y
   un chequeo de reglas duras de las 3 recomendaciones (seriación, choques, créditos,
@@ -111,10 +129,17 @@ v(S) y su ontología (`P2_ontologia_carga_academica.owx`, que no se modifica).
 | `crew` secuencial / jerárquico | ✅ 4 min / 5 min 20 s, 4 herramientas llamadas |
 | Agregar alumno A004 vía `semilla.py` | ✅ (y se revirtió) |
 
-Resultados de referencia para detectar regresiones (plan real, 6 nov): `python main.py demo`
-debe dar **92.29** (A001), **94.53** (A002) y **84.39** (A003). El Shapley de A001 debe ser
-**40.04 / 25.67 / 26.57**, y el de A003 28.1 / 31.31 / 24.97. Los
-valores anteriores (89.17 / 96.25 / 84.7) eran del catálogo sintético.
+Resultados de referencia para detectar regresiones (plan real + mejora 1, 6 nov):
+
+| Alumno | Puntuación | Gana | Shapley roles (Historial / Carga / Horarios) | Shapley contratistas (Avance / Equilibrio / Preferencias) |
+|---|---|---|---|---|
+| A001 | **92.29** | CargaPreferencias | 39.41 / 30.07 / 22.8 | 5.22 / 4.88 / 5.63 |
+| A002 | **94.53** | CargaPreferencias | 41.04 / 27.79 / 25.7 | 0.44 / 0.6 / 2.37 |
+| A003 | **84.39** | CargaAvance (empate triple) | 28.1 / 31.31 / 24.97 | 10.2 / 10.2 / 10.2 |
+
+`demo` tarda unos 2.6 s (antes 0.9 s), porque cada simulación consulta a 3 contratistas.
+Los valores de antes de la mejora 1 eran iguales en puntuación, con Shapley de A001 =
+40.04 / 25.67 / 26.57. Los del catálogo sintético (89.17 / 96.25 / 84.7) ya no aplican.
 
 ## 4. Decisiones tomadas (y por qué)
 
@@ -184,7 +209,7 @@ evaluación del 5 de noviembre):
 |---|---|---|---|
 | ✅ | ~~Commit de la protección de batería y documentación~~ (hecho) | — | — |
 | ✅ | ~~Materias reales de Intrauia~~ (hecho el 6 nov) | La crítica "los datos son inventados" | — |
-| 1 | **Contract Net "real":** 2 o 3 instancias de AgenteCarga con estrategias distintas ("máximo avance", "carga ligera", "prioriza intereses") que compitan con ofertas por el mismo `cfp`; el Manager adjudica | La crítica "es una cadena de pasos, no Contract Net". También hace más interesante a Shapley | Medio |
+| ✅ | ~~**1. Contract Net "real"**: 3 AgentesCarga compiten~~ (hecho el 6 nov, ver §3) | La crítica "es una cadena de pasos, no Contract Net" | — |
 | 2 | **Experimento comparativo:** MAS contra un LLM solo contra un solo agente, sobre unos 20 alumnos generados. Medir % de propuestas con materias inválidas, choques, puntuación y tiempo, en una tabla | La falta de una sección de resultados medibles | Medio |
 | 3 | **Sensibilidad de Shapley:** recalcular φ con otra definición de "ingenuo" y mostrar que el orden de los agentes se mantiene | La crítica "v(S) depende de tu baseline" | Bajo |
 | 4 | **Pruebas con pytest:** prerrequisitos, choques, eficiencia de Shapley (Σφ = v(N)) y guardias | "¿Cómo sabes que funciona?" | Bajo |
@@ -194,14 +219,18 @@ evaluación del 5 de noviembre):
 
 ## 7. Cuál es el siguiente paso
 
-Ya se decidió: sigue la mejora **#1 (Contract Net con 2 o 3 AgentesCarga en competencia)**.
-Después vendría la #2 (experimento comparativo) y la sección de resultados del reporte.
+La mejora #1 ya está. Lo natural ahora es la **#2 (experimento comparativo)** para la
+sección de resultados del reporte. Ya hay un primer resultado medible: la tabla "agente
+único contra 3 contratistas" de GUIA §15.5, en 4 casos. La #2 lo extendería a unos 20
+alumnos generados con `_kardex`.
 
 Orden sugerido al retomar:
-1. `git push` del repo `agente-carga3`, si el equipo está de acuerdo (hay 2 commits sin
+1. `git push` del repo `agente-carga3`, si el equipo está de acuerdo (hay 3 commits sin
    subir).
-2. Implementar la #1. Cambia los valores de Shapley, porque habría más jugadores o el
-   AgenteCarga pasaría a ser un "pool".
+2. Si se hace la #2, conviene empezar por un generador de alumnos con `_kardex`
+   (semestre, materias reprobadas y preferencias al azar con semilla fija). Después se
+   comparan: sistema completo, agente único, cada contratista solo, y LLM solo si hay
+   cargador.
 3. Después de cualquier cambio, correr `python main.py demo` y comparar contra los valores
    de referencia de §3, o actualizarlos a propósito.
 4. Opcional, con cargador: repetir §10 y §11 de la guía (LLM y CrewAI) con el plan real.

@@ -26,7 +26,7 @@ misma función v(S) y la misma ontología.
 |---|---|---|
 | Ollama intentaba usar la **GPU integrada Radeon (gfx90c)**, que ROCm no soporta | Última celda del notebook: `ROCm error: invalid device function` | `iniciar_ollama_cpu.sh` oculta todas las GPUs y fuerza CPU. Además, cada petición manda `num_gpu: 0` |
 | CrewAI usa el endpoint `/v1` de Ollama, que **ignora** `num_gpu` | código de `crewai/llms/providers/openai_compatible` | La GPU se desactiva en el **servidor**, no en la petición |
-| La ontología **no tenía individuos** (ni alumnos, ni materias, ni grupos) | `P2_ontologia_carga_academica.owx`: 0 `ClassAssertion` | `datos/semilla.py` + `carga/poblar.py` la pueblan con 449 individuos (con el plan real de Intrauia) |
+| La ontología **no tenía individuos** (ni alumnos, ni materias, ni grupos) | `P2_ontologia_carga_academica.owx`: 0 `ClassAssertion` | `datos/semilla.py` + `carga/poblar.py` la pueblan con 452 individuos (con el plan real de Intrauia) |
 | La herramienta buscaba `"P2_ontologia_carga_academica (1).owx"`, un archivo que no existe | celda 3 del notebook | Rutas centralizadas en `carga/config.py` |
 | Todo el razonamiento dependía del LLM (4 agentes en modo jerárquico, más de 20 llamadas en CPU) | — | El razonamiento lo hacen Python y la ontología (milisegundos). El LLM solo hace **2 llamadas** |
 | El `venv` mezclaba Python 3.14 y 3.12 (`python` → 3.14, paquetes en 3.12) | `venv/pyvenv.cfg` | `.venv` nuevo y limpio con Python 3.12 |
@@ -107,11 +107,15 @@ Tiempos medidos en tu laptop:
  ┌──────────────────────────▼──────────────────────────────┐
  │                AgenteManager (Contract Net)             │
  │  cfp ─▶ AgenteHistorial ─propose▶ materias válidas      │
- │  cfp ─▶ AgenteCarga     ─propose▶ combinaciones         │
- │  cfp ─▶ AgenteHorarios  ─propose▶ propuestas con grupos │
+ │  cfp ─▶ CargaAvance       ─propose▶ 2 ofertas ┐         │
+ │  cfp ─▶ CargaEquilibrio   ─propose▶ 2 ofertas ├ compiten│
+ │  cfp ─▶ CargaPreferencias ─propose▶ 2 ofertas ┘         │
+ │  cfp ─▶ AgenteHorarios  ─propose▶ ofertas con grupos    │
  │  evaluar: 0.30·A + 0.25·H + 0.25·C + 0.20·P             │
- │  accept-proposal (mejor) / reject-proposal (resto)      │
- │  Shapley exacto sobre las 8 coaliciones                 │
+ │  accept-proposal (ganador) / reject-proposal (resto)    │
+ │  inform ◀─ contratista ganador                          │
+ │  Shapley exacto: 8 coaliciones de roles                 │
+ │                + 8 coaliciones de contratistas          │
  └──────────┬───────────────────────────────┬──────────────┘
             │ lee (owlready2 + SPARQL)       │ escribe resultados
  ┌──────────▼───────────────────────────────▼──────────────┐
@@ -125,15 +129,27 @@ Tiempos medidos en tu laptop:
 | Agente | Comportamiento experto | Comportamiento "ingenuo" (cuando no participa, para Shapley) |
 |---|---|---|
 | **A: Historial** | Kárdex (vía SPARQL), prerrequisitos, seriación y oferta del periodo. Prioriza materias reprobadas, rezagadas y "llave" | Supone que todo lo ofertado es válido |
-| **B: Carga** | Combina materias dentro de 24–48 créditos y de la meta del alumno (ligera, normal o pesada), y limita las materias difíciles y las optativas (máx. 2) | Toma 5 materias "de arriba hacia abajo" |
+| **B: Carga** (3 contratistas que compiten) | Cada uno combina materias dentro de 24–48 créditos y de la meta del alumno, con máx. 2 optativas, y las califica con **su** estrategia: CargaAvance (prioridad académica), CargaEquilibrio (meta y pocas difíciles) o CargaPreferencias (intereses y turno/modalidad). Cada uno oferta sus 2 mejores | Toma 5 materias "de arriba hacia abajo" |
 | **C: Horarios** | Interpreta las preferencias, asigna grupos sin choques que respeten turno, modalidad y días libres, y si hay choques propone una variante | Toma el primer grupo de cada materia sin revisar choques |
-| **Manager** | Evalúa con la función del Proyecto 2, adjudica, calcula Shapley y redacta | Siempre presente (coordinador) |
+| **Manager** | Anuncia la tarea, evalúa todas las ofertas con la función del Proyecto 2 (no con la autoevaluación de cada contratista), adjudica, calcula Shapley y redacta | Siempre presente (coordinador) |
+
+**Mejora 1, Contract Net con competencia.** Sigue los 4 pasos vistos en clase: anuncio
+(`cfp`), oferta (cada contratista evalúa su capacidad y manda su *bid*), adjudicación al
+mejor postor (`accept`/`reject`) y resultado (`inform`). Cada propuesta queda en la
+ontología con `generadaPor` apuntando al contratista que la ofertó. El razonador deduce la
+inversa `generaPropuesta`, así que en Protégé se puede preguntar qué contratista ganó.
 
 ### Transparencia: Shapley
 v(S) es la puntuación de la mejor propuesta que obtiene la coalición S, calificada
 siempre con la verdad de la ontología. Como el protocolo es determinista, las 8
 coaliciones se calculan en milisegundos y φ es exacto (no una aproximación). Se
 cumple la eficiencia: φ_A + φ_B + φ_C = v(N).
+
+Hay un **segundo juego**, solo entre los 3 contratistas, con Historial y Horarios siempre
+presentes. Ahí v(S) = mejor oferta de S − puntuación con la carga ingenua. Muestra los
+axiomas vistos en clase: con A003 los 3 ofertan lo mismo y reciben lo mismo (simetría).
+En un juego de "la mejor oferta gana", el ganador no se lleva todo: lo que cualquiera
+lograría solo se reparte entre los 3 (GUIA §15.5).
 
 ### Papel del LLM
 El LLM no decide nada: **interpreta** y **redacta**.
@@ -146,7 +162,7 @@ El LLM no decide nada: **interpreta** y **redacta**.
 ## 5. Integración ontológica (tema 5 del curso)
 
 - **TBox:** `ontologia/P2_ontologia_carga_academica.owx` (tu archivo original, sin cambios).
-- **ABox:** `python main.py poblar` genera `ontologia/carga_academica_poblada.owl` (449 individuos) con las 79 materias reales y su seriación, 97 grupos, 12 profesores ficticios, 3 alumnos con registros y preferencias, y los 4 agentes. También materializa `enConflictoCon` (295 pares de grupos).
+- **ABox:** `python main.py poblar` genera `ontologia/carga_academica_poblada.owl` (452 individuos) con las 79 materias reales y su seriación, 97 grupos, 12 profesores ficticios, 3 alumnos con registros y preferencias, y los agentes (los 4 roles + los 3 AgentesCarga contratistas). También materializa `enConflictoCon` (295 pares de grupos).
 - **Clases definidas** (Lógica Descriptiva) que clasifica HermiT:
 
 | Clase | Definición (Manchester) |
@@ -174,6 +190,8 @@ Materia and tienePrerrequisito some (Materia and aprobadaPor value est_A002)
 PropuestaCarga and esValida value true
 PropuestaCarga and puntuacion some xsd:decimal[>= 92.0]
 Agente and valorShapley some xsd:decimal[> 25.0]
+PropuestaCarga and generadaPor value agente_carga_preferencias
+AgenteCarga and generaPropuesta some (PropuestaCarga and esValida value true)
 ```
 
 ---

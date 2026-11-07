@@ -238,7 +238,11 @@ ESTUDIANTES = {
 # Agentes del MAS (también se modelan en la ontología: clase Agente)
 AGENTES = {
     "AgenteHistorial": ("agente_historial", "AgenteHistorial", "Analista de historial académico y requisitos"),
-    "AgenteCarga": ("agente_carga", "AgenteCarga", "Analista de carga académica"),
+    "AgenteCarga": ("agente_carga", "AgenteCarga", "Analista de carga académica (equipo de contratistas)"),
+    # Mejora 1: los 3 contratistas que compiten en el Contract Net (clase AgenteCarga)
+    "CargaAvance": ("agente_carga_avance", "AgenteCarga", "Contratista: prioriza el avance académico"),
+    "CargaEquilibrio": ("agente_carga_equilibrio", "AgenteCarga", "Contratista: prioriza una carga equilibrada"),
+    "CargaPreferencias": ("agente_carga_preferencias", "AgenteCarga", "Contratista: prioriza intereses y horario"),
     "AgenteHorarios": ("agente_horarios", "AgenteHorarios", "Analista de horarios y preferencias del estudiante"),
     "AgenteManager": ("agente_manager", "AgenteManager", "Coordinador y recomendador académico"),
 }

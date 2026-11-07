@@ -22,6 +22,8 @@ class Propuesta:
     materias: list                       # claves
     grupos: dict = field(default_factory=dict)   # clave materia -> clave grupo
     origen: str = ""                     # qué agentes la construyeron
+    autor: str = ""                      # contratista AgenteCarga que la ofertó (mejora 1)
+    autoevaluacion: float = 0.0          # la nota que le puso su autor (0..1)
     criterios: dict = field(default_factory=dict)
     puntuacion: float = 0.0
     notas: list = field(default_factory=list)

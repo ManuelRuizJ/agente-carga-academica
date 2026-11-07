@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from . import config
 from .agentes import AgenteHorarios, AgenteManager
-from .contract_net import ejecutar, valores_shapley
+from .contract_net import ejecutar, shapley_contratistas, valores_shapley
 from .evaluacion import analizar_elegibilidad
 from .kb import BaseConocimiento
 from .llm import ClienteLLM
@@ -24,6 +24,8 @@ class Sesion:
     resultado: object = None
     phi: dict = None
     v: dict = None
+    phi_c: dict = None          # Shapley entre los 3 contratistas AgenteCarga (mejora 1)
+    v_c: dict = None
     explicacion: str = ""
     fuente_exp: str = ""
     inferencias: dict = None
@@ -52,6 +54,9 @@ def correr_shapley(s: Sesion):
     with s.trazas.tarea("AgenteManager", "calcular_valores_shapley", "8 coaliciones") as t:
         s.phi, s.v = valores_shapley(s.kb, s.est, s.prefs, s.elegibles_reales)
         t["output"] = ", ".join(f"{k}={v}" for k, v in s.phi.items())
+    with s.trazas.tarea("AgenteManager", "shapley_entre_contratistas", "8 coaliciones") as t:
+        s.phi_c, s.v_c = shapley_contratistas(s.kb, s.est, s.prefs, s.elegibles_reales)
+        t["output"] = ", ".join(f"{k}={v}" for k, v in s.phi_c.items())
     return s.phi
 
 
@@ -73,7 +78,7 @@ def cerrar(s: Sesion, explicacion=None, fuente=None, razonador=False, imprimir=T
 
     base = config.DIR_SALIDAS / s.est.matricula
     md = markdown(s.kb, s.est, s.prefs, s.resultado, s.phi, s.v, s.explicacion, s.fuente_exp,
-                  s.trazas, s.llm, s.inferencias)
+                  s.trazas, s.llm, s.inferencias, phi_c=s.phi_c, v_c=s.v_c)
     rutas = {"reporte": base.with_name(f"reporte_{s.est.matricula}.md"),
              "trazas": base.with_name(f"trazas_{s.est.matricula}.json"),
              "ontologia": base.with_name(f"kb_{s.est.matricula}.owl")}
@@ -81,11 +86,13 @@ def cerrar(s: Sesion, explicacion=None, fuente=None, razonador=False, imprimir=T
     rutas["reporte"].write_text(md, encoding="utf-8")
     s.trazas.guardar(rutas["trazas"])
     if s.resultado.ganadora:
-        guardar_en_ontologia(s.kb, s.est, s.resultado, s.phi, s.trazas, rutas["ontologia"])
+        guardar_en_ontologia(s.kb, s.est, s.resultado, s.phi, s.trazas, rutas["ontologia"],
+                             phi_c=s.phi_c)
     else:
         rutas.pop("ontologia")
     if imprimir:
-        resumen_terminal(s.kb, s.est, s.prefs, s.resultado, s.phi, s.explicacion, s.fuente_exp)
+        resumen_terminal(s.kb, s.est, s.prefs, s.resultado, s.phi, s.explicacion, s.fuente_exp,
+                         phi_c=s.phi_c)
         for k, r in rutas.items():
             print(f" {k:9} → {r.relative_to(config.RAIZ)}")
     return rutas

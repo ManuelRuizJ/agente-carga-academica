@@ -24,6 +24,7 @@ os.environ.setdefault("CREWAI_DISABLE_TRACKING", "true")
 
 from . import config, sistema  # noqa: E402
 from .agentes import AgenteCarga, AgenteHistorial, AgenteHorarios  # noqa: E402
+from .contract_net import crear_contratistas  # noqa: E402
 from .evaluacion import conflictos  # noqa: E402
 from .preferencias import describir  # noqa: E402
 
@@ -55,11 +56,16 @@ def _herramientas(s):
         dentro de los límites institucionales de créditos."""
         el = estado.get("elegibles") or AgenteHistorial().analizar(kb, est)[0]
         with s.trazas.tarea("AgenteCarga", "crewai:evaluar_carga", matricula) as t:
-            combos = AgenteCarga().proponer(kb, est, s.prefs, el)
+            # mejora 1: los 3 contratistas ofertan; aquí solo se listan sus mejores
+            combos, lineas = [], []
+            for c in crear_contratistas():
+                for combo, nota in c.ofertar(kb, est, s.prefs, el, k=1):
+                    if combo not in combos:
+                        combos.append(combo)
+                    lineas.append(f"{c.nombre}: {', '.join(combo)} = "
+                                  f"{sum(kb.materias[x].creditos for x in combo)} créditos")
             estado["combos"] = combos
-            t["output"] = f"{len(combos)} combinaciones"
-        lineas = [f"{i}. {', '.join(c)} = {sum(kb.materias[x].creditos for x in c)} créditos"
-                  for i, c in enumerate(combos[:4], 1)]
+            t["output"] = f"{len(combos)} combinaciones de 3 contratistas"
         return (f"Límites: {kb.creditos_min}-{kb.creditos_max} créditos. Meta del alumno: "
                 f"{s.prefs['creditos_objetivo']} créditos, máximo {s.prefs['max_materias']} materias.\n"
                 + "\n".join(lineas))

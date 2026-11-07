@@ -47,4 +47,21 @@ CARGA_TIPO = {
 MAX_OPTATIVAS = 2         # optativas por periodo como máximo
 
 TOP_COMBINACIONES = 6     # propuestas que el AgenteCarga envía en el Contract Net
+
+# ---------------------------------------------------------------- Mejora 1
+# Contract Net con competencia: el Manager anuncia la tarea "arma la carga" a
+# TRES AgentesCarga contratistas. Todos ven las mismas materias válidas, pero
+# cada uno califica sus combinaciones con pesos distintos (su estrategia):
+#   carga      = qué tan cerca queda de la meta de créditos/materias (c_carga)
+#   prioridad  = prioridad académica promedio (rezago, reprobadas, llave)
+#   interes    = materias de interés que menciona el alumno
+#   horario    = si las materias tienen grupo en el turno/modalidad que pide
+#   facilidad  = pocas materias difíciles (dificultad >= 4)
+# El que mejor oferta (según la función OFICIAL del Manager) gana el contrato.
+ESTRATEGIAS_CARGA = {
+    "CargaAvance":       {"carga": 0.3, "prioridad": 0.6, "interes": 0.1, "horario": 0.0, "facilidad": 0.0},
+    "CargaEquilibrio":   {"carga": 0.5, "prioridad": 0.1, "interes": 0.1, "horario": 0.0, "facilidad": 0.3},
+    "CargaPreferencias": {"carga": 0.3, "prioridad": 0.1, "interes": 0.3, "horario": 0.3, "facilidad": 0.0},
+}
+OFERTAS_POR_CONTRATISTA = 2   # 3 contratistas x 2 = 6 propuestas, como antes
 MAX_CANDIDATAS = 12       # materias candidatas que se combinan como máximo

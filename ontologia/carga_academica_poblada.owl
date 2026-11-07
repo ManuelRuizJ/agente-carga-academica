@@ -5109,9 +5109,9 @@
   <tieneRegistro rdf:resource="#reg_A001_LYRU2105_1"/>
   <haAprobado rdf:resource="#mat_LYRU2105"/>
   <tieneRegistro rdf:resource="#reg_A001_LIIS2105_1"/>
+  <tienePreferencia rdf:resource="#pref_A001_horario"/>
   <tienePreferencia rdf:resource="#pref_A001_carga"/>
   <tienePreferencia rdf:resource="#pref_A001_modalidad"/>
-  <tienePreferencia rdf:resource="#pref_A001_horario"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ana Torres Medina</nombre>
   <matricula rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A001</matricula>
   <semestreActual rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">5</semestreActual>
@@ -5400,9 +5400,9 @@
   <tieneRegistro rdf:resource="#reg_A002_LIIB2102_1"/>
   <haAprobado rdf:resource="#mat_LIIB2102"/>
   <tieneRegistro rdf:resource="#reg_A002_LICB2103_1"/>
+  <tienePreferencia rdf:resource="#pref_A002_modalidad"/>
   <tienePreferencia rdf:resource="#pref_A002_carga"/>
   <tienePreferencia rdf:resource="#pref_A002_horario"/>
-  <tienePreferencia rdf:resource="#pref_A002_modalidad"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Luis Hernández Rojas</nombre>
   <matricula rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A002</matricula>
   <semestreActual rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</semestreActual>
@@ -5630,9 +5630,9 @@
   <haAprobado rdf:resource="#mat_LYRU2102"/>
   <tieneRegistro rdf:resource="#reg_A003_LYRU2108_1"/>
   <haAprobado rdf:resource="#mat_LYRU2108"/>
-  <tienePreferencia rdf:resource="#pref_A003_carga"/>
   <tienePreferencia rdf:resource="#pref_A003_horario"/>
   <tienePreferencia rdf:resource="#pref_A003_modalidad"/>
+  <tienePreferencia rdf:resource="#pref_A003_carga"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sofía Ramírez Lara</nombre>
   <matricula rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A003</matricula>
   <semestreActual rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">6</semestreActual>
@@ -5962,7 +5962,25 @@
 <owl:NamedIndividual rdf:about="#agente_carga">
   <rdf:type rdf:resource="#AgenteCarga"/>
   <nombreAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AgenteCarga</nombreAgente>
-  <rolAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Analista de carga académica</rolAgente>
+  <rolAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Analista de carga académica (equipo de contratistas)</rolAgente>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#agente_carga_avance">
+  <rdf:type rdf:resource="#AgenteCarga"/>
+  <nombreAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CargaAvance</nombreAgente>
+  <rolAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Contratista: prioriza el avance académico</rolAgente>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#agente_carga_equilibrio">
+  <rdf:type rdf:resource="#AgenteCarga"/>
+  <nombreAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CargaEquilibrio</nombreAgente>
+  <rolAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Contratista: prioriza una carga equilibrada</rolAgente>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#agente_carga_preferencias">
+  <rdf:type rdf:resource="#AgenteCarga"/>
+  <nombreAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">CargaPreferencias</nombreAgente>
+  <rolAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Contratista: prioriza intereses y horario</rolAgente>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#agente_horarios">

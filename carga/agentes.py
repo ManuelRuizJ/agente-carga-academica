@@ -32,17 +32,31 @@ class AgenteHistorial:
 
 # =========================================================================
 class AgenteCarga:
-    nombre = "AgenteCarga"
+    """Contratista del Contract Net. Desde la mejora 1 hay TRES instancias con
+    estrategias distintas (config.ESTRATEGIAS_CARGA) que compiten por la tarea.
+    Sin estrategia usa los pesos originales del avance (0.5 / 0.3 / 0.2)."""
     rol = "Analista de carga académica"
+    PESOS_ORIGINALES = {"carga": 0.5, "prioridad": 0.3, "interes": 0.2,
+                        "horario": 0.0, "facilidad": 0.0}
 
-    def proponer(self, kb, est, prefs, elegibles: dict, k=config.TOP_COMBINACIONES):
-        """Genera combinaciones que respetan créditos mín./máx. y la carga deseada."""
+    def __init__(self, nombre="AgenteCarga", estrategia=None):
+        self.nombre = nombre
+        self.pesos = estrategia or self.PESOS_ORIGINALES
+
+    def ofertar(self, kb, est, prefs, elegibles: dict, k=config.TOP_COMBINACIONES):
+        """Paso 2 del Contract Net (oferta): el contratista evalúa SU capacidad.
+        Regresa [(combinación, autoevaluación 0..1)], de mejor a peor, según su
+        propia estrategia. El Manager después las califica con la función oficial."""
         evitar = set(prefs.get("materias_evitar", []))
         interes = [c for c in prefs.get("materias_interes", []) if c in elegibles]
         orden = sorted((c for c in elegibles if c not in evitar),
                        key=lambda c: (-elegibles[c], kb.materias[c].semestre, c))
         candidatas = list(dict.fromkeys(interes + orden))[:config.MAX_CANDIDATAS]
         total_disp = sum(kb.materias[c].creditos for c in candidatas)
+        # qué tan bien le acomoda a cada materia su mejor grupo (sin ver choques)
+        ajuste = {c: max((ajuste_grupo(g, prefs) for g in kb.grupos_de(c)), default=0.0)
+                  for c in candidatas}
+        w = self.pesos
 
         evaluadas = []
         for n in range(1, min(prefs["max_materias"], len(candidatas)) + 1):
@@ -58,11 +72,19 @@ class AgenteCarga:
                 carga = c_carga(kb, prop, prefs) / 100
                 prio = sum(elegibles[c] for c in combo) / n
                 s_int = (sum(c in combo for c in interes) / len(interes)) if interes else 1.0
-                evaluadas.append((0.5 * carga + 0.3 * prio + 0.2 * s_int, combo))
+                s_hor = sum(ajuste[c] for c in combo) / n
+                faciles = 1 - sum(kb.materias[c].dificultad >= 4 for c in combo) / n
+                nota = (w["carga"] * carga + w["prioridad"] * prio + w["interes"] * s_int
+                        + w["horario"] * s_hor + w["facilidad"] * faciles)
+                evaluadas.append((round(nota, 3), combo))
         if not evaluadas and candidatas:     # muy pocas opciones: lo que alcance
             evaluadas = [(0.0, tuple(candidatas[:prefs["max_materias"]]))]
         evaluadas.sort(key=lambda x: (-x[0], x[1]))
-        return [list(c) for _, c in evaluadas[:k]]
+        return [(list(c), nota) for nota, c in evaluadas[:k]]
+
+    def proponer(self, kb, est, prefs, elegibles: dict, k=config.TOP_COMBINACIONES):
+        """Solo las combinaciones (lo usa el modo CrewAI, con un solo AgenteCarga)."""
+        return [combo for combo, _ in self.ofertar(kb, est, prefs, elegibles, k)]
 
     @staticmethod
     def ingenuo(kb, est, prefs, elegibles: dict):

@@ -15,7 +15,7 @@ import owlready2 as ow
 from . import config
 
 
-def guardar_en_ontologia(kb, est, resultado, phi, trazas, destino):
+def guardar_en_ontologia(kb, est, resultado, phi, trazas, destino, phi_c=None):
     mundo = ow.World()
     onto = mundo.get_ontology(config.ONTO_POBLADA.resolve().as_uri()).load()
     o = onto.get_namespace(config.NS)
@@ -36,7 +36,9 @@ def guardar_en_ontologia(kb, est, resultado, phi, trazas, destino):
             ind.propuestaPara = alumno
             if periodo:
                 ind.propuestaParaPeriodo = periodo
-            ind.generadaPor = agentes.get("AgenteManager")
+            # generadaPor: el contratista que la ofertó ("En Contract Net cada
+            # propuesta la emite un agente", comentario de la propia TBox)
+            ind.generadaPor = agentes.get(p.autor) or agentes.get("AgenteManager")
             ind.totalCreditos = p.creditos(kb)
             ind.numeroMaterias = len(p.materias)
             ind.puntuacion = float(p.puntuacion)
@@ -69,6 +71,10 @@ def guardar_en_ontologia(kb, est, resultado, phi, trazas, destino):
 
         # Transparencia: valor de Shapley de cada especialista
         for nombre, valor in phi.items():
+            if nombre in agentes:
+                agentes[nombre].valorShapley = float(valor)
+        # y el de cada contratista en el juego entre AgentesCarga (mejora 1)
+        for nombre, valor in (phi_c or {}).items():
             if nombre in agentes:
                 agentes[nombre].valorShapley = float(valor)
 

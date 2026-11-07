@@ -50,10 +50,10 @@ en tu laptop (Fedora 44, Ryzen 7 5700U, 14 GB de RAM). Las bitácoras completas 
 | # | Prueba | Resultado | Tiempo |
 |---|---|---|---|
 | 0 | Instalación limpia desde `requirements.txt` en un entorno nuevo | ✅ OK | 40 s |
-| 1 | `python main.py poblar` (genera la ontología con individuos) | ✅ 449 individuos, 79 materias reales | 0.2 s |
+| 1 | `python main.py poblar` (genera la ontología con individuos) | ✅ 452 individuos, 79 materias reales | 0.2 s |
 | 2 | `python main.py alumnos` | ✅ 3 alumnos | < 1 s |
-| 3 | `python main.py demo` (3 alumnos, sin LLM) | ✅ | 0.9 s |
-| 4 | `recomendar A001 --sin-llm` | ✅ 92.29/100 | < 1 s |
+| 3 | `python main.py demo` (3 alumnos, sin LLM) | ✅ | 2.6 s |
+| 4 | `recomendar A001 --sin-llm` | ✅ 92.29/100 | 1.2 s |
 | 5 | `recomendar A003 --razonador` (HermiT en Java) | ✅ 6 clases inferidas | 5 s |
 | 6 | 10 consultas DL Query sobre la ontología de salida | ✅ todas con resultado correcto | — |
 | 7 | `demo.ipynb` completo con su kernel | ✅ 7 celdas, 0 errores | 6 s |
@@ -65,6 +65,7 @@ en tu laptop (Fedora 44, Ryzen 7 5700U, 14 GB de RAM). Las bitácoras completas 
 | 13 | Agregar un alumno nuevo (A004) en `datos/semilla.py` | ✅ | < 1 s |
 | 14 | Importar el plan real de Intrauia (`datos/importar_intrauia.py`) | ✅ 79 materias, 0 errores de validación | < 1 s |
 | 15 | Reglas duras en las 3 recomendaciones (seriación, choques, créditos, optativas, días libres) | ✅ las 3 pasan | < 1 s |
+| 16 | Mejora 1: licitación entre 3 AgentesCarga + Shapley entre contratistas (Σφ = v(N)) | ✅ en los 3 alumnos | — |
 
 Las pruebas 0, 8 a 12 son de la verificación del 5 de noviembre (catálogo sintético). Las
 demás se repitieron el 6 de noviembre con el plan real.
@@ -180,10 +181,11 @@ los individuos definidos en `datos/semilla.py`:
 ```text
 $ python main.py poblar
 ✔ Ontología poblada: ontologia/carga_academica_poblada.owl
-  449 individuos | 79 materias | 97 grupos | 3 estudiantes | 295 pares de grupos en conflicto
+  452 individuos | 79 materias | 97 grupos | 3 estudiantes | 295 pares de grupos en conflicto
 ```
 
-Las 79 materias son las del plan real (`datos/plan_ibero.json`). Los 97 grupos se
+Los 3 individuos extra (452 en vez de 449) son los 3 AgentesCarga contratistas de la
+mejora 1 (sección 6.1). Las 79 materias son las del plan real (`datos/plan_ibero.json`). Los 97 grupos se
 generan con una semilla fija a partir de ese plan, así que salen iguales en cada corrida.
 
 No es necesario ejecutarlo la primera vez, porque el archivo ya existe. Solo vuelve a
@@ -219,19 +221,26 @@ aprobada una materia sin su prerrequisito real.
 
 ```text
 $ time python main.py demo
- CARGA RECOMENDADA (40 créditos · puntuación 92.29/100)       ← A001
- Shapley: Historial 40.04 | Carga 25.67 | Horarios 26.57
- CARGA RECOMENDADA (30 créditos · puntuación 94.53/100)       ← A002
- Shapley: Historial 42.12 | Carga 25.81 | Horarios 26.61
- CARGA RECOMENDADA (48 créditos · puntuación 84.39/100)       ← A003
+ CARGA RECOMENDADA (40 créditos · puntuación 92.29/100) · la ofertó CargaPreferencias   ← A001
+ Licitación: Avance 91.88 | Equilibrio 91.19 | Preferencias 92.29 ✔
+ Shapley: Historial 39.41 | Carga 30.07 | Horarios 22.8
+ Shapley contratistas: Avance 5.22 | Equilibrio 4.88 | Preferencias 5.63
+ CARGA RECOMENDADA (30 créditos · puntuación 94.53/100) · la ofertó CargaPreferencias   ← A002
+ Licitación: Avance 92.44 | Equilibrio 92.77 | Preferencias 94.53 ✔
+ Shapley: Historial 41.04 | Carga 27.79 | Horarios 25.7
+ Shapley contratistas: Avance 0.44 | Equilibrio 0.6 | Preferencias 2.37
+ CARGA RECOMENDADA (48 créditos · puntuación 84.39/100) · la ofertó CargaAvance         ← A003
+ Licitación: Avance 84.39 ✔ | Equilibrio 84.39 | Preferencias 84.39
  Shapley: Historial 28.1 | Carga 31.31 | Horarios 24.97
-python main.py demo  0.88s user 0.05s system 99% cpu 0.935 total
+ Shapley contratistas: Avance 10.2 | Equilibrio 10.2 | Preferencias 10.2
+python main.py demo  2.58s user 0.04s system 99% cpu 2.628 total
 ```
 
 (Arriba se muestra solo el resumen; en pantalla verás el bloque completo de cada alumno.)
 
-En **menos de un segundo** procesa a los 3 alumnos: Contract Net, 8 coaliciones de Shapley
-por alumno, el reporte y la escritura en la ontología. El prototipo anterior tardaba
+En **menos de 3 segundos** procesa a los 3 alumnos: Contract Net con la licitación, 8
+coaliciones de Shapley entre roles y otras 8 entre contratistas por alumno, el reporte y
+la escritura en la ontología. El prototipo anterior tardaba
 minutos y terminaba con el error de ROCm.
 
 ---
@@ -250,28 +259,55 @@ Salida real, comentada por bloques:
 ▶ Contract Net para Ana Torres Medina (A001)
   [      cfp       ] AgenteManager → AgenteHistorial: ¿Qué materias puede cursar A001?
   [    propose     ] AgenteHistorial → AgenteManager: válidas: LIIS2105, LIIS2112, LIIB2104, LICB2102, LIIE2104, LIIS2113, LIIS2114, LIIN2103, LIIS2106, LIIS2108, LIIS2117, LICB1229, LIIE2103, LIII0428, LIIN2105, LIIN2106, LIIS2109, LIIS2120, LRSS2102, LYRU2118, LYRU2104, LYRU2110, LYRU2111, LYRU2113, LIIN2110, LIIS2122, LIIS2123, LIIS2124
-  [      cfp       ] AgenteManager → AgenteCarga: Combinaciones entre 24-48 créditos, meta 40
-  [    propose     ] AgenteCarga → AgenteManager: 6 combinaciones (mejor: LIIS2105, LIIS2112, LIIB2104, LICB2102, LIIE2104, LIIS2113)
+  [      cfp       ] AgenteManager → CargaAvance: Arma una carga de 24-48 créditos, meta 40
+  [      cfp       ] AgenteManager → CargaEquilibrio: Arma una carga de 24-48 créditos, meta 40
+  [      cfp       ] AgenteManager → CargaPreferencias: Arma una carga de 24-48 créditos, meta 40
+  [    propose     ] CargaAvance → AgenteManager: 2 ofertas; la mejor (autoevaluación 0.692): LIIS2105, LIIS2112, LIIB2104, LICB2102, LIIE2104, LIIS2113
+  [    propose     ] CargaEquilibrio → AgenteManager: 2 ofertas; la mejor (autoevaluación 0.859): LIIS2105, LIIS2112, LIIB2104, LICB2102, LIIS2114, LIIS2108, LIIN2103
+  [    propose     ] CargaPreferencias → AgenteManager: 2 ofertas; la mejor (autoevaluación 0.948): LIIS2105, LIIS2112, LIIB2104, LICB2102, LIIE2104, LIIS2106
   [      cfp       ] AgenteManager → AgenteHorarios: Asignar grupos a 6 combinaciones
   [    propose     ] AgenteHorarios → AgenteManager: 6 propuestas con horario
-  [accept-proposal ] AgenteManager → *: P3 (92.29): LIIS2105, LIIS2112, LIIB2104, LICB2102, LIIE2104, LIIS2106
-  [reject-proposal ] AgenteManager → *: P4 (92.29)
-  [reject-proposal ] AgenteManager → *: P1 (91.88)
-  [reject-proposal ] AgenteManager → *: P5 (91.79)
-  [reject-proposal ] AgenteManager → *: P6 (91.79)
-  [reject-proposal ] AgenteManager → *: P2 (91.38)
+  [accept-proposal ] AgenteManager → CargaPreferencias: P5 (92.29): LIIS2105, LIIS2112, LIIB2104, LICB2102, LIIE2104, LIIS2106
+  [reject-proposal ] AgenteManager → CargaPreferencias: P6 (92.29)
+  [reject-proposal ] AgenteManager → CargaAvance: P1 (91.88)
+  [reject-proposal ] AgenteManager → CargaAvance: P2 (91.38)
+  [reject-proposal ] AgenteManager → CargaEquilibrio: P3 (91.19)
+  [reject-proposal ] AgenteManager → CargaEquilibrio: P4 (90.21)
+  [     inform     ] CargaPreferencias → AgenteManager: carga adjudicada: 40 créditos, 6 materias
 ```
+
+Es el protocolo de la clase (tema 2, "Asignación de tareas: protocolo Contract Net"), con
+sus 4 pasos:
+
+| Paso de la clase | Aquí |
+|---|---|
+| **1. Anuncio**: el Manager publica la tarea | 3 `cfp` con la misma tarea, uno a cada AgenteCarga contratista |
+| **2. Oferta**: los contratistas evalúan su capacidad y mandan su *bid* | Cada uno manda sus 2 mejores cargas y la nota que él mismo les pone (autoevaluación) |
+| **3. Adjudicación**: el Manager evalúa y asigna al mejor postor | Califica las 6 con la función **oficial** (0.30/0.25/0.25/0.20): `accept-proposal` al ganador, `reject-proposal` a los demás |
+| **4. Resultado**: el contratista ejecuta y reporta | `inform` del ganador con la carga adjudicada |
 
 Cómo leerlo:
 
-- **`cfp`** (*call for proposals*): el Manager pide propuestas a un especialista.
-- **`propose`**: el especialista responde. El Historial manda las 28 materias válidas,
-  ordenadas por prioridad. LIIS2105 va primero porque Ana la reprobó y desbloquea 4
-  materias.
-- **`accept-proposal` / `reject-proposal`**: el Manager califica las 6 propuestas con la
-  función de evaluación, adjudica la mejor y rechaza las demás. Aquí gana P3 y no P1: la
-  mejor combinación del AgenteCarga (P1) quedó por debajo una vez que el AgenteHorarios le
-  asignó grupos. P3 y P4 empatan en 92.29; el desempate es por identificador (P3 antes que P4).
+- **El Historial va primero** y manda las 28 materias válidas, ordenadas por prioridad.
+  LIIS2105 va primero porque Ana la reprobó y desbloquea 4 materias. Los 3 contratistas
+  trabajan sobre esa misma lista.
+- **Los 3 contratistas son el mismo tipo de agente** (`AgenteCarga`) con distinta
+  estrategia, es decir, distintos pesos al calificar sus combinaciones
+  (`config.ESTRATEGIAS_CARGA`):
+
+  | Contratista | Carga | Prioridad | Interés | Horario | Facilidad | En pocas palabras |
+  |---|---|---|---|---|---|---|
+  | CargaAvance | 0.3 | 0.6 | 0.1 | 0 | 0 | Primero lo urgente: reprobadas, rezagadas, llave |
+  | CargaEquilibrio | 0.5 | 0.1 | 0.1 | 0 | 0.3 | Cerca de la meta y con pocas materias difíciles |
+  | CargaPreferencias | 0.3 | 0.1 | 0.3 | 0.3 | 0 | Materias de interés y con grupo en el turno y la modalidad que pide |
+
+- **La autoevaluación no decide.** CargaPreferencias se puso 0.948 y CargaAvance 0.692,
+  pero cada uno se califica con su propia escala y esas notas no se comparan. El Manager
+  adjudica con su función. (Es la idea de la diapositiva de subastas VCG: no conviene
+  premiar lo que cada uno dice de sí mismo.)
+- **Gana CargaPreferencias con P5 (92.29).** P5 y P6 empatan; el desempate es por
+  identificador. Su carga es la de CargaAvance cambiando LIIS2113 por LIIS2106: Sistemas
+  Embebidos I tiene grupo el viernes por la tarde, y Ana prefiere la tarde.
 
 Son las performativas del protocolo Contract Net, con el estilo FIPA-ACL/KQML del tema 5.
 
@@ -283,7 +319,7 @@ Son las performativas del protocolo Contract Net, con el estilo FIPA-ACL/KQML de
  Preferencias: carga normal (~40 créditos, máx. 7 materias); turno vespertino; modalidad presencial
    ↳ interpretadas por: solo ontología
 ══════════════════════════════════════════════════════════════════════════════
- CARGA RECOMENDADA (40 créditos · puntuación 92.29/100)
+ CARGA RECOMENDADA (40 créditos · puntuación 92.29/100) · la ofertó CargaPreferencias
   • LIIS2105 Programación Avanzada y Algoritm LIIS2105-B presencial Mar 11-13, Jue 11-13
   • LIIS2112 Diseño y Gestión de Bases de Dat LIIS2112-A presencial Lun 07-09, Mie 07-09
   • LIIB2104 Proyecto de Ingeniería IV        LIIB2104-B presencial Lun 17-19
@@ -292,7 +328,9 @@ Son las performativas del protocolo Contract Net, con el estilo FIPA-ACL/KQML de
   • LIIS2106 Sistemas Embebidos I             LIIS2106-A presencial Vie 15-19
   Criterios: avance 84.3 | compatibilidad 100 | carga 100.0 | preferencias 85.0
 
- Shapley: Historial 40.04 | Carga 25.67 | Horarios 26.57
+ Licitación: Avance 91.88 | Equilibrio 91.19 | Preferencias 92.29 ✔
+ Shapley: Historial 39.41 | Carga 30.07 | Horarios 22.8
+ Shapley contratistas: Avance 5.22 | Equilibrio 4.88 | Preferencias 5.63
 ```
 
 - **"interpretadas por: solo ontología"**: como no se escribió ninguna petición (`-p`), se
@@ -305,8 +343,11 @@ Son las performativas del protocolo Contract Net, con el estilo FIPA-ACL/KQML de
   de LIIS2105 (A, lunes y miércoles de 17 a 19) choca con LIIB2104-B, y el de LIIS2112
   (B, lunes y miércoles de 17 a 19) también. El sistema prefirió recursar la materia llave
   y avanzar en Bases de Datos en la mañana antes que dejarlas fuera.
-- **Shapley**: cuánto aportó cada especialista. La suma es 40.04 + 25.67 + 26.57 = 92.28 ≈
-  92.29 (redondeo), igual a la puntuación final (propiedad de eficiencia).
+- **Licitación**: la mejor puntuación oficial de cada contratista; ✔ marca al ganador.
+- **Shapley**: cuánto aportó cada rol. B (Carga) es ahora el **equipo** de los 3
+  contratistas. La suma es 39.41 + 30.07 + 22.8 = 92.28 ≈ 92.29 (redondeo), igual a la
+  puntuación final (propiedad de eficiencia).
+- **Shapley contratistas**: un segundo juego, solo entre los 3 AgentesCarga (sección 15.5).
 
 ### 6.3 La explicación y los archivos generados
 
@@ -362,8 +403,10 @@ previa. Estas son sus secciones, con los valores reales de A003:
 | **Propuesta ganadora** | Clave, materia, créditos, grupo, modalidad, horario y profesor |
 | **Horario semanal** | Cuadrícula lunes a viernes por hora (un `⚠` marca los choques) |
 | **Materias descartadas** | P. ej. `LIIS2107 Sistemas Embebidos II: falta prerrequisito: LIIS2106` o `LYRU2102 …: no se oferta en Primavera 2027` |
-| **Propuestas evaluadas** | Las 6 propuestas con sus 4 criterios y su total. La ganadora lleva ✅ |
+| **Licitación entre los AgentesCarga** | Por contratista: sus pesos, cuántas ofertas mandó, su mejor puntuación oficial, su autoevaluación y si ganó, empató o fue rechazado |
+| **Propuestas evaluadas** | Las 6 propuestas, **quién las ofertó**, sus 4 criterios y su total. La ganadora lleva ✅ |
 | **Valores de Shapley** | La tabla v(S) de las 8 coaliciones y φ de cada agente, con su porcentaje |
+| **Shapley entre los contratistas** | El segundo juego: v(S) de las 8 coaliciones de AgentesCarga y φ de cada uno |
 | **Inferencias de HermiT** | Solo si usaste `--razonador` |
 | **Mensajes del Contract Net** | El diálogo FIPA completo |
 | **Trazas de ejecución** | Hora, agente, tarea, salida, tiempo, éxito y score (sección 3.2 del Proyecto 2) |
@@ -384,10 +427,17 @@ IA y la nube, no quiero métodos numéricos"; los números cambian si cambias la
 | {A,B,C} | 84.39 |
 ```
 
-Con Sofía el agente más valioso es el **AgenteCarga**. Ella tiene 28 materias válidas y
+Con Sofía el rol más valioso es el **AgenteCarga** (el equipo de contratistas). Ella tiene 28 materias válidas y
 quiere una carga pesada, así que el problema difícil ya no es "qué puede cursar", sino
 "cuáles 8 de esas 28". Sin el AgenteCarga, la versión ingenua toma 5 materias en orden
 del plan.
+
+Y entre los contratistas pasa algo que vale la pena mostrar en clase. Los 3 ofertan
+**la misma** mejor carga (84.39). Cualquiera de ellos, solo, logra lo mismo que los 3
+juntos, así que Shapley les paga lo mismo: 10.2 cada uno. Es el axioma de **simetría**
+de la diapositiva ("aportes idénticos, pagos idénticos"). El contrato se adjudica a
+CargaAvance solo por ser el primero en ofertar; en la tabla de licitación los otros dos
+aparecen como "empata con la ganadora".
 
 `salidas/trazas_<mat>.json` contiene lo mismo en formato JSON. Ejemplo de un evento real:
 
@@ -412,10 +462,10 @@ del plan.
 ```text
 $ time python main.py recomendar A003 -q --sin-llm --razonador -p "quiero adelantar, en línea, me interesa IA y la nube, no quiero métodos numéricos"
 ...
-python main.py recomendar A003 ...  4.967 total
+python main.py recomendar A003 ...  5.345 total
 ```
 
-Con el plan real la ontología tiene 449 individuos (antes 203), por eso HermiT tarda unos
+Con el plan real la ontología tiene 452 individuos (antes 203), por eso HermiT tarda unos
 4 s en lugar de 2.
 
 `--razonador` ejecuta **HermiT** (en Java, con el límite de memoria en 512 MB) sobre la
@@ -621,7 +671,11 @@ mencionaba Compiladores (`False`).
 
 ## 11. Paso 9: orquestación con CrewAI
 
-> ℹ️ Salidas del 5 de noviembre, con el catálogo sintético anterior (ver la nota del paso 8).
+> ℹ️ Salidas del 5 de noviembre, con el catálogo sintético anterior (ver la nota del paso 8),
+> y **antes de la mejora 1**. Desde la mejora 1, la herramienta `evaluar_carga_academica`
+> lista la mejor oferta de cada uno de los 3 contratistas, y `coordinar_carga` corre el
+> Contract Net completo con la licitación. El resultado oficial es el mismo que el de
+> `recomendar`.
 
 Este modo cumple la "capa de ejecución y orquestación mediante CrewAI" del Proyecto 2.
 Requiere Ollama encendido (paso 7).
@@ -756,19 +810,25 @@ Para usar el LLM, enciende antes `./iniciar_ollama_cpu.sh` y cambia `USAR_LLM = 
 | 1 | Diagnóstico + carga la ontología | Estado de Ollama y RAM |
 | 2 | Alumno A001 según la ontología | `Ana Torres Medina \| semestre 5 \| promedio 8.78`, aprobadas y reprobadas |
 | 3 | Interpreta "Me interesa inteligencia artificial, prefiero la tarde y no quiero clases los viernes" | `...sin clases: Viernes; le interesa: LIIS2109` |
-| 4 | Contract Net | Mensajes FIPA y las 6 propuestas. Gana P4 con 93.14 |
-| 5 | Shapley | Las 8 coaliciones: `v({A})=71.88 … v({A,B,C})=93.14` y `suma: 93.13 = v(N)` (redondeo) |
-| 6 | HermiT | Las 6 clases definidas con sus individuos |
-| 7 | Cierra y muestra el reporte | El reporte Markdown completo dentro del notebook |
+| 4 | Contract Net (licitación) | Mensajes FIPA y las 6 propuestas con su autor. `Ganador del contrato: CargaAvance` con P2 (93.01) |
+| 5 | Shapley entre roles | Las 8 coaliciones: `v({A})=71.88 … v({A,B,C})=93.01` y `suma: 93.0 = v(N)` (redondeo) |
+| 6 | Shapley entre contratistas | `CargaAvance ofertas=2 mejor oficial=93.01 autoevaluación=0.67 GANA`, las 8 coaliciones y `φ contratistas: Avance 7.94, Equilibrio 6.45, Preferencias 6.74`, `suma: 21.13 = v(N)` |
+| 7 | HermiT | Las 6 clases definidas con sus individuos |
+| 8 | Cierra y muestra el reporte | El reporte Markdown completo dentro del notebook |
 
-Verificación automática: **7 celdas de código ejecutadas, 0 con error, en 6 s.**
+Verificación automática: **8 celdas de código ejecutadas, 0 con error.**
+
+Fíjate en que aquí gana **CargaAvance**, mientras que en el paso 4, para la misma Ana pero
+sin petición, ganó CargaPreferencias. Lo que pide el alumno cambia qué estrategia sirve
+mejor, y eso es justo lo que la competencia del Contract Net aprovecha.
 
 Observa el efecto de la petición de la celda 3:
 - **"Me interesa inteligencia artificial"** mete Fundamentos de Inteligencia Artificial
   (LIIS2109, de 7.º semestre y sin seriación), que en el paso 4 no aparecía.
 - **"No quiero clases los viernes"** saca Sistemas Embebidos I, que en el paso 4 iba el
   viernes de 15 a 19, y deja Fundamentos de Sistemas Operativos en su grupo de martes y
-  jueves (LIIS2114-A) en lugar del de viernes (LIIS2114-B).
+  jueves (LIIS2114-A) en lugar del de viernes (LIIS2114-B). Ninguna materia de la carga
+  ganadora tiene clase el viernes.
 
 El día libre pedido pesa **6**, el doble que un turno pedido (3). Con peso 3, el grupo del
 viernes ganaba porque sí cumplía el turno vespertino; en la verificación del 6 de
@@ -809,14 +869,24 @@ reales:
 | `Grupo and enConflictoCon value grp_LIIS2112_B` | 4: LIIB2102-A, LIIB2104-B, LIIS2102-B, LIIS2105-A |
 | `GrupoVespertino and GrupoEnLinea` | 7: LICB1202-B, LICB1229-A, LICB1231-A, LIIN2103-B, LIIN2105-A, LIIN2106-B, LIIS2111-A |
 | `Materia and tienePrerrequisito some (Materia and aprobadaPor value est_A002)` | 5: LICB2103, LICB2108, LIIB2102, LIIB2103, LIIM2102 |
-| `PropuestaCarga and esValida value true` | 1: la propuesta ganadora (`prop_A001_<fecha>_P3`) |
-| `PropuestaCarga and puntuacion some xsd:decimal[>= 92.0]` | 2 propuestas: P3 y P4 (las dos con 92.29) |
-| `Agente and valorShapley some xsd:decimal[> 25.0]` | 3: AgenteHistorial (40.04), AgenteCarga (25.67), AgenteHorarios (26.57) |
+| `PropuestaCarga and esValida value true` | 1: la propuesta ganadora (`prop_A001_<fecha>_P5`) |
+| `PropuestaCarga and puntuacion some xsd:decimal[>= 92.0]` | 2 propuestas: P5 y P6 (las dos con 92.29) |
+| `Agente and valorShapley some xsd:decimal[> 25.0]` | 2: AgenteHistorial (39.41), AgenteCarga (30.07, el equipo) |
+| `PropuestaCarga and generadaPor value agente_carga_preferencias` | 2: P5 y P6, las 2 ofertas de CargaPreferencias |
+| `AgenteCarga and generaPropuesta some (PropuestaCarga and esValida value true)` | 1: CargaPreferencias (el ganador del contrato) |
 
 En Protégé los grupos aparecen con su nombre de individuo (por ejemplo `grp_LIIS2109_A`) y
 las materias como `mat_LIIS2109`.
 
 Cómo leer algunas:
+- **`generaPropuesta some (… esValida value true)`** responde "¿qué contratista ganó?".
+  Nadie escribió `generaPropuesta`: el sistema solo guarda `generadaPor` en cada
+  propuesta, y el razonador deduce la inversa porque así está declarada en tu TBox.
+  Tu propia TBox ya lo anticipaba en el comentario de `generadaPor`: *"En Contract Net
+  cada propuesta la emite un agente"*.
+- **`valorShapley`** de los 3 contratistas (`agente_carga_avance`, etc.) viene del
+  **segundo** juego (5.22, 4.88 y 5.63); el de `agente_carga` (30.07) es el del equipo en
+  el juego entre roles. No se suman entre sí: son dos juegos distintos.
 - **`enConflictoCon value grp_LIIS2112_B`** explica por qué Ana tomó Bases de Datos I en la
   mañana: el grupo de la tarde choca con LIIB2104-B (Proyecto de Ingeniería IV) y con
   LIIS2105-A (la materia que recursa).
@@ -982,11 +1052,15 @@ Siempre que cambies datos, ejecuta `python main.py poblar`.
         │                                    + petición (LLM validado o reglas)
         ▼
  [contract_net.ejecutar]  ── Manager: cfp ──▶ Historial ─propose▶ materias válidas + prioridad
-        │                 ── Manager: cfp ──▶ Carga     ─propose▶ 6 mejores combinaciones
-        │                 ── Manager: cfp ──▶ Horarios  ─propose▶ propuestas con grupos sin choques
-        │                 ── Manager evalúa (0.30/0.25/0.25/0.20) → accept / reject
+        │                 ── Manager: cfp ──▶ CargaAvance       ─propose▶ 2 ofertas ┐
+        │                 ── Manager: cfp ──▶ CargaEquilibrio   ─propose▶ 2 ofertas ├ compiten
+        │                 ── Manager: cfp ──▶ CargaPreferencias ─propose▶ 2 ofertas ┘
+        │                 ── Manager: cfp ──▶ Horarios  ─propose▶ las 6 ofertas con grupos sin choques
+        │                 ── Manager evalúa (0.30/0.25/0.25/0.20) → accept al ganador / reject
+        │                 ◀─ inform ── contratista ganador (resultado)
         ▼
- [contract_net.valores_shapley]  repite el protocolo con las 8 coaliciones → φ exacto
+ [contract_net.valores_shapley]       8 coaliciones de roles (A, B = equipo de carga, C) → φ
+ [contract_net.shapley_contratistas]  8 coaliciones de contratistas → φ de cada AgenteCarga
         │
         ▼
  [AgenteManager.explicar]  LLM (con guardia) o plantilla
@@ -1028,7 +1102,8 @@ Ana tiene 24 materias descartadas. Algunos ejemplos:
 - `LIIS2115: falta prerrequisito: LIIS2112`;
 - `LYRU2102: no se oferta en Primavera 2027`.
 
-**AgenteCarga** (`agentes.py: AgenteCarga.proponer`):
+**AgenteCarga** (`agentes.py: AgenteCarga.ofertar`). Hay 3 instancias, una por
+estrategia; las 3 hacen lo mismo y solo cambian los pesos del paso 4:
 1. Toma hasta 12 materias candidatas: primero las de interés y luego las de mayor
    prioridad. Excluye las que el alumno quiere evitar.
 2. Prueba todas las combinaciones de 1 hasta `max_materias` materias. Ana tiene 28 válidas,
@@ -1036,8 +1111,17 @@ Ana tiene 24 materias descartadas. Algunos ejemplos:
    C(12,1)+…+C(12,7) = 3,301 combinaciones, evaluadas en milisegundos.
 3. Descarta las que se salen del rango institucional (24–48 créditos) y las que llevan más
    de `MAX_OPTATIVAS` = 2 optativas.
-4. Las califica así: 0.5·(carga equilibrada) + 0.3·(prioridad promedio) + 0.2·(materias de interés).
-5. Envía las 6 mejores al Manager.
+4. Las califica con **sus** pesos (sección 6.1):
+   `w_carga·carga + w_prioridad·prioridad + w_interés·interés + w_horario·horario + w_facilidad·facilidad`.
+   Por ejemplo, CargaAvance usa 0.3·carga + 0.6·prioridad + 0.1·interés. "Horario" es el
+   ajuste promedio del mejor grupo de cada materia, sin revisar choques, y "facilidad" es
+   1 − (difíciles / materias).
+5. Envía sus 2 mejores como oferta, con su nota (autoevaluación). Si una oferta repite
+   una carga que ya mandó otro contratista, no se duplica.
+
+El AgenteCarga original (antes de la mejora 1) era uno solo, con pesos 0.5/0.3/0.2, y
+mandaba 6 combinaciones. Esos pesos siguen como valor por omisión
+(`AgenteCarga.PESOS_ORIGINALES`).
 
 **AgenteHorarios** (`agentes.py: AgenteHorarios.asignar`):
 1. Para cada combinación prueba **todas** las asignaciones de grupos (producto cartesiano).
@@ -1124,21 +1208,21 @@ preferencias   = 100 · (0.75·0.80 + 0.25·1.0) = 85.0
 
 ### 15.4 Shapley paso a paso
 
-Para medir lo que aporta un agente hay que ver qué pasa **sin** él. Cuando un especialista
-no está en la coalición, su tarea se hace de forma **ingenua**:
+Para medir lo que aporta un agente hay que ver qué pasa **sin** él. Cuando un rol no está
+en la coalición, su tarea se hace de forma **ingenua**:
 
 | Si falta… | La tarea se hace así | Efecto real con Ana |
 |---|---|---|
-| Historial (A) | Todo lo ofertado "parece válido" | Coalición {B,C}: propone LHLF1201, LICB1202, LICB1231, LICB2103, LICB2106, LICB2107 y LIIB2102, **todas de 2.º semestre y ya aprobadas**. Avance = 0 → v = 67.42 |
-| Carga (B) | 5 materias "de arriba hacia abajo" del plan | Coalición {A}: LIIS2105 y **4 optativas de Reflexión** (semestre ideal 4, antes que las de 5.º). Carga = 60 → v = 76.56 |
-| Horarios (C) | El primer grupo de cada materia, sin revisar choques | Coalición {A,B}: mismas 6 materias que la ganadora, pero todas en su grupo A. LIIB2104-A choca con LIIE2104-A (compatibilidad 65) y 3 grupos quedan en la mañana (preferencias 72.5) → v = 81.04 |
+| Historial (A) | Todo lo ofertado "parece válido" | Coalición {B,C}: CargaPreferencias propone LHLF1201, LICB1231, LICB2103, LICB2106, LICB2107, LIIB2102 y LICB2108, **todas de 2.º y 3.er semestre y ya aprobadas**. Avance = 0 → v = 67.86 |
+| Carga (B), es decir, **los 3 contratistas** | 5 materias "de arriba hacia abajo" del plan | Coalición {A}: LIIS2105 y **4 optativas de Reflexión** (semestre ideal 4, antes que las de 5.º). Carga = 60 → v = 76.56 |
+| Horarios (C) | El primer grupo de cada materia, sin revisar choques | Coalición {A,B}: sin el AgenteHorarios, la mejor oferta pasa a ser la de CargaEquilibrio, pero con el primer grupo de cada materia 4 de sus 7 materias quedan en la mañana (preferencias 63.6) → v = 87.77 |
 
 El evaluador **siempre** usa la verdad de la ontología, así que una propuesta mala
 recibe una calificación baja. Los 8 valores reales de Ana:
 
 ```text
-v({})=0   v({A})=76.56   v({B})=56.97   v({C})=63.25
-v({A,B})=81.04   v({A,C})=76.56   v({B,C})=67.42   v({A,B,C})=92.29
+v({})=0   v({A})=76.56   v({B})=66.58   v({C})=63.25
+v({A,B})=87.77   v({A,C})=76.56   v({B,C})=67.86   v({A,B,C})=92.29
 ```
 
 Cálculo de φ para el Historial (A): contribución marginal promediada sobre todas las
@@ -1147,31 +1231,97 @@ coaliciones S que no lo contienen, con el peso `|S|!·(n−|S|−1)!/n!`:
 | S (sin A) | Peso | v(S ∪ {A}) − v(S) | Peso × marginal |
 |---|---|---|---|
 | {} | 1/3 | 76.56 − 0 = 76.56 | 25.52 |
-| {B} | 1/6 | 81.04 − 56.97 = 24.07 | 4.01 |
+| {B} | 1/6 | 87.77 − 66.58 = 21.19 | 3.53 |
 | {C} | 1/6 | 76.56 − 63.25 = 13.31 | 2.22 |
-| {B,C} | 1/3 | 92.29 − 67.42 = 24.87 | 8.29 |
-| | | **φ_A** | **40.04** ✔ |
+| {B,C} | 1/3 | 92.29 − 67.86 = 24.43 | 8.14 |
+| | | **φ_A** | **39.41** ✔ |
 
-De la misma forma φ_B = 25.67 y φ_C = 26.57. La suma da 92.28, que es **92.29 = v(N)**
+De la misma forma φ_B = 30.07 y φ_C = 22.8. La suma da 92.28, que es **92.29 = v(N)**
 salvo redondeo.
 
-**Interpretación:** para Ana, el Historial es el agente más valioso, porque sin él se
-recomiendan materias ya aprobadas. Le sigue Horarios, porque Ana tiene preferencias
-fuertes de turno y los grupos de la tarde de sus materias clave chocan entre sí. Con Sofía
-(A003), en cambio, el más valioso es el AgenteCarga (31.31): tiene 28 materias válidas y
-el reto es elegir 8. Cada alumno produce un reparto distinto, que es justo lo que Shapley
-mide.
+**Interpretación:** para Ana, el Historial sigue siendo el rol más valioso, porque sin él
+se recomiendan materias ya aprobadas. Con la mejora 1 el φ del rol Carga subió de 25.67
+(un solo AgenteCarga) a **30.07**, porque ahora son 3 contratistas con criterios distintos.
+Con Sofía (A003), el rol más valioso es Carga (31.31): tiene 28 materias válidas y el reto
+es elegir 8. Cada alumno produce un reparto distinto, que es justo lo que Shapley mide.
 
-Un detalle: v({A,C}) = v({A}) = 76.56. Sin el AgenteCarga, la combinación es LIIS2105 más
+Un detalle: v({A,C}) = v({A}) = 76.56. Sin contratistas, la combinación es LIIS2105 más
 4 optativas de Reflexión. Cada optativa tiene un solo grupo, y el primer grupo de LIIS2105
 ya es el de la tarde, así que el AgenteHorarios no tiene nada que mejorar.
 
-### 15.5 Mapa de archivos
+### 15.5 La licitación y el Shapley entre contratistas (mejora 1)
+
+El Shapley de la sección anterior dice cuánto vale el **rol** Carga, pero no cuánto vale
+cada contratista. Para eso hay un segundo juego (`contract_net.shapley_contratistas`):
+
+- **Jugadores:** CargaAvance, CargaEquilibrio y CargaPreferencias.
+- **Siempre presentes:** Historial y Horarios. No juegan.
+- **v(S)** = puntuación de la mejor propuesta con los contratistas de S, **menos** la
+  puntuación sin ninguno (carga ingenua, 76.56 con Ana). Así v(∅) = 0, como pide la
+  definición de Shapley.
+
+Los 8 valores reales de Ana:
+
+```text
+v({})=0   v({Avance})=15.32   v({Equilibrio})=14.63   v({Preferencias})=15.73
+v({Avance,Equilibrio})=15.32   v({Avance,Preferencias})=15.73
+v({Equilibrio,Preferencias})=15.73   v({los 3})=15.73
+```
+
+Cada v(S) es simplemente **la mejor oferta de S**, porque el Manager se queda con la
+mejor. En un juego así, ordenando las ofertas de mayor a menor (a ≥ b ≥ c), Shapley queda
+en una fórmula que se puede hacer a mano:
+
+```text
+φ(peor)    = c/3                         = 14.63/3                     = 4.88   (CargaEquilibrio)
+φ(media)   = c/3 + (b − c)/2             = 4.88 + (15.32 − 14.63)/2    = 5.22   (CargaAvance)
+φ(mejor)   = c/3 + (b − c)/2 + (a − b)   = 5.22 + (15.73 − 15.32)      = 5.63   (CargaPreferencias)
+suma       = 15.73 = v(N) ✔
+```
+
+Cómo se lee:
+- **c/3:** lo que cualquiera de los 3 logra se reparte en partes iguales, porque son
+  sustitutos.
+- **El resto:** solo se lo lleva quien lo mejora.
+- **El ganador obtiene más, pero no todo.** Esto pasa porque los otros dos por sí solos
+  también habrían dado una buena carga.
+
+Resultados de los 3 alumnos:
+
+| Alumno | Gana | φ Avance | φ Equilibrio | φ Preferencias | Lectura |
+|---|---|---|---|---|---|
+| A001 Ana | CargaPreferencias (92.29) | 5.22 | 4.88 | 5.63 | Prefiere la tarde: gana quien mira los grupos |
+| A002 Luis | CargaPreferencias (94.53) | 0.44 | 0.6 | 2.37 | La carga ingenua ya era buena (91.12): los contratistas aportan poco, y casi todo lo extra lo pone Preferencias |
+| A003 Sofía | CargaAvance (84.39), empate triple | 10.2 | 10.2 | 10.2 | Los 3 ofertan lo mismo: **simetría** |
+
+Si con algún contratista el resultado nunca cambiara (v(S ∪ {i}) = v(S) para toda
+coalición S, incluida la vacía), su φ sería 0: el **jugador ficticio (dummy)** de la
+diapositiva. Con estas 3 estrategias no pasa con ningún alumno, porque cada una, sola,
+mejora a la carga ingenua.
+
+**Límite honesto de la licitación.** La competencia no garantiza la mejor carga posible:
+cada contratista oferta lo mejor según **su** criterio, y el Manager califica con **otro**.
+Se comparó contra el AgenteCarga único de antes (pesos 0.5/0.3/0.2, 6 combinaciones) en
+4 casos:
+
+| Caso | AgenteCarga único | 3 contratistas |
+|---|---|---|
+| A001 sin petición | 92.29 | 92.29 |
+| A001 con la petición del notebook | **93.14** | 93.01 |
+| A002 (ligera, sin viernes) | 94.53 | 94.53 |
+| A003 (pesada, en línea) | 84.39 | 84.39 |
+
+En 3 casos empatan y en uno el agente único gana por 0.13. Ese caso no se recupera
+subiendo a 3 ofertas por contratista. Lo que gana el sistema con la mejora no es
+puntuación, sino **transparencia**: ahora se sabe qué criterio sirvió para cada alumno y
+cuánto aportó cada contratista.
+
+### 15.6 Mapa de archivos
 
 | Archivo | Responsabilidad |
 |---|---|
 | `main.py` | Comandos de terminal |
-| `carga/config.py` | Rutas, modelo, hilos, pesos y metas de carga |
+| `carga/config.py` | Rutas, modelo, hilos, pesos, metas de carga y estrategias de los contratistas |
 | `datos/importar_intrauia.py` | Exportación de Intrauia → `datos/plan_ibero.json` (con validación) |
 | `datos/plan_ibero.json` | Plan de estudios real (79 materias) |
 | `datos/semilla.py` | Materias (desde el JSON), oferta generada, profesores y alumnos |
@@ -1179,8 +1329,8 @@ ya es el de la tarde, así que el AgenteHorarios no tiene nada que mejorar.
 | `carga/kb.py` | Ontología → objetos Python; SPARQL; HermiT |
 | `carga/preferencias.py` | Lenguaje natural → preferencias (LLM con esquema + reglas + validación) |
 | `carga/evaluacion.py` | Elegibilidad, prioridad, choques, los 4 criterios |
-| `carga/agentes.py` | Los 4 agentes, versiones ingenuas, guardia anti-alucinación |
-| `carga/contract_net.py` | Protocolo cfp/propose/accept/reject + Shapley exacto |
+| `carga/agentes.py` | Los 4 agentes (el AgenteCarga con estrategia y `ofertar`), versiones ingenuas, guardia anti-alucinación |
+| `carga/contract_net.py` | Protocolo cfp/propose/accept/reject/inform con 3 contratistas + Shapley exacto (roles y contratistas) |
 | `carga/trazas.py` | Trace Collector + mensajes FIPA |
 | `carga/persistencia.py` | Resultados → `kb_<mat>.owl` |
 | `carga/reporte.py` | Reporte Markdown y resumen en terminal |
