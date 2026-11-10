@@ -1,0 +1,5 @@
+.venv/
+venv/
+__pycache__/
+salidas/
+datos/intrauia/
