@@ -117,22 +117,23 @@ El puerto se cambia con `CARGA_PORT` y la base con `CARGA_DB` (por defecto
 `salidas/carga.db`). La página tiene tres pestañas:
 
 1. **Recomendar carga:** ejecuta el MAS completo y muestra la carga, el veredicto del
-   validador, la licitación, los mensajes FIPA-ACL, las trazas y las gráficas de Shapley.
-2. **Validador semántico:** arma una solicitud con clic en las materias (las de borde rojo
-   no cumplen la seriación) y la valida con HermiT.
-3. **Auditoría y Shapley:** muestra las métricas (tasa de éxito, CRUD contra inferencia),
-   las ejecuciones guardadas en SQLite con su detalle y la bitácora de llamadas a la API,
-   donde aparecen las `@tool` de CrewAI.
+   validador, la licitación, los valores de Shapley y, en secciones desplegables, los
+   mensajes FIPA-ACL y las trazas.
+2. **Validar inscripción:** arma una solicitud marcando las materias (aparte se listan las
+   que todavía no cumplen la seriación) y la valida con HermiT.
+3. **Auditoría:** muestra el resumen (tasa de éxito, tiempos de CRUD contra inferencia,
+   Shapley promedio), las ejecuciones guardadas en SQLite con su detalle y la bitácora de
+   llamadas a la API; la casilla *Mostrar solo las herramientas de CrewAI* deja ver las `@tool`.
 
 Enlaces directos para la demo: `/#rec=A002`, `/#val=A001:LIIS2105,LIIS2112,LIIB2104,LICB2102,LIIN2104`
 y `/#aud`.
 
 | Minuto | Qué mostrar | Cómo |
 |---|---|---|
-| 1 · Entorno | FastAPI, SQLite y la ontología cargada | `python main.py api` y luego `/salud` o los indicadores de la página |
+| 1 · Entorno | FastAPI, SQLite y la ontología cargada | `python main.py api` y luego `/salud` o la línea de estado de la página |
 | 2 · Caso exitoso | La Crew, la `@tool`, el endpoint y el registro en SQLite | `python main.py crew A002 -p "quiero algo ligero y sin viernes"` (en la terminal de la API se ve cada `[api] POST … ← crewai @tool …`) |
 | 3 · Rechazo semántico | HermiT detecta la inconsistencia y el Validador la frena | `python main.py crew A001 -m LIIS2105,LIIS2112,LIIB2104,LICB2102,LIIN2104` o `/#val=…` |
-| 4–5 · Auditoría | Trazas en SQLite y valores de Shapley | pestaña **Auditoría y Shapley** (`/#aud`) |
+| 4–5 · Auditoría | Trazas en SQLite y valores de Shapley | pestaña **Auditoría** (`/#aud`) |
 
 Tiempos medidos con `llama3.2` solo en CPU: caso exitoso **~2 min 15 s** (5 tareas, 10 llamadas
 al LLM) y rechazo **~1 min** (la API responde en ~2 s; el resto es el LLM). Con `--sin-llm`

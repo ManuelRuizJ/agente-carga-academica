@@ -6,270 +6,265 @@
 <title>Agente de carga académica</title>
 <style>
 :root{
-  --bg:#f6f7f9; --panel:#ffffff; --ink:#1b1f24; --muted:#5d6670; --line:#e2e5ea;
-  --accent:#2f5bea; --accent-soft:#e8eeff; --ok:#1f8a4c; --ok-soft:#e5f5ec;
-  --bad:#c23b2e; --bad-soft:#fbeae8; --warn:#9a6a00; --warn-soft:#fff4d6;
-  --s1:#2f5bea; --s2:#0f9d8a; --s3:#d9822b;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#111418; --panel:#191d23; --ink:#e7eaee; --muted:#9aa3ad; --line:#2a3038;
-    --accent:#7d9bff; --accent-soft:#1f2a4a; --ok:#4cc483; --ok-soft:#15301f;
-    --bad:#ff7a6b; --bad-soft:#3a1c19; --warn:#e8b54a; --warn-soft:#3a2e12;
-    --s1:#7d9bff; --s2:#3fc9b4; --s3:#f0a35a;
-  }
+  --texto:#222; --tenue:#666; --borde:#d4d4d4; --fondo:#fff; --gris:#f4f4f4;
+  --azul:#1f4e8c; --verde:#2e7d32; --rojo:#b3261e; --barra:#4a6fa5;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-header{padding:20px 24px 8px;max-width:1200px;margin:0 auto}
-h1{font-size:22px;margin:0 0 2px}
-.sub{color:var(--muted);margin:0 0 12px}
-main{max-width:1200px;margin:0 auto;padding:0 24px 40px}
-nav{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:8px 0 18px;overflow-x:auto}
-nav button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 14px;font:inherit;color:var(--muted);cursor:pointer;white-space:nowrap}
-nav button.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
-section.tab{display:none} section.tab.on{display:block}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
-.card h2{font-size:15px;margin:0 0 12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-.grid{display:grid;gap:16px}
-@media(min-width:900px){.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:2fr 1fr}}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:13px}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
-.dot.ok{background:var(--ok)} .dot.bad{background:var(--bad)} .dot.warn{background:var(--warn)}
-label{display:block;font-size:13px;color:var(--muted);margin:0 0 4px}
-select,textarea,input{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
-textarea{min-height:64px;resize:vertical}
-.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
-.row>div{flex:1;min-width:180px}
-button.prim{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer}
-button.sec{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font:inherit;cursor:pointer}
-button:disabled{opacity:.55;cursor:wait}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
-td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
-.scroll{overflow-x:auto}
-.mono{font-family:var(--mono);font-size:12.5px}
-td.mono{white-space:nowrap}
-.muted{color:var(--muted)}
-.big{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.kpi{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
-.kpi .l{font-size:12px;color:var(--muted)}
-.verdict{border-radius:10px;padding:14px 16px;border:1px solid}
-.verdict.ok{background:var(--ok-soft);border-color:var(--ok)}
-.verdict.bad{background:var(--bad-soft);border-color:var(--bad)}
-.verdict h3{margin:0 0 6px;font-size:18px}
-.ax{font-family:var(--mono);font-size:12.5px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin-top:4px;display:inline-block}
-.bars{display:flex;flex-direction:column;gap:8px}
-.bar{display:grid;grid-template-columns:150px 1fr 60px;gap:10px;align-items:center;font-size:14px}
-.track{height:18px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
-.fill{height:100%;border-radius:3px}
-.pick{cursor:pointer;user-select:none}
-.pick.sel{background:var(--accent-soft);border-color:var(--accent)}
-.pick.no{border-color:var(--bad);color:var(--bad)}
-.pick.no.sel{background:var(--bad-soft)}
-.msg{display:grid;grid-template-columns:130px 1fr;gap:8px;padding:4px 0;border-bottom:1px dashed var(--line);font-size:13px}
-.perf{font-family:var(--mono);font-size:12px;padding:1px 6px;border-radius:4px;background:var(--accent-soft);text-align:center;height:fit-content}
-.perf.accept-proposal,.perf.inform{background:var(--ok-soft);color:var(--ok)}
-.perf.reject-proposal,.perf.failure,.perf.refuse{background:var(--bad-soft);color:var(--bad)}
-.log{max-height:340px;overflow:auto}
-.hint{font-size:13px;color:var(--muted);margin:6px 0 0}
-.err{color:var(--bad);font-weight:600}
-tr.click{cursor:pointer} tr.click:hover{background:var(--bg)}
-.tag{font-size:12px;padding:1px 8px;border-radius:999px;border:1px solid var(--line)}
-.tag.ok{color:var(--ok);border-color:var(--ok)} .tag.bad{color:var(--bad);border-color:var(--bad)}
+body{margin:0;background:var(--fondo);color:var(--texto);font:15px/1.55 "Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.contenedor{max-width:1100px;margin:0 auto;padding:0 20px 48px}
+header{border-bottom:3px solid var(--azul);padding:22px 0 12px;margin-bottom:6px}
+header h1{margin:0;font-size:24px;font-weight:600}
+header p{margin:2px 0 0;color:var(--tenue)}
+.estado{font-size:13.5px;color:var(--tenue);margin:10px 0 0}
+.estado b{color:var(--texto);font-weight:600}
+.ok{color:var(--verde)} .mal{color:var(--rojo)}
+nav{display:flex;gap:0;border-bottom:1px solid var(--borde);margin:18px 0 20px;flex-wrap:wrap}
+nav a{padding:9px 16px;color:var(--tenue);text-decoration:none;border:1px solid transparent;border-bottom:0;margin-bottom:-1px;cursor:pointer}
+nav a.activo{color:var(--texto);border-color:var(--borde);background:var(--fondo);font-weight:600;border-radius:4px 4px 0 0}
+section.pestana{display:none} section.pestana.activo{display:block}
+h2{font-size:18px;font-weight:600;margin:28px 0 10px}
+h3{font-size:15.5px;font-weight:600;margin:20px 0 8px}
+p{margin:6px 0}
+.nota{color:var(--tenue);font-size:13.5px}
+.formulario{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;background:var(--gris);border:1px solid var(--borde);border-radius:4px;padding:14px}
+.formulario>div{flex:1;min-width:200px}
+label{display:block;font-size:13.5px;margin-bottom:3px}
+select,textarea{width:100%;font:inherit;color:var(--texto);background:#fff;border:1px solid #bbb;border-radius:3px;padding:6px 8px}
+textarea{min-height:58px;resize:vertical}
+button{font:inherit;border-radius:3px;padding:7px 14px;cursor:pointer;border:1px solid #bbb;background:#fff;color:var(--texto)}
+button.principal{background:var(--azul);border-color:var(--azul);color:#fff}
+button:disabled{opacity:.6;cursor:wait}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:6px 0}
+th,td{border:1px solid var(--borde);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--gris);font-weight:600}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.c{font-family:Consolas,Menlo,monospace;font-size:13px;white-space:nowrap}
+.tabla{overflow-x:auto}
+.dos{display:grid;gap:24px}
+@media(min-width:860px){.dos{grid-template-columns:1fr 1fr}}
+.veredicto{border:1px solid var(--borde);border-left:5px solid var(--verde);padding:10px 14px;margin:14px 0;background:#f6fbf6}
+.veredicto.rechazo{border-left-color:var(--rojo);background:#fdf5f4}
+.veredicto strong{font-size:16px}
+.axioma{font-family:Consolas,Menlo,monospace;font-size:13px;background:#fff;border:1px solid var(--borde);padding:3px 6px;display:inline-block;margin-top:3px}
+.barras{margin:4px 0 6px}
+.fila-barra{display:grid;grid-template-columns:140px 1fr 56px;gap:10px;align-items:center;margin:5px 0;font-size:14px}
+.pista{background:var(--gris);border:1px solid var(--borde);height:16px}
+.relleno{background:var(--barra);height:100%}
+.valor{text-align:right;font-variant-numeric:tabular-nums}
+.lista-materias{columns:2 320px;column-gap:28px;margin:6px 0 4px}
+.lista-materias label{display:flex;gap:8px;align-items:baseline;break-inside:avoid;margin:3px 0;font-size:14px;cursor:pointer}
+.lista-materias input{margin:0}
+.lista-materias .motivo{color:var(--tenue);font-size:12.5px}
+details{margin:10px 0}
+summary{cursor:pointer;color:var(--azul)}
+tr.fila-clic{cursor:pointer} tr.fila-clic:hover td{background:#f8f8f8}
+.error{color:var(--rojo);font-weight:600}
+.cargando{color:var(--tenue);font-style:italic}
 </style>
 </head>
 <body>
+<div class="contenedor">
 <header>
   <h1>Agente de carga académica</h1>
-  <p class="sub">Sistema multiagente · Contract Net + CrewAI · Ontología OWL 2 · HermiT en RAM · SQLite</p>
-  <div class="chips" id="salud"><span class="chip"><span class="dot"></span>Conectando con la API…</span></div>
+  <p>Proyecto final de Agentes Inteligentes · Ingeniería en Sistemas Computacionales</p>
+  <p class="estado" id="salud">Consultando el estado del sistema…</p>
 </header>
-<main>
+
 <nav>
-  <button class="on" data-tab="rec">1 · Recomendar carga</button>
-  <button data-tab="val">2 · Validador semántico</button>
-  <button data-tab="aud">3 · Auditoría y Shapley</button>
+  <a class="activo" data-p="rec">Recomendar carga</a>
+  <a data-p="val">Validar inscripción</a>
+  <a data-p="aud">Auditoría</a>
 </nav>
 
-<!-- ============================================================ RECOMENDAR -->
-<section class="tab on" id="tab-rec">
-  <div class="card">
-    <div class="row">
-      <div style="max-width:320px"><label for="r-alumno">Alumno</label><select id="r-alumno"></select></div>
-      <div><label for="r-pet">Petición en lenguaje natural (opcional)</label>
-        <textarea id="r-pet" placeholder="quiero algo ligero, en la mañana y sin clases el viernes"></textarea></div>
-      <div style="flex:0"><button class="prim" id="r-btn">Ejecutar MAS</button></div>
-    </div>
-    <p class="hint">Corre el Contract Net completo, el Agente Validador certifica la propuesta con HermiT, se calculan los valores de Shapley y todo se guarda en SQLite.</p>
+<!-- ===================================================== RECOMENDAR -->
+<section class="pestana activo" id="p-rec">
+  <div class="formulario">
+    <div style="max-width:300px"><label for="r-alumno">Alumno</label><select id="r-alumno"></select></div>
+    <div><label for="r-pet">¿Qué prefiere el alumno? (opcional)</label>
+      <textarea id="r-pet" placeholder="Ejemplo: quiero algo ligero, en la mañana y sin clases el viernes"></textarea></div>
+    <div style="flex:0"><button class="principal" id="r-btn">Recomendar</button></div>
   </div>
+  <p class="nota">Los agentes arman varias propuestas, el coordinador elige la mejor y el validador la revisa con HermiT antes de mostrarla.</p>
   <div id="r-out"></div>
 </section>
 
-<!-- ============================================================ VALIDAR -->
-<section class="tab" id="tab-val">
-  <div class="card">
-    <div class="row">
-      <div style="max-width:320px"><label for="v-alumno">Alumno</label><select id="v-alumno"></select></div>
-      <div style="flex:0;white-space:nowrap">
-        <button class="sec" id="v-rec">Usar la última recomendación</button>
-        <button class="sec" id="v-clear">Limpiar</button>
-      </div>
-    </div>
-    <p class="hint">Haz clic en las materias para armar la solicitud. Las de borde rojo están descartadas por seriación: si agregas una, HermiT encuentra una inconsistencia.</p>
-    <div style="margin-top:12px"><label>Materias válidas según el kárdex</label><div class="chips" id="v-validas"></div></div>
-    <div style="margin-top:12px"><label>Materias que NO cumplen la seriación</label><div class="chips" id="v-desc"></div></div>
-    <div class="row" style="margin-top:14px">
-      <div><label>Solicitud</label><div class="mono" id="v-sel">—</div></div>
-      <div style="flex:0"><button class="prim" id="v-btn">Validar con HermiT</button></div>
+<!-- ===================================================== VALIDAR -->
+<section class="pestana" id="p-val">
+  <div class="formulario">
+    <div style="max-width:300px"><label for="v-alumno">Alumno</label><select id="v-alumno"></select></div>
+    <div style="flex:0;white-space:nowrap">
+      <button id="v-rec">Cargar la última recomendación</button>
+      <button id="v-clear">Quitar todas</button>
     </div>
   </div>
+  <p class="nota">Marca las materias que el alumno quiere inscribir y presiona «Validar». Si eliges una de la segunda lista, el razonador detecta que rompe la seriación.</p>
+
+  <h3>Materias que puede cursar</h3>
+  <div class="lista-materias" id="v-validas"></div>
+  <h3>Materias que todavía no cumplen la seriación</h3>
+  <div class="lista-materias" id="v-desc"></div>
+
+  <p style="margin-top:14px"><b>Solicitud:</b> <span id="v-sel">ninguna materia seleccionada</span></p>
+  <button class="principal" id="v-btn">Validar</button>
   <div id="v-out"></div>
 </section>
 
-<!-- ============================================================ AUDITORÍA -->
-<section class="tab" id="tab-aud">
-  <div class="card"><div class="row" style="justify-content:space-between;align-items:center">
-    <h2 style="margin:0">Métricas de desempeño</h2><button class="sec" id="a-btn">Actualizar</button></div>
-    <div id="a-met" style="margin-top:12px"></div>
+<!-- ===================================================== AUDITORÍA -->
+<section class="pestana" id="p-aud">
+  <p><button id="a-btn">Actualizar</button> <span class="nota">Datos guardados en la base SQLite.</span></p>
+  <div class="dos">
+    <div><h2>Resumen</h2><div id="a-met"></div></div>
+    <div><h2>Tiempo promedio por operación</h2><div id="a-tiempos"></div></div>
   </div>
-  <div class="grid g2">
-    <div class="card"><h2>Shapley promedio (φ) por agente</h2><div id="a-shap"></div></div>
-    <div class="card"><h2>CRUD vs inferencia semántica</h2><div id="a-tiempos"></div></div>
-  </div>
-  <div class="card"><h2>Ejecuciones en SQLite</h2><div class="scroll" id="a-ej"></div></div>
+  <h2>Aporte promedio de cada agente (valor de Shapley)</h2>
+  <div id="a-shap"></div>
+  <h2>Ejecuciones guardadas</h2>
+  <p class="nota">Haz clic en una fila para ver su detalle.</p>
+  <div class="tabla" id="a-ej"></div>
   <div id="a-det"></div>
-  <div class="card"><h2>Bitácora de llamadas a la API (incluye las @tool de CrewAI)</h2><div class="scroll" id="a-llam"></div></div>
+  <h2>Llamadas a la API</h2>
+  <p><label style="display:inline"><input type="checkbox" id="a-solo-crew"> Mostrar solo las herramientas de CrewAI</label></p>
+  <div class="tabla" id="a-llam"></div>
 </section>
-</main>
+</div>
 
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const COLORES = ["var(--s1)","var(--s2)","var(--s3)"];
-const COLOR_DE = {AgenteHistorial:"var(--s1)", AgenteCarga:"var(--s2)", AgenteHorarios:"var(--s3)",
-                  CargaAvance:"var(--s1)", CargaEquilibrio:"var(--s2)", CargaPreferencias:"var(--s3)"};
-const ORDEN = Object.keys(COLOR_DE);
-let ULTIMA = null, SEL = [], INFO = null;
+const NOMBRE = {AgenteHistorial:"Historial", AgenteCarga:"Carga", AgenteHorarios:"Horarios",
+                CargaAvance:"Carga Avance", CargaEquilibrio:"Carga Equilibrio", CargaPreferencias:"Carga Preferencias"};
+const ORDEN = Object.keys(NOMBRE);
+const PERF = {"cfp":"solicita propuestas", "propose":"propone", "accept-proposal":"acepta", "reject-proposal":"rechaza",
+              "inform":"informa", "refuse":"declina", "request":"pide validar", "failure":"rechaza la solicitud"};
+let ULTIMA = null, SEL = [], INFO = null, LLAMADAS = [];
 
 async function api(ruta, cuerpo){
   const op = cuerpo ? {method:"POST", headers:{"Content-Type":"application/json","x-cliente":"web"}, body:JSON.stringify(cuerpo)}
                     : {headers:{"x-cliente":"web"}};
   const r = await fetch(ruta, op);
   const d = await r.json().catch(() => ({}));
-  if(!r.ok) throw new Error(d.detail || ("HTTP " + r.status));
+  if(!r.ok) throw new Error(d.detail || ("Error " + r.status));
   return d;
 }
 
-/* ---------------------------------------------------------------- pestañas */
-document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
-  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
-  document.querySelectorAll("section.tab").forEach(s => s.classList.toggle("on", s.id === "tab-" + b.dataset.tab));
-  if(b.dataset.tab === "aud") auditoria();
-});
+/* -------------------------------------------------- navegación */
+function irA(p){
+  document.querySelectorAll("nav a").forEach(a => a.classList.toggle("activo", a.dataset.p === p));
+  document.querySelectorAll("section.pestana").forEach(s => s.classList.toggle("activo", s.id === "p-" + p));
+  if(p === "aud") auditoria();
+}
+document.querySelectorAll("nav a").forEach(a => a.onclick = () => irA(a.dataset.p));
 
-/* ---------------------------------------------------------------- salud */
+/* -------------------------------------------------- estado */
 async function salud(){
   try{
     const s = await api("/salud");
-    const o = s.ontologia, t = s.sqlite.tablas;
+    const o = s.ontologia;
     const java = !s.hermit.java.startsWith("no disponible");
-    $("#salud").innerHTML = [
-      `<span class="chip"><span class="dot ok"></span>FastAPI</span>`,
-      `<span class="chip"><span class="dot ok"></span>Ontología OWL · ${o.materias} materias · ${o.axiomas_seriacion} axiomas de seriación</span>`,
-      `<span class="chip"><span class="dot ok"></span>SQLite · ${t.ejecuciones} ejecuciones · ${t.trazas} trazas</span>`,
-      `<span class="chip"><span class="dot ${java?"ok":"bad"}"></span>HermiT · ${esc(s.hermit.java.split('"')[1] ? "Java " + s.hermit.java.split('"')[1] : s.hermit.java)}</span>`,
-      `<span class="chip"><span class="dot ${s.llm.disponible?"ok":"warn"}"></span>LLM ${esc(s.llm.modelo)} ${s.llm.disponible?"":"(apagado: se usan reglas)"}</span>`,
-      `<span class="chip muted">${esc(o.periodo)} · ${o.creditos[0]}–${o.creditos[1]} créditos</span>`
-    ].join("");
-  }catch(e){ $("#salud").innerHTML = `<span class="chip"><span class="dot bad"></span>API sin respuesta: ${esc(e.message)}</span>`; }
+    const v = (s.hermit.java.match(/"([^"]+)"/) || [])[1];
+    $("#salud").innerHTML =
+      `<b>API:</b> <span class="ok">en línea</span> &nbsp;|&nbsp; ` +
+      `<b>Ontología:</b> ${o.materias} materias, ${o.axiomas_seriacion} reglas de seriación &nbsp;|&nbsp; ` +
+      `<b>Base de datos:</b> ${s.sqlite.tablas.ejecuciones} ejecuciones &nbsp;|&nbsp; ` +
+      `<b>HermiT:</b> <span class="${java?"ok":"mal"}">${java ? "listo" + (v ? " (Java " + esc(v) + ")" : "") : "sin Java"}</span> &nbsp;|&nbsp; ` +
+      `<b>LLM:</b> ${s.llm.disponible ? `<span class="ok">${esc(s.llm.modelo)}</span>` : "apagado (se usan reglas)"} &nbsp;|&nbsp; ` +
+      `<b>Periodo:</b> ${esc(o.periodo)}, de ${o.creditos[0]} a ${o.creditos[1]} créditos`;
+  }catch(e){ $("#salud").innerHTML = `<span class="error">La API no responde: ${esc(e.message)}</span>`; }
 }
 
 async function alumnos(){
   const lista = await api("/alumnos");
-  const ops = lista.map(a => `<option value="${a.matricula}">${a.matricula} · ${esc(a.nombre)} (sem ${a.semestre})</option>`).join("");
+  const ops = lista.map(a => `<option value="${a.matricula}">${a.matricula} — ${esc(a.nombre)} (${a.semestre}.º semestre)</option>`).join("");
   $("#r-alumno").innerHTML = ops; $("#v-alumno").innerHTML = ops;
-  cargarKardex();
+  await cargarKardex();
 }
 
-/* ---------------------------------------------------------------- barras */
-function barras(obj, max){
-  const ent = Object.entries(obj || {}).sort((a,b) => (ORDEN.indexOf(a[0]) - ORDEN.indexOf(b[0])));
-  if(!ent.length) return `<p class="muted">Sin datos.</p>`;
-  const m = max || Math.max(...ent.map(e => Math.abs(e[1])), 1);
-  return `<div class="bars">` + ent.map(([k,v],i) =>
-    `<div class="bar"><span>${esc(k.replace("Agente",""))}</span>
-      <div class="track"><div class="fill" style="width:${Math.max(0,v)/m*100}%;background:${COLOR_DE[k] || COLORES[i%3]}"></div></div>
-      <span class="num mono">${v}</span></div>`).join("") + `</div>`;
+/* -------------------------------------------------- gráficas de barras */
+function barras(obj, unidad = ""){
+  const ent = Object.entries(obj || {}).sort((a,b) => ORDEN.indexOf(a[0]) - ORDEN.indexOf(b[0]));
+  if(!ent.length) return `<p class="nota">Sin datos todavía.</p>`;
+  const m = Math.max(...ent.map(e => e[1] || 0), 1e-9);
+  return `<div class="barras">` + ent.map(([k,v]) => `<div class="fila-barra"><span>${esc(NOMBRE[k] || k)}</span>
+    <div class="pista"><div class="relleno" style="width:${Math.max(0.5,(v||0)/m*100)}%"></div></div>
+    <span class="valor">${v ?? "—"}${unidad}</span></div>`).join("") + `</div>`;
 }
 
-function mensajes(lista){
-  return `<div class="log">` + lista.map(m => `<div class="msg"><span class="perf ${esc(m.performativa)}">${esc(m.performativa)}</span>
-    <span><b>${esc(m.emisor)}</b> → ${esc(m.receptor)}: <span class="muted">${esc(m.contenido)}</span></span></div>`).join("") + `</div>`;
+function tablaMensajes(lista){
+  return `<div class="tabla"><table><tr><th>De</th><th>Acción</th><th>Para</th><th>Contenido</th></tr>` +
+    lista.map(m => `<tr><td>${esc(m.emisor)}</td><td>${esc(PERF[m.performativa] || m.performativa)} <span class="nota">(${esc(m.performativa)})</span></td>
+      <td>${esc(m.receptor)}</td><td>${esc(m.contenido)}</td></tr>`).join("") + `</table></div>`;
 }
 
-/* ---------------------------------------------------------------- recomendar */
+/* -------------------------------------------------- recomendar */
 $("#r-btn").onclick = async () => {
-  const b = $("#r-btn"); b.disabled = true; b.textContent = "Ejecutando…";
-  $("#r-out").innerHTML = `<div class="card muted">Contract Net → Validador (HermiT) → Shapley…</div>`;
+  const b = $("#r-btn"); b.disabled = true; b.textContent = "Calculando…";
+  $("#r-out").innerHTML = `<p class="cargando">Ejecutando el Contract Net, la validación con HermiT y el cálculo de Shapley…</p>`;
   try{
     const d = await api("/recomendar", {matricula:$("#r-alumno").value, peticion:$("#r-pet").value, origen:"web"});
     ULTIMA = d; pintarRecomendacion(d); salud();
-  }catch(e){ $("#r-out").innerHTML = `<div class="card err">${esc(e.message)}</div>`; }
-  b.disabled = false; b.textContent = "Ejecutar MAS";
+  }catch(e){ $("#r-out").innerHTML = `<p class="error">${esc(e.message)}</p>`; }
+  b.disabled = false; b.textContent = "Recomendar";
 };
 
 function pintarRecomendacion(d){
-  if(!d.ganadora){ $("#r-out").innerHTML = `<div class="card">Sin propuesta válida (${esc(d.estado)}).</div>`; return; }
+  if(!d.ganadora){ $("#r-out").innerHTML = `<p>No se encontró una carga válida para este alumno.</p>`; return; }
   const g = d.ganadora, v = d.validacion || {};
-  const filas = g.materias.map(m => `<tr><td class="mono">${m.clave}</td><td>${esc(m.nombre)}</td><td class="num">${m.creditos}</td>
-     <td class="mono">${esc(m.grupo)}</td><td>${esc((m.modalidad||"").replace("_"," "))}</td><td class="mono">${esc(m.horario)}</td></tr>`).join("");
-  const lic = d.licitacion.map(p => `<tr ${p.id===g.id?'style="font-weight:600"':""}><td>${p.id}</td><td>${esc(p.autor)}</td>
-     <td class="num">${p.creditos}</td><td class="num">${p.puntuacion}</td><td>${p.id===g.id?'<span class="tag ok">accept</span>':'<span class="tag">reject</span>'}</td></tr>`).join("");
-  const crit = Object.entries(g.criterios).map(([k,x]) => `<div class="kpi"><div class="l">${k.replace(/_/g," ")}</div><div class="big" style="font-size:20px">${x}</div></div>`).join("");
+  const suma = Object.values(d.shapley.especialistas).reduce((a,b) => a + b, 0);
+  const crit = {avance_academico:"Avance académico (30 %)", compatibilidad_horario:"Horario sin choques (25 %)",
+                carga_equilibrada:"Carga equilibrada (25 %)", preferencias:"Preferencias del alumno (20 %)"};
   $("#r-out").innerHTML = `
-  <div class="grid g3">
-    <div class="card">
-      <h2>Carga recomendada · ${esc(d.alumno.nombre)}</h2>
-      <p class="muted" style="margin-top:-6px">${esc(d.preferencias)} · <i>${esc(d.interpretado_por)}</i></p>
-      <div class="kpis" style="margin-bottom:12px">
-        <div class="kpi"><div class="l">Puntuación</div><div class="big">${g.puntuacion}</div></div>
-        <div class="kpi"><div class="l">Créditos</div><div class="big">${g.creditos}</div></div>
-        <div class="kpi"><div class="l">Ganó la licitación</div><div class="big" style="font-size:18px">${esc(g.autor)}</div></div>
+    <h2>Carga recomendada para ${esc(d.alumno.nombre)} (${d.alumno.matricula})</h2>
+    <p><b>Lo que pidió:</b> ${esc(d.preferencias)}</p>
+    <div class="tabla"><table>
+      <tr><th>Clave</th><th>Materia</th><th class="n">Créditos</th><th>Grupo</th><th>Modalidad</th><th>Horario</th></tr>
+      ${g.materias.map(m => `<tr><td class="c">${m.clave}</td><td>${esc(m.nombre)}</td><td class="n">${m.creditos}</td>
+        <td class="c">${esc(m.grupo)}</td><td>${esc((m.modalidad||"").replace("_"," "))}</td><td class="c">${esc(m.horario)}</td></tr>`).join("")}
+      <tr><th colspan="2">Total</th><th class="n">${g.creditos}</th><th colspan="3"></th></tr>
+    </table></div>
+    <p>Puntuación: <b>${g.puntuacion} de 100</b>. Ganó la propuesta de <b>${esc(NOMBRE[g.autor] || g.autor)}</b>.</p>
+    <div class="veredicto ${v.aceptada ? "" : "rechazo"}">
+      <strong>Validación con HermiT: ${v.aceptada ? "aprobada" : "no aprobada"}</strong><br>
+      ${esc(v.justificacion || "—")} <span class="nota">(${v.tiempo_hermit ?? "-"} s)</span>
+    </div>
+    <h3>Explicación para el alumno</h3>
+    <p>${esc(d.explicacion)}</p>
+    <p class="nota">Redactada por: ${esc(d.fuente)}. Guardada como ejecución #${d.ejecucion_id}. Tiempo total: ${d.duracion_s} s.</p>
+
+    <div class="dos">
+      <div>
+        <h2>¿Cuánto aportó cada agente? (Shapley)</h2>
+        ${barras(d.shapley.especialistas)}
+        <p class="nota">La suma de los aportes (${suma.toFixed(2)}) es igual a la puntuación final.</p>
+        <h3>Entre los tres agentes de carga</h3>
+        ${barras(d.shapley.contratistas)}
       </div>
-      <div class="scroll"><table><thead><tr><th>Clave</th><th>Materia</th><th class="num">Cr</th><th>Grupo</th><th>Modalidad</th><th>Horario</th></tr></thead><tbody>${filas}</tbody></table></div>
-      <div class="verdict ${v.aceptada?"ok":"bad"}" style="margin-top:14px">
-        <b>Agente Validador:</b> ${esc(v.justificacion || "—")} <span class="muted mono">(HermiT ${v.tiempo_hermit ?? "-"} s)</span></div>
-      <p style="margin-top:14px">${esc(d.explicacion)}</p>
-      <p class="hint">Redacción: ${esc(d.fuente)} · ejecución #${d.ejecucion_id} en SQLite · ${d.duracion_s} s</p>
+      <div>
+        <h2>Cómo se calificó</h2>
+        <table><tr><th>Criterio (peso)</th><th class="n">Puntos</th></tr>
+          ${Object.entries(g.criterios).map(([k,x]) => `<tr><td>${crit[k] || k}</td><td class="n">${x}</td></tr>`).join("")}
+        </table>
+        <h3>Propuestas que compitieron (Contract Net)</h3>
+        <table><tr><th>Propuesta</th><th>Agente</th><th class="n">Créditos</th><th class="n">Puntos</th><th>Resultado</th></tr>
+          ${d.licitacion.map(p => `<tr><td>${p.id}</td><td>${esc(NOMBRE[p.autor] || p.autor)}</td><td class="n">${p.creditos}</td>
+            <td class="n">${p.puntuacion}</td><td>${p.id === g.id ? "<b>ganadora</b>" : "rechazada"}</td></tr>`).join("")}
+        </table>
+      </div>
     </div>
-    <div>
-      <div class="card"><h2>Shapley · especialistas</h2>${barras(d.shapley.especialistas)}
-        <p class="hint">Σφ = ${Object.values(d.shapley.especialistas).reduce((a,b)=>a+b,0).toFixed(2)} = puntuación final (eficiencia)</p></div>
-      <div class="card"><h2>Shapley · contratistas</h2>${barras(d.shapley.contratistas)}</div>
-      <div class="card"><h2>Criterios (0–100)</h2><div class="kpis">${crit}</div></div>
-    </div>
-  </div>
-  <div class="grid g2">
-    <div class="card"><h2>Licitación (Contract Net)</h2><div class="scroll"><table><thead><tr><th>Id</th><th>Contratista</th><th class="num">Cr</th><th class="num">Puntaje</th><th></th></tr></thead><tbody>${lic}</tbody></table></div></div>
-    <div class="card"><h2>Mensajes FIPA-ACL</h2>${mensajes(d.mensajes)}</div>
-  </div>
-  <div class="card"><h2>Trazas de ejecución</h2><div class="scroll"><table><thead><tr><th>Agente</th><th>Tarea</th><th>Salida</th><th class="num">s</th></tr></thead><tbody>
-    ${d.trazas.map(t => `<tr><td>${esc(t.agente)}</td><td class="mono">${esc(t.tarea)}</td><td>${esc(t.salida)}</td><td class="num">${t.tiempo}</td></tr>`).join("")}
-  </tbody></table></div></div>`;
+
+    <details><summary>Ver los mensajes entre agentes (${d.mensajes.length})</summary>${tablaMensajes(d.mensajes)}</details>
+    <details><summary>Ver las trazas de ejecución (${d.trazas.length})</summary>
+      <div class="tabla"><table><tr><th>Agente</th><th>Tarea</th><th>Resultado</th><th class="n">Segundos</th></tr>
+      ${d.trazas.map(t => `<tr><td>${esc(t.agente)}</td><td class="c">${esc(t.tarea)}</td><td>${esc(t.salida)}</td><td class="n">${t.tiempo}</td></tr>`).join("")}
+      </table></div></details>`;
 }
 
-/* ---------------------------------------------------------------- validar */
+/* -------------------------------------------------- validar */
 $("#v-alumno").onchange = () => { SEL = []; cargarKardex(); };
 $("#v-clear").onclick = () => { SEL = []; pintarSel(); };
-$("#v-rec").onclick = () => {
-  if(!ULTIMA || !ULTIMA.ganadora){ alert("Primero ejecuta una recomendación en la pestaña 1."); return; }
+$("#v-rec").onclick = async () => {
+  if(!ULTIMA || !ULTIMA.ganadora){ alert("Primero haz una recomendación en la pestaña «Recomendar carga»."); return; }
   $("#v-alumno").value = ULTIMA.alumno.matricula;
-  cargarKardex().then(() => { SEL = ULTIMA.ganadora.materias.map(m => m.clave); pintarSel(); });
+  await cargarKardex(); SEL = ULTIMA.ganadora.materias.map(m => m.clave); pintarSel();
 };
 
 async function cargarKardex(){
@@ -277,96 +272,116 @@ async function cargarKardex(){
   pintarSel();
 }
 
+function casilla(m, extra){
+  return `<label><input type="checkbox" data-c="${m.clave}" ${SEL.includes(m.clave) ? "checked" : ""}>
+    <span><span class="c">${m.clave}</span> ${esc(m.nombre)}${m.creditos ? ` (${m.creditos} cr.)` : ""}${extra || ""}</span></label>`;
+}
+
 function pintarSel(){
   if(!INFO) return;
-  const cr = c => (INFO.validas.find(x=>x.clave===c) || {}).creditos;
-  $("#v-validas").innerHTML = INFO.validas.map(m => `<span class="chip pick ${SEL.includes(m.clave)?"sel":""}" data-c="${m.clave}" title="${esc(m.nombre)}">${m.clave} · ${esc(m.nombre.slice(0,28))} · ${m.creditos} cr</span>`).join("");
+  $("#v-validas").innerHTML = INFO.validas.map(m => casilla(m)).join("");
   const desc = INFO.descartadas.filter(m => m.motivo.startsWith("falta"));
-  $("#v-desc").innerHTML = desc.map(m => `<span class="chip pick no ${SEL.includes(m.clave)?"sel":""}" data-c="${m.clave}" title="${esc(m.motivo)}">${m.clave} · ${esc(m.nombre.slice(0,28))} · <span class="muted">${esc(m.motivo)}</span></span>`).join("") || `<span class="muted">Ninguna.</span>`;
-  document.querySelectorAll(".pick").forEach(el => el.onclick = () => {
-    const c = el.dataset.c; SEL = SEL.includes(c) ? SEL.filter(x=>x!==c) : [...SEL, c]; pintarSel();
+  $("#v-desc").innerHTML = desc.map(m => casilla(m, ` <span class="motivo">— ${esc(m.motivo)}</span>`)).join("")
+                           || `<p class="nota">Ninguna.</p>`;
+  document.querySelectorAll(".lista-materias input").forEach(el => el.onchange = () => {
+    const c = el.dataset.c; SEL = el.checked ? [...SEL, c] : SEL.filter(x => x !== c); resumenSel();
   });
-  const total = SEL.reduce((a,c) => a + (cr(c) || 0), 0);
-  $("#v-sel").textContent = SEL.length ? SEL.join(", ") + (total ? `  (≈${total} créditos válidos)` : "") : "—";
+  resumenSel();
+}
+
+function resumenSel(){
+  const cr = c => (INFO.validas.find(x => x.clave === c) || {}).creditos || 0;
+  const total = SEL.reduce((a,c) => a + cr(c), 0);
+  $("#v-sel").textContent = SEL.length ? `${SEL.join(", ")} (${SEL.length} materias)` : "ninguna materia seleccionada";
 }
 
 $("#v-btn").onclick = async () => {
-  if(!SEL.length){ alert("Selecciona al menos una materia."); return; }
-  const b = $("#v-btn"); b.disabled = true; b.textContent = "Razonando…";
-  $("#v-out").innerHTML = `<div class="card muted">Cargando la ontología en RAM, agregando la solicitud y el axioma de cierre, ejecutando HermiT…</div>`;
+  if(!SEL.length){ alert("Marca al menos una materia."); return; }
+  const b = $("#v-btn"); b.disabled = true; b.textContent = "Validando…";
+  $("#v-out").innerHTML = `<p class="cargando">HermiT está revisando la solicitud…</p>`;
   try{
     const d = await api("/validar", {matricula:$("#v-alumno").value, materias:SEL, origen:"web"});
-    const her = d.consistente === true ? "CONSISTENTE" : d.consistente === false ? "INCONSISTENTE" : "sin veredicto";
-    const hall = d.hallazgos.map(h => `<li><b>[${esc(h.origen)}] ${esc(h.materia)}</b>: ${esc(h.motivo)}${h.axioma?`<br><span class="ax">${esc(h.axioma)}</span>`:""}</li>`).join("");
-    $("#v-out").innerHTML = `<div class="card"><div class="verdict ${d.aceptada?"ok":"bad"}">
-      <h3>${d.aceptada ? "✔ Solicitud ACEPTADA" : "✖ Solicitud RECHAZADA"}</h3>
-      <div>HermiT: <b>${her}</b> <span class="mono muted">(${d.tiempo_hermit} s de inferencia · ${d.tiempo_total} s total)</span> · ${d.creditos} créditos</div>
-      ${hall ? `<ul style="margin:10px 0 0;padding-left:20px">${hall}</ul>` : `<p style="margin:8px 0 0">${esc(d.justificacion)}</p>`}
-      ${d.error ? `<p class="err">${esc(d.error)}</p>` : ""}
+    const her = d.consistente === true ? "la ontología sigue siendo consistente"
+              : d.consistente === false ? "la ontología se vuelve inconsistente (hay una contradicción)" : "no se pudo ejecutar";
+    $("#v-out").innerHTML = `<div class="veredicto ${d.aceptada ? "" : "rechazo"}">
+      <strong>Solicitud ${d.aceptada ? "aceptada" : "rechazada"}</strong><br>
+      Resultado de HermiT: ${her}. <span class="nota">(${d.tiempo_hermit} s · ${d.creditos} créditos)</span>
+      ${d.hallazgos.length ? `<ul style="margin:8px 0 0;padding-left:20px">` + d.hallazgos.map(h =>
+        `<li><b>${esc(h.materia)}</b>: ${esc(h.motivo)} <span class="nota">(${h.origen === "HermiT" ? "detectado por HermiT" : "regla institucional"})</span>
+         ${h.axioma ? `<br>Regla de la ontología que se viola: <span class="axioma">${esc(h.axioma)}</span>` : ""}</li>`).join("") + `</ul>` : ""}
+      ${d.error ? `<p class="error">${esc(d.error)}</p>` : ""}
     </div>
-    <p class="hint">Mundo efímero en RAM: TBox + ABox + solicitud + axioma de cierre <span class="mono">alumno : ∀haAprobado.{kárdex}</span> → HermiT (consistencia) → se descarta. Registro #${d.ejecucion_id} en SQLite.</p></div>`;
+    <p class="nota">Se guardó como ejecución #${d.ejecucion_id}.</p>`;
     salud();
-  }catch(e){ $("#v-out").innerHTML = `<div class="card err">${esc(e.message)}</div>`; }
-  b.disabled = false; b.textContent = "Validar con HermiT";
+  }catch(e){ $("#v-out").innerHTML = `<p class="error">${esc(e.message)}</p>`; }
+  b.disabled = false; b.textContent = "Validar";
 };
 
-/* ---------------------------------------------------------------- auditoría */
+/* -------------------------------------------------- auditoría */
 $("#a-btn").onclick = () => auditoria();
+$("#a-solo-crew").onchange = () => pintarLlamadas();
+
+function ms(x){ return x == null ? "—" : (x < 0.01 ? (x*1000).toFixed(2) : (x*1000).toFixed(0)) + " ms"; }
+
 async function auditoria(){
   try{
-    const [m, ej, ll] = await Promise.all([api("/metricas"), api("/auditoria?limite=40"), api("/auditoria/llamadas?limite=40")]);
+    const [m, ej, ll] = await Promise.all([api("/metricas"), api("/auditoria?limite=40"), api("/auditoria/llamadas?limite=60")]);
     const t = m.tiempos, r = m.recomendaciones, v = m.validaciones;
-    const ms = x => x && x.promedio_s != null ? (x.promedio_s*1000).toFixed(x.promedio_s < 0.01 ? 3 : 0) + " ms" : "—";
-    $("#a-met").innerHTML = `<div class="kpis">
-      <div class="kpi"><div class="l">Tasa de éxito (con propuesta)</div><div class="big">${r.tasa_exito==null?"—":(r.tasa_exito*100).toFixed(0)+"%"}</div><div class="l">${r.con_propuesta}/${r.total} recomendaciones</div></div>
-      <div class="kpi"><div class="l">Certificadas por HermiT</div><div class="big">${r.certificadas_por_hermit}</div></div>
-      <div class="kpi"><div class="l">Validaciones aceptadas / rechazadas</div><div class="big">${v.aceptadas} / ${v.rechazadas}</div></div>
-      <div class="kpi"><div class="l">Escritura SQLite</div><div class="big" style="font-size:20px">${ms(t.crud_escritura_sqlite)}</div></div>
-      <div class="kpi"><div class="l">Inferencia HermiT</div><div class="big" style="font-size:20px">${ms(t.inferencia_hermit)}</div></div>
-      <div class="kpi"><div class="l">Recomendación completa</div><div class="big" style="font-size:20px">${ms(t.recomendacion_completa)}</div></div></div>`;
-    $("#a-shap").innerHTML = barras(m.shapley_promedio) + `<p class="hint">Promedio de φ sobre todas las recomendaciones guardadas.</p>`;
-    const tiempos = {"Lectura SQLite": t.crud_lectura_sqlite.promedio_s, "Escritura SQLite": t.crud_escritura_sqlite.promedio_s,
-                     "Inferencia HermiT": t.inferencia_hermit.promedio_s, "MAS completo": t.recomendacion_completa.promedio_s};
-    const mx = Math.max(...Object.values(tiempos).map(x => x||0), 1e-9);
-    $("#a-tiempos").innerHTML = `<div class="bars">` + Object.entries(tiempos).map(([k,x],i) => `<div class="bar"><span>${k}</span>
-      <div class="track"><div class="fill" style="width:${Math.max(1,(x||0)/mx*100)}%;background:${COLORES[i%3]}"></div></div>
-      <span class="num mono">${x==null?"—":(x*1000).toFixed(x<0.01?3:0)+"ms"}</span></div>`).join("") + `</div>
-      <p class="hint">${t.inferencia_hermit.promedio_s && t.crud_escritura_sqlite.promedio_s ? `<b>HermiT ≈ ${Math.round(t.inferencia_hermit.promedio_s / t.crud_escritura_sqlite.promedio_s).toLocaleString("es-MX")}× más lento que una escritura en SQLite.</b> ` : ""}El CRUD transaccional tarda menos de un milisegundo; la inferencia semántica cuesta órdenes de magnitud más, por eso se ejecuta aparte, en RAM y solo al validar.</p>`;
-    $("#a-ej").innerHTML = `<table><thead><tr><th>#</th><th>Fecha</th><th>Tipo</th><th>Origen</th><th>Alumno</th><th>Estado</th><th class="num">Puntaje</th><th class="num">Cr</th><th class="num">HermiT s</th><th class="num">SQLite s</th></tr></thead><tbody>` +
-      ej.map(e => `<tr class="click" data-id="${e.id}"><td>${e.id}</td><td class="mono">${esc(e.creada)}</td><td>${e.tipo}</td><td>${esc(e.origen)}</td><td>${e.matricula}</td>
-        <td><span class="tag ${["exito","aceptada"].includes(e.estado)?"ok":"bad"}">${e.estado}</span></td><td class="num">${e.puntuacion ?? ""}</td><td class="num">${e.creditos ?? ""}</td>
-        <td class="num">${e.tiempo_hermit ?? ""}</td><td class="num">${e.tiempo_db ?? ""}</td></tr>`).join("") + `</tbody></table>`;
-    document.querySelectorAll("#a-ej tr.click").forEach(tr => tr.onclick = () => detalle(tr.dataset.id));
-    $("#a-llam").innerHTML = `<table><thead><tr><th>Hora</th><th>Método</th><th>Ruta</th><th>Cliente</th><th class="num">HTTP</th><th class="num">s</th></tr></thead><tbody>` +
-      ll.map(l => `<tr><td class="mono">${esc(l.timestamp.slice(11))}</td><td>${l.metodo}</td><td class="mono">${esc(l.ruta)}</td>
-        <td>${l.cliente.includes("@tool") ? `<b>${esc(l.cliente)}</b>` : esc(l.cliente)}</td><td class="num">${l.estado_http}</td><td class="num">${l.tiempo}</td></tr>`).join("") + `</tbody></table>`;
-  }catch(e){ $("#a-met").innerHTML = `<p class="err">${esc(e.message)}</p>`; }
+    $("#a-met").innerHTML = `<table>
+      <tr><td>Recomendaciones con propuesta válida</td><td class="n">${r.con_propuesta} de ${r.total}${r.tasa_exito != null ? ` (${Math.round(r.tasa_exito*100)} %)` : ""}</td></tr>
+      <tr><td>Recomendaciones aprobadas por HermiT</td><td class="n">${r.certificadas_por_hermit}</td></tr>
+      <tr><td>Solicitudes validadas: aceptadas</td><td class="n">${v.aceptadas}</td></tr>
+      <tr><td>Solicitudes validadas: rechazadas</td><td class="n">${v.rechazadas}</td></tr></table>`;
+    const tiempos = {"Leer de SQLite": t.crud_lectura_sqlite.promedio_s, "Guardar en SQLite": t.crud_escritura_sqlite.promedio_s,
+                     "Validar con HermiT": t.inferencia_hermit.promedio_s, "Recomendación completa": t.recomendacion_completa.promedio_s};
+    const mx = Math.max(...Object.values(tiempos).map(x => x || 0), 1e-9);
+    const veces = t.inferencia_hermit.promedio_s && t.crud_escritura_sqlite.promedio_s
+                  ? Math.round(t.inferencia_hermit.promedio_s / t.crud_escritura_sqlite.promedio_s) : null;
+    $("#a-tiempos").innerHTML = Object.entries(tiempos).map(([k,x]) => `<div class="fila-barra" style="grid-template-columns:170px 1fr 70px">
+        <span>${k}</span><div class="pista"><div class="relleno" style="width:${Math.max(0.5,(x||0)/mx*100)}%"></div></div>
+        <span class="valor">${ms(x)}</span></div>`).join("") +
+      (veces ? `<p class="nota">Validar con HermiT tarda unas ${veces.toLocaleString("es-MX")} veces más que guardar en SQLite. Por eso el razonador solo se usa para validar.</p>` : "");
+    $("#a-shap").innerHTML = barras(m.shapley_promedio) + `<p class="nota">Promedio de todas las recomendaciones guardadas.</p>`;
+    $("#a-ej").innerHTML = `<table><tr><th>#</th><th>Fecha y hora</th><th>Tipo</th><th>Desde</th><th>Alumno</th><th>Resultado</th>
+        <th class="n">Puntos</th><th class="n">Créditos</th><th class="n">HermiT (s)</th><th class="n">SQLite (s)</th></tr>` +
+      ej.map(e => `<tr class="fila-clic" data-id="${e.id}"><td>${e.id}</td><td class="c">${esc(e.creada.replace("T"," "))}</td>
+        <td>${e.tipo === "recomendacion" ? "recomendación" : "validación"}</td><td>${esc(e.origen)}</td><td>${e.matricula}</td>
+        <td class="${["exito","aceptada"].includes(e.estado) ? "ok" : "mal"}">${e.estado === "exito" ? "con propuesta" : esc(e.estado)}</td>
+        <td class="n">${e.puntuacion ?? ""}</td><td class="n">${e.creditos ?? ""}</td><td class="n">${e.tiempo_hermit ?? ""}</td><td class="n">${e.tiempo_db ?? ""}</td></tr>`).join("") + `</table>`;
+    document.querySelectorAll("#a-ej tr.fila-clic").forEach(tr => tr.onclick = () => detalle(tr.dataset.id));
+    LLAMADAS = ll; pintarLlamadas();
+  }catch(e){ $("#a-met").innerHTML = `<p class="error">${esc(e.message)}</p>`; }
+}
+
+function pintarLlamadas(){
+  const solo = $("#a-solo-crew").checked;
+  const lista = LLAMADAS.filter(l => !solo || l.cliente.startsWith("crewai"));
+  $("#a-llam").innerHTML = `<table><tr><th>Hora</th><th>Método</th><th>Ruta</th><th>Quién llamó</th><th class="n">Código</th><th class="n">Segundos</th></tr>` +
+    lista.map(l => `<tr><td class="c">${esc(l.timestamp.slice(11))}</td><td>${l.metodo}</td><td class="c">${esc(l.ruta)}</td>
+      <td>${l.cliente.includes("@tool") ? `<b>${esc(l.cliente)}</b>` : esc(l.cliente)}</td><td class="n">${l.estado_http}</td><td class="n">${l.tiempo}</td></tr>`).join("") +
+    `</table>` + (lista.length ? "" : `<p class="nota">No hay llamadas de CrewAI todavía.</p>`);
 }
 
 async function detalle(id){
   const d = await api("/auditoria/" + id);
   const sh = d.shapley || {};
-  $("#a-det").innerHTML = `<div class="card"><div class="row" style="justify-content:space-between;align-items:center">
-     <h2 style="margin:0">Ejecución #${d.id} · ${d.tipo} · ${d.matricula}</h2><button class="sec" onclick="document.querySelector('#a-det').innerHTML=''">Cerrar</button></div>
-     <p><b>Materias:</b> <span class="mono">${esc((d.materias||[]).join(", "))}</span></p>
-     <p><b>Justificación:</b> ${esc(d.justificacion || "—")}</p>
-     ${d.explicacion ? `<p><b>Explicación</b> (${esc(d.fuente)}): ${esc(d.explicacion)}</p>` : ""}
-     <div class="grid g2">
-       <div>${sh.especialistas ? `<h2>Shapley · especialistas</h2>${barras(sh.especialistas)}` : ""}
-            ${sh.contratistas ? `<h2 style="margin-top:14px">Shapley · contratistas</h2>${barras(sh.contratistas)}` : ""}</div>
-       <div>${d.mensajes.length ? `<h2>Mensajes</h2>${mensajes(d.mensajes)}` : ""}</div>
-     </div>
-     <h2 style="margin-top:14px">Trazas (${d.trazas.length})</h2><div class="scroll"><table><thead><tr><th>Hora</th><th>Agente</th><th>Tarea</th><th>Salida</th><th class="num">s</th></tr></thead><tbody>
-     ${d.trazas.map(t => `<tr><td class="mono">${esc((t.timestamp||"").slice(11))}</td><td>${esc(t.agente)}</td><td class="mono">${esc(t.tarea)}</td><td>${esc(t.salida)}</td><td class="num">${t.tiempo}</td></tr>`).join("")}
-     </tbody></table></div></div>`;
+  $("#a-det").innerHTML = `<h3>Detalle de la ejecución #${d.id} <button style="margin-left:8px;padding:2px 10px" onclick="document.querySelector('#a-det').innerHTML=''">cerrar</button></h3>
+    <p><b>Alumno:</b> ${d.matricula} &nbsp; <b>Materias:</b> <span class="c">${esc((d.materias || []).join(", "))}</span></p>
+    <p><b>Validación:</b> ${esc(d.justificacion || "—")}</p>
+    ${d.explicacion ? `<p><b>Explicación</b> (${esc(d.fuente)}): ${esc(d.explicacion)}</p>` : ""}
+    ${sh.especialistas ? `<div class="dos"><div><b>Shapley</b>${barras(sh.especialistas)}</div><div><b>Entre agentes de carga</b>${barras(sh.contratistas)}</div></div>` : ""}
+    ${d.mensajes.length ? `<details><summary>Mensajes entre agentes (${d.mensajes.length})</summary>${tablaMensajes(d.mensajes)}</details>` : ""}
+    <details open><summary>Trazas (${d.trazas.length})</summary><div class="tabla"><table>
+      <tr><th>Hora</th><th>Agente</th><th>Tarea</th><th>Resultado</th><th class="n">Segundos</th></tr>
+      ${d.trazas.map(t => `<tr><td class="c">${esc((t.timestamp || "").slice(11))}</td><td>${esc(t.agente)}</td><td class="c">${esc(t.tarea)}</td>
+        <td>${esc(t.salida)}</td><td class="n">${t.tiempo}</td></tr>`).join("")}</table></div></details>`;
   $("#a-det").scrollIntoView({behavior:"smooth"});
 }
 
 /* Enlaces directos para la demo:
-     #rec=A002            → ejecuta la recomendación de A002
+     #rec=A002            → recomienda para A002
      #val=A001:X,Y,Z      → valida esa solicitud con HermiT
      #aud                 → abre la auditoría                                   */
-function irA(tab){ document.querySelector(`nav button[data-tab="${tab}"]`).click(); }
 async function enlace(){
   const h = decodeURIComponent(location.hash.slice(1));
   if(h.startsWith("rec=")){ irA("rec"); $("#r-alumno").value = h.slice(4); $("#r-btn").click(); }
