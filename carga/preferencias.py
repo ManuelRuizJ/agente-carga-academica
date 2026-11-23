@@ -220,7 +220,9 @@ def _por_llm(texto: str, materias: dict, llm) -> dict | None:
     if isinstance(mm, int) and 1 <= mm <= 8:
         limpio["max_materias"] = mm
     co = d.get("creditos_objetivo")
-    if isinstance(co, int) and 1 <= co <= 120 and re.search(rf"\b{co}\b", texto):   # anti-alucinación
+    # anti-alucinación: la cifra debe estar en el texto Y referirse a créditos
+    # ("quiero 3 materias" no es "quiero 3 créditos")
+    if isinstance(co, int) and 1 <= co <= 120 and re.search(rf"\b{co}\s*(creditos|credito|cr)\b", _norm(texto)):
         limpio["creditos_objetivo"] = co
     return limpio
 

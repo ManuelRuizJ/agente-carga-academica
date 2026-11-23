@@ -118,3 +118,32 @@ def test_pocas_materias_suben_hasta_el_minimo_de_creditos(kb):
     g = sistema.correr_contract_net(s).ganadora
     assert g.creditos(kb) >= kb.creditos_min and len(g.materias) == 3
     assert "no se alcanzan" in s.prefs["creditos_ajustados"]
+
+
+class _LLMFalso:
+    """Simula respuestas del LLM (incluso erróneas) sin depender de Ollama."""
+    disponible, modelo = True, "falso"
+
+    def __init__(self, respuesta):
+        self.respuesta = respuesta
+
+    def chat(self, *a, **k):
+        import json
+        return json.dumps(self.respuesta)
+
+
+@pytest.mark.parametrize("texto, respuesta, cr_obj, n_max", [
+    # el LLM confunde "3 materias" con 3 créditos: se descarta esa cifra
+    ("quiero llevar 3 materias", {"creditos_objetivo": 3, "max_materias": 3}, 24, 3),
+    # el LLM dice "normal" para "mínima": la meta sigue siendo el mínimo
+    ("quiero llevar minima", {"tipo_carga": "normal"}, 24, 3),
+    # el LLM no entiende nada: quedan las reglas
+    ("quiero llevar la maxima cantidad de materias posibles", {}, 60, 10),
+    ("quiero llevar 60 creditos", {"creditos_objetivo": 60}, 60, 10),
+])
+def test_respuestas_del_llm_no_rompen_la_meta(kb, texto, respuesta, cr_obj, n_max):
+    from carga.preferencias import construir_preferencias
+    p = construir_preferencias(kb.estudiante("A001"), kb.materias, texto, _LLMFalso(respuesta),
+                               (kb.creditos_min, kb.creditos_max))
+    assert (p["creditos_objetivo"], p["max_materias"]) == (cr_obj, n_max)
+    assert "pidió 3" not in p.get("creditos_ajustados", "")
