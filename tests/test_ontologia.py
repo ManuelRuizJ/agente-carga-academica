@@ -4,7 +4,7 @@
 
 def test_plan_real_cargado(kb):
     assert len(kb.materias) == 79
-    assert kb.creditos_min == 24 and kb.creditos_max == 48
+    assert kb.creditos_min == 24 and kb.creditos_max == 60
     assert set(kb.matriculas()) == {"A001", "A002", "A003"}
 
 

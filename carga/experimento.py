@@ -9,7 +9,7 @@ Proyecto 2 y se revisan con las MISMAS reglas duras:
 
   * materias inválidas  (ya aprobadas, sin prerrequisito o no ofertadas)
   * choques de horario
-  * créditos fuera del rango institucional (24–48)
+  * créditos fuera del rango institucional (24–60)
   * más optativas de las permitidas
   * clases en un día que el alumno pidió libre
 
@@ -258,7 +258,7 @@ def tabla_markdown(resumen, n, semilla):
     L = [f"Experimento con {n} alumnos sintéticos (semilla {semilla}), plan real de la Ibero.",
          "Todas las cargas se califican con la función oficial del Proyecto 2.", "",
          "| Sistema | Puntuación media | Mínima | Veces la mejor | Con materias inválidas | "
-         "Con choques | Fuera de 24–48 cr | > 2 optativas | Día libre no respetado | Tiempo medio (s) |",
+         "Con choques | Fuera de 24–60 cr | > 2 optativas | Día libre no respetado | Tiempo medio (s) |",
          "|---|---|---|---|---|---|---|---|---|---|"]
     for r in resumen:
         dia = f"{r['dia_libre_violado']} de {r['piden_dia_libre']}" if r["piden_dia_libre"] else "-"

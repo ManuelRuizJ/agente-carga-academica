@@ -1,7 +1,7 @@
 # Agente de carga académica
 
 Sistema multiagente que recomienda a un alumno qué materias inscribir en el periodo.
-Respeta la seriación, el rango de 24 a 48 créditos y los horarios, y toma en cuenta las
+Respeta la seriación, el rango de 24 a 60 créditos y los horarios, y toma en cuenta las
 preferencias del alumno (turno, modalidad, días libres e intereses).
 
 Proyecto final de **Agentes Inteligentes**, Universidad Iberoamericana Puebla.

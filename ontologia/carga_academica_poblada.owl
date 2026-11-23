@@ -2368,9 +2368,9 @@
 <owl:NamedIndividual rdf:about="#restr_creditos_ISC">
   <rdf:type rdf:resource="#RestriccionCreditos"/>
   <aplicaAPrograma rdf:resource="#prog_ISC"/>
-  <descripcionRestriccion rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Un alumno regular debe inscribir entre 24 y 48 créditos por periodo.</descripcionRestriccion>
+  <descripcionRestriccion rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Un alumno regular debe inscribir entre 24 y 60 créditos por periodo.</descripcionRestriccion>
   <creditosMinimos rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">24</creditosMinimos>
-  <creditosMaximos rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">48</creditosMaximos>
+  <creditosMaximos rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">60</creditosMaximos>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="#per_P2027">
@@ -6409,8 +6409,8 @@
   <tieneRegistro rdf:resource="#reg_A001_LYRU2105_1"/>
   <haAprobado rdf:resource="#mat_LYRU2105"/>
   <tieneRegistro rdf:resource="#reg_A001_LIIS2105_1"/>
-  <tienePreferencia rdf:resource="#pref_A001_carga"/>
   <tienePreferencia rdf:resource="#pref_A001_modalidad"/>
+  <tienePreferencia rdf:resource="#pref_A001_carga"/>
   <tienePreferencia rdf:resource="#pref_A001_horario"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ana Torres Medina</nombre>
   <matricula rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A001</matricula>
@@ -6700,9 +6700,9 @@
   <tieneRegistro rdf:resource="#reg_A002_LIIB2102_1"/>
   <haAprobado rdf:resource="#mat_LIIB2102"/>
   <tieneRegistro rdf:resource="#reg_A002_LICB2103_1"/>
-  <tienePreferencia rdf:resource="#pref_A002_modalidad"/>
   <tienePreferencia rdf:resource="#pref_A002_carga"/>
   <tienePreferencia rdf:resource="#pref_A002_horario"/>
+  <tienePreferencia rdf:resource="#pref_A002_modalidad"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Luis Hernández Rojas</nombre>
   <matricula rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A002</matricula>
   <semestreActual rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</semestreActual>
@@ -6926,10 +6926,10 @@
   <haAprobado rdf:resource="#mat_LIIS2114"/>
   <tieneRegistro rdf:resource="#reg_A003_LIIB2104_1"/>
   <haAprobado rdf:resource="#mat_LIIB2104"/>
-  <tieneRegistro rdf:resource="#reg_A003_LYRU2108_1"/>
-  <haAprobado rdf:resource="#mat_LYRU2108"/>
   <tieneRegistro rdf:resource="#reg_A003_LYRU2102_1"/>
   <haAprobado rdf:resource="#mat_LYRU2102"/>
+  <tieneRegistro rdf:resource="#reg_A003_LYRU2108_1"/>
+  <haAprobado rdf:resource="#mat_LYRU2108"/>
   <tienePreferencia rdf:resource="#pref_A003_modalidad"/>
   <tienePreferencia rdf:resource="#pref_A003_carga"/>
   <tienePreferencia rdf:resource="#pref_A003_horario"/>
@@ -7213,17 +7213,17 @@
   <numeroIntento rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</numeroIntento>
 </owl:NamedIndividual>
 
-<owl:NamedIndividual rdf:about="#reg_A003_LYRU2108_1">
+<owl:NamedIndividual rdf:about="#reg_A003_LYRU2102_1">
   <rdf:type rdf:resource="#RegistroAprobado"/>
-  <registraMateria rdf:resource="#mat_LYRU2108"/>
+  <registraMateria rdf:resource="#mat_LYRU2102"/>
   <cursadoEnPeriodo rdf:resource="#per_P2026"/>
   <calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">8.2</calificacion>
   <numeroIntento rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</numeroIntento>
 </owl:NamedIndividual>
 
-<owl:NamedIndividual rdf:about="#reg_A003_LYRU2102_1">
+<owl:NamedIndividual rdf:about="#reg_A003_LYRU2108_1">
   <rdf:type rdf:resource="#RegistroAprobado"/>
-  <registraMateria rdf:resource="#mat_LYRU2102"/>
+  <registraMateria rdf:resource="#mat_LYRU2108"/>
   <cursadoEnPeriodo rdf:resource="#per_P2026"/>
   <calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">10.0</calificacion>
   <numeroIntento rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</numeroIntento>

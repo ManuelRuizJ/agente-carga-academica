@@ -34,9 +34,9 @@ PROGRAMA = {
 # Intrauia). El plan ideal carga entre 32 y 42 créditos por semestre.
 RESTRICCION_CREDITOS = {
     "id": "restr_creditos_ISC",
-    "descripcion": "Un alumno regular debe inscribir entre 24 y 48 créditos por periodo.",
+    "descripcion": "Un alumno regular debe inscribir entre 24 y 60 créditos por periodo.",
     "minimos": 24,
-    "maximos": 48,
+    "maximos": 60,
 }
 
 PERIODO_ACTUAL = {
