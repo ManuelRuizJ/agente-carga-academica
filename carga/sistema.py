@@ -29,6 +29,7 @@ class Sesion:
     explicacion: str = ""
     fuente_exp: str = ""
     inferencias: dict = None
+    validacion: object = None   # veredicto del AgenteValidador (HermiT en RAM)
 
 
 def nueva_sesion(matricula, peticion="", usar_llm=True, eco=True, kb=None, llm=None):
@@ -48,6 +49,23 @@ def nueva_sesion(matricula, peticion="", usar_llm=True, eco=True, kb=None, llm=N
 def correr_contract_net(s: Sesion):
     s.resultado = ejecutar(s.kb, s.est, s.prefs, s.elegibles_reales, trazas=s.trazas)
     return s.resultado
+
+
+def correr_validacion(s: Sesion):
+    """El AgenteValidador certifica la propuesta ganadora con HermiT (en RAM)."""
+    from .validador import AgenteValidador
+    if not s.resultado or not s.resultado.ganadora:
+        return None
+    mats = s.resultado.ganadora.materias
+    s.trazas.mensaje("request", "AgenteManager", "AgenteValidador",
+                     f"¿Es consistente con la ontología? {', '.join(mats)}")
+    with s.trazas.tarea("AgenteValidador", "validar_consistencia_hermit", ", ".join(mats)) as t:
+        s.validacion = AgenteValidador().validar(s.kb, s.est.matricula, mats, trazas=s.trazas)
+        v = s.validacion
+        t["output"] = ("CONSISTENTE" if v.consistente else
+                       "INCONSISTENTE" if v.consistente is False else f"sin veredicto: {v.error}")
+        t["detalles"] = {"tiempo_hermit": v.tiempo_hermit, "aceptada": v.aceptada}
+    return s.validacion
 
 
 def correr_shapley(s: Sesion):
@@ -103,6 +121,9 @@ def recomendar(matricula, peticion="", usar_llm=True, razonador=False, eco=True)
     if eco:
         print(f"\n▶ Contract Net para {s.est.nombre} ({matricula})")
     correr_contract_net(s)
+    correr_validacion(s)
     correr_shapley(s)
     cerrar(s, razonador=razonador)
+    if eco and s.validacion is not None:
+        print(f" validador → {s.validacion.justificacion}")
     return s

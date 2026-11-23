@@ -243,4 +243,6 @@ AGENTES = {
     "CargaPreferencias": ("agente_carga_preferencias", "AgenteCarga", "Contratista: prioriza intereses y horario"),
     "AgenteHorarios": ("agente_horarios", "AgenteHorarios", "Analista de horarios y preferencias del estudiante"),
     "AgenteManager": ("agente_manager", "AgenteManager", "Coordinador y recomendador académico"),
+    "AgenteValidador": ("agente_validador", "AgenteValidador",
+                        "Validador semántico: verifica la consistencia con HermiT en RAM"),
 }

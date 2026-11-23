@@ -9,9 +9,11 @@ Uso rápido:
     python main.py recomendar A001
     python main.py recomendar A002 -p "quiero carga ligera, en la tarde y sin viernes"
     python main.py recomendar A003 --sin-llm --razonador
-    python main.py crew A001 -p "me interesa IA"           # orquestación con CrewAI
+    python main.py crew A001 -p "me interesa IA"           # CrewAI → @tool → httpx → API
+    python main.py crew A001 -m LIIS2105,LIIN2104          # CrewAI: validación y rechazo
     python main.py demo                                     # los 3 alumnos, sin LLM
     python main.py experimento                              # mejora 2: compara sistemas
+    python main.py api                                      # backend FastAPI + página de demo
 """
 import argparse
 import sys
@@ -21,6 +23,9 @@ def main():
     ap = argparse.ArgumentParser(description="MAS de recomendación de carga académica")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
+    api = sub.add_parser("api", help="levanta el backend FastAPI (http://127.0.0.1:8077)")
+    api.add_argument("--host", default="127.0.0.1")
+    api.add_argument("--port", type=int, default=None, help="por defecto config.API_PORT (8077)")
     sub.add_parser("poblar", help="(re)genera la ontología poblada desde datos/semilla.py")
     sub.add_parser("alumnos", help="lista los estudiantes de la ontología")
     sub.add_parser("diagnostico", help="revisa Ollama (CPU/GPU) y memoria")
@@ -40,10 +45,18 @@ def main():
         p.add_argument("-q", "--silencioso", action="store_true", help="no mostrar mensajes del protocolo")
         if nombre == "crew":
             p.add_argument("--proceso", choices=["secuencial", "jerarquico"], default="secuencial")
+            p.add_argument("-m", "--materias", default="",
+                           help="valida esta solicitud con HermiT, ej. LIIS2105,LIIN2104")
 
     a = ap.parse_args()
 
-    if a.cmd == "poblar":
+    if a.cmd == "api":
+        import uvicorn
+        from carga import config
+        puerto = a.port or config.API_PORT
+        print(f"▶ API en http://{a.host}:{puerto}  ·  Swagger: http://{a.host}:{puerto}/docs")
+        uvicorn.run("carga.api:app", host=a.host, port=puerto, log_level="warning")
+    elif a.cmd == "poblar":
         from carga.poblar import poblar
         poblar()
     elif a.cmd == "alumnos":
@@ -86,8 +99,8 @@ def main():
                    razonador=a.razonador, eco=not a.silencioso)
     elif a.cmd == "crew":
         from carga.crew import ejecutar_crew
-        ejecutar_crew(a.matricula, a.peticion, proceso=a.proceso,
-                      usar_llm=not a.sin_llm, razonador=a.razonador)
+        mats = [x.strip() for x in a.materias.split(",") if x.strip()] or None
+        ejecutar_crew(a.matricula, a.peticion, proceso=a.proceso, usar_llm=not a.sin_llm, materias=mats)
 
 
 def kb_raiz():

@@ -1059,6 +1059,1306 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Estudiante con al menos una materia reprobada</rdfs:comment>
 </owl:Class>
 
+<owl:Class rdf:about="#AgenteValidador">
+  <rdfs:subClassOf rdf:resource="#Agente"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Verifica la consistencia lógica de una solicitud de inscripción (inferencia efímera con HermiT en RAM)</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LICB2103">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LICB2103"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LICB2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LICB2103 solo puede ser para alumnos que aprobaron LICB2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIB2102">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIB2102"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIB2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIB2102 solo puede ser para alumnos que aprobaron LIIB2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LICB2105">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LICB2105"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LICB2103"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LICB2105 solo puede ser para alumnos que aprobaron LICB2103</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIM2102">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIM2102"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIM2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIM2102 solo puede ser para alumnos que aprobaron LIIM2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LICB2108">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LICB2108"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LICB2106"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LICB2108 solo puede ser para alumnos que aprobaron LICB2106</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2112">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2112"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2112 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2111">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2111"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2111 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2110">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2110"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2110 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2107">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2107"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2107 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2102">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2102"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2102 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU1213">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU1213"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU1213 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2106">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2106"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2106 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2104">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2104"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2104 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2105">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2105"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2105 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2109">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2109"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2109 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2103">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2103"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2103 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2113">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2113"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2113 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2108">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2108"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2108 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIS2110">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIS2110"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIS2105"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIS2110 solo puede ser para alumnos que aprobaron LIIS2105</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIB2103">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIB2103"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIB2102"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIB2103 solo puede ser para alumnos que aprobaron LIIB2102</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIS2113">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIS2113"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIS2111"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIS2113 solo puede ser para alumnos que aprobaron LIIS2111</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIB2104">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIB2104"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIB2103"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIB2104 solo puede ser para alumnos que aprobaron LIIB2103</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIS2117">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIS2117"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LICB0423"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIS2117 solo puede ser para alumnos que aprobaron LICB0423</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIS2115">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIS2115"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIS2112"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIS2115 solo puede ser para alumnos que aprobaron LIIS2112</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIS2116">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIS2116"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIS2105"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIS2116 solo puede ser para alumnos que aprobaron LIIS2105</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LRSS2102">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LRSS2102"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LRSS2102 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIS2118">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIS2118"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIS2112"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIS2118 solo puede ser para alumnos que aprobaron LIIS2112</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIS2119">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIS2119"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIS2105"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIS2119 solo puede ser para alumnos que aprobaron LIIS2105</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIN2104">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIN2104"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIB2104"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIN2104 solo puede ser para alumnos que aprobaron LIIB2104</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIS2107">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIS2107"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIS2106"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIS2107 solo puede ser para alumnos que aprobaron LIIS2106</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LYRU2118">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LYRU2118"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LYRU2101"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LYRU2118 solo puede ser para alumnos que aprobaron LYRU2101</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIS2121">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIS2121"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIS2105"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIS2121 solo puede ser para alumnos que aprobaron LIIS2105</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIS2125">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIS2125"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIS2108"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIS2125 solo puede ser para alumnos que aprobaron LIIS2108</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIN1203">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIN1203"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIS2117"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIN1203 solo puede ser para alumnos que aprobaron LIIS2117</rdfs:comment>
+</owl:Class>
+
+<owl:Class rdf:about="#PropuestaCon_LIIN2107">
+  <rdfs:subClassOf rdf:resource="#PropuestaCarga"/>
+  <owl:equivalentClass>
+    <owl:Class>
+      <owl:intersectionOf rdf:parseType="Collection">
+        <rdf:Description rdf:about="#PropuestaCarga"/>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#incluyeGrupo"/>
+          <owl:someValuesFrom>
+            <owl:Class>
+              <owl:intersectionOf rdf:parseType="Collection">
+                <rdf:Description rdf:about="#Grupo"/>
+                <owl:Restriction>
+                  <owl:onProperty rdf:resource="#esOfertaDe"/>
+                  <owl:hasValue rdf:resource="#mat_LIIN2107"/>
+                </owl:Restriction>
+              </owl:intersectionOf>
+            </owl:Class>
+          </owl:someValuesFrom>
+        </owl:Restriction>
+      </owl:intersectionOf>
+    </owl:Class>
+  </owl:equivalentClass>
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#propuestaPara"/>
+      <owl:allValuesFrom>
+        <owl:Restriction>
+          <owl:onProperty rdf:resource="#haAprobado"/>
+          <owl:hasValue rdf:resource="#mat_LIIN2103"/>
+        </owl:Restriction>
+      </owl:allValuesFrom>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Seriación: una propuesta con LIIN2107 solo puede ser para alumnos que aprobaron LIIN2103</rdfs:comment>
+</owl:Class>
+
 <owl:NamedIndividual rdf:about="#prog_ISC">
   <rdf:type rdf:resource="#ProgramaAcademico"/>
   <nombrePrograma rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ingeniería en Sistemas Computacionales (Ibero Puebla, programa 2801)</nombrePrograma>
@@ -5109,9 +6409,9 @@
   <tieneRegistro rdf:resource="#reg_A001_LYRU2105_1"/>
   <haAprobado rdf:resource="#mat_LYRU2105"/>
   <tieneRegistro rdf:resource="#reg_A001_LIIS2105_1"/>
-  <tienePreferencia rdf:resource="#pref_A001_horario"/>
   <tienePreferencia rdf:resource="#pref_A001_carga"/>
   <tienePreferencia rdf:resource="#pref_A001_modalidad"/>
+  <tienePreferencia rdf:resource="#pref_A001_horario"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Ana Torres Medina</nombre>
   <matricula rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A001</matricula>
   <semestreActual rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">5</semestreActual>
@@ -5626,13 +6926,13 @@
   <haAprobado rdf:resource="#mat_LIIS2114"/>
   <tieneRegistro rdf:resource="#reg_A003_LIIB2104_1"/>
   <haAprobado rdf:resource="#mat_LIIB2104"/>
-  <tieneRegistro rdf:resource="#reg_A003_LYRU2102_1"/>
-  <haAprobado rdf:resource="#mat_LYRU2102"/>
   <tieneRegistro rdf:resource="#reg_A003_LYRU2108_1"/>
   <haAprobado rdf:resource="#mat_LYRU2108"/>
-  <tienePreferencia rdf:resource="#pref_A003_horario"/>
+  <tieneRegistro rdf:resource="#reg_A003_LYRU2102_1"/>
+  <haAprobado rdf:resource="#mat_LYRU2102"/>
   <tienePreferencia rdf:resource="#pref_A003_modalidad"/>
   <tienePreferencia rdf:resource="#pref_A003_carga"/>
+  <tienePreferencia rdf:resource="#pref_A003_horario"/>
   <nombre rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sofía Ramírez Lara</nombre>
   <matricula rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A003</matricula>
   <semestreActual rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">6</semestreActual>
@@ -5913,17 +7213,17 @@
   <numeroIntento rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</numeroIntento>
 </owl:NamedIndividual>
 
-<owl:NamedIndividual rdf:about="#reg_A003_LYRU2102_1">
+<owl:NamedIndividual rdf:about="#reg_A003_LYRU2108_1">
   <rdf:type rdf:resource="#RegistroAprobado"/>
-  <registraMateria rdf:resource="#mat_LYRU2102"/>
+  <registraMateria rdf:resource="#mat_LYRU2108"/>
   <cursadoEnPeriodo rdf:resource="#per_P2026"/>
   <calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">8.2</calificacion>
   <numeroIntento rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</numeroIntento>
 </owl:NamedIndividual>
 
-<owl:NamedIndividual rdf:about="#reg_A003_LYRU2108_1">
+<owl:NamedIndividual rdf:about="#reg_A003_LYRU2102_1">
   <rdf:type rdf:resource="#RegistroAprobado"/>
-  <registraMateria rdf:resource="#mat_LYRU2108"/>
+  <registraMateria rdf:resource="#mat_LYRU2102"/>
   <cursadoEnPeriodo rdf:resource="#per_P2026"/>
   <calificacion rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">10.0</calificacion>
   <numeroIntento rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</numeroIntento>
@@ -5993,6 +7293,12 @@
   <rdf:type rdf:resource="#AgenteManager"/>
   <nombreAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AgenteManager</nombreAgente>
   <rolAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Coordinador y recomendador académico</rolAgente>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="#agente_validador">
+  <rdf:type rdf:resource="#AgenteValidador"/>
+  <nombreAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">AgenteValidador</nombreAgente>
+  <rolAgente rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Validador semántico: verifica la consistencia con HermiT en RAM</rolAgente>
 </owl:NamedIndividual>
 
 <owl:AllDifferent>

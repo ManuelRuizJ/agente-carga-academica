@@ -1,9 +1,17 @@
-# Núcleo (lo único necesario para `python main.py recomendar` y `demo`)
+# Núcleo (ontología, MAS y validador)
 owlready2==0.51
 requests>=2.31
 
-# Opcional: solo para `python main.py crew` (orquestación con CrewAI)
+# Backend: API asíncrona, cliente HTTP de las @tool y servidor
+fastapi>=0.115
+uvicorn>=0.30
+httpx>=0.27
+
+# Orquestación con CrewAI (python main.py crew ...)
 crewai==1.15.34
+
+# Pruebas unitarias
+pytest>=8
 
 # Opcional: para abrir demo.ipynb con este entorno
 ipykernel

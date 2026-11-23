@@ -11,6 +11,13 @@ ONTO_BASE = DIR_ONTO / "P2_ontologia_carga_academica.owx"      # TBox original (
 ONTO_POBLADA = DIR_ONTO / "carga_academica_poblada.owl"         # TBox + ABox (generada)
 NS = "http://www.ibero.mx/ontologias/carga-academica#"
 
+# ---------------------------------------------------------------- Backend
+# SQLite: persistencia transaccional (ejecuciones, trazas, mensajes, Shapley,
+# llamadas a la API). La ontología guarda las reglas; SQLite, la operación.
+DB = Path(os.getenv("CARGA_DB", DIR_SALIDAS / "carga.db"))
+API_PORT = int(os.getenv("CARGA_PORT", "8077"))      # 8000 suele estar ocupado por otros proyectos
+API_URL = os.getenv("CARGA_API", f"http://127.0.0.1:{API_PORT}")
+
 # ---------------------------------------------------------------- LLM local
 # Se usa un servidor de Ollama propio en el puerto 11435 levantado con
 # ./iniciar_ollama_cpu.sh (GPU desactivada). Si no existe, se intenta 11434.

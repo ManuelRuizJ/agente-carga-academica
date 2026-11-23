@@ -9,6 +9,7 @@ Además agrega algunas CLASES DEFINIDAS (equivalencias en Lógica Descriptiva)
 para que el razonador HermiT pueda clasificar individuos automáticamente.
 """
 import sys
+import types
 from datetime import datetime
 from itertools import combinations
 
@@ -62,6 +63,11 @@ def poblar(destino=config.ONTO_POBLADA, verbose=True):
             """Estudiante and tieneRegistro some RegistroReprobado"""
         EstudianteConAdeudo.equivalent_to = [
             o.Estudiante & o.tieneRegistro.some(o.RegistroReprobado)]
+
+        class AgenteValidador(o.Agente):
+            """Agente que valida solicitudes contra los axiomas con HermiT"""
+        AgenteValidador.comment = ["Verifica la consistencia lógica de una solicitud de "
+                                   "inscripción (inferencia efímera con HermiT en RAM)"]
 
         for c, txt in [(GrupoVespertino, "Grupo con al menos un bloque vespertino"),
                        (GrupoMatutino, "Grupo con al menos un bloque matutino"),
@@ -120,6 +126,26 @@ def poblar(destino=config.ONTO_POBLADA, verbose=True):
             materias[clave].tienePrerrequisito = [materias[p] for p in prereqs]
         # Sin esto el razonador no puede contar (OWL no asume nombres únicos)
         AllDifferent(list(materias.values()))
+
+        # ---------------- Seriación como AXIOMAS (los valida HermiT: AgenteValidador)
+        # Por cada materia seriada X, una clase definida:
+        #   PropuestaCon_X ≡ PropuestaCarga ⊓ ∃incluyeGrupo.(Grupo ⊓ ∃esOfertaDe.{X})
+        #   PropuestaCon_X ⊑ ∀propuestaPara.(∃haAprobado.{P})     (por cada prerrequisito P)
+        # "Toda propuesta que incluya un grupo de X solo puede ser para alumnos que
+        # aprobaron P". Si el validador agrega una solicitud para un alumno cuyo
+        # kárdex está cerrado y no tiene P, la ontología se vuelve INCONSISTENTE.
+        n_reglas = 0
+        for clave, (*_, prereqs) in S.MATERIAS.items():
+            if not prereqs:
+                continue
+            regla = types.new_class(f"PropuestaCon_{clave}", (o.PropuestaCarga,))
+            regla.equivalent_to = [o.PropuestaCarga & o.incluyeGrupo.some(
+                o.Grupo & o.esOfertaDe.value(materias[clave]))]
+            for p in prereqs:
+                regla.is_a.append(o.propuestaPara.only(o.haAprobado.value(materias[p])))
+                n_reglas += 1
+            regla.comment = [f"Seriación: una propuesta con {clave} solo puede ser para "
+                             f"alumnos que aprobaron {', '.join(prereqs)}"]
 
         # ---------------- Profesores
         profes = {}
@@ -212,7 +238,8 @@ def poblar(destino=config.ONTO_POBLADA, verbose=True):
         n_ind = len(list(onto.individuals()))
         print(f"✔ Ontología poblada: {destino.relative_to(config.RAIZ)}")
         print(f"  {n_ind} individuos | {len(materias)} materias | {len(grupos)} grupos | "
-              f"{len(S.ESTUDIANTES)} estudiantes | {n_conf} pares de grupos en conflicto")
+              f"{len(S.ESTUDIANTES)} estudiantes | {n_conf} pares de grupos en conflicto | "
+              f"{n_reglas} axiomas de seriación")
     return destino
 
 

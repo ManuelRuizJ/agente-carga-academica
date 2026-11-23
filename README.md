@@ -20,16 +20,60 @@ Proyecto final de **Agentes Inteligentes**, Universidad Iberoamericana Puebla.
           ├─ cfp ─▶ CargaPreferencias ┘
           ├─ cfp ─▶ AgenteHorarios  ─▶ grupos sin choques
           ├─ evalúa, adjudica (accept / reject) y recibe el resultado (inform)
+          ├─ request ─▶ AgenteValidador ─▶ HermiT en RAM: ¿consistente? (si no, rechaza)
           └─ calcula los valores de Shapley
                     │
-        Ontología OWL (lee datos y guarda resultados)
+        Ontología OWL (lee datos y guarda resultados) · SQLite (auditoría)
 ```
+
+### Arquitectura del backend
+
+```
+  CrewAI (5 agentes)                       Navegador (página de demo)
+     │ @tool + httpx                              │ fetch
+     ▼                                            ▼
+  ┌──────────────────────── FastAPI (asíncrona) ────────────────────────┐
+  │ /agentes/historial · /agentes/carga · /agentes/horarios             │
+  │ /recomendar  (Contract Net + Validador + Shapley)                   │
+  │ /validar     (AgenteValidador: HermiT en RAM)                       │
+  │ /auditoria · /metricas · /salud                                     │
+  └───────┬───────────────────────────┬───────────────────────┬─────────┘
+          ▼                           ▼                       ▼
+   Ontología OWL 2              HermiT efímero           SQLite
+   (TBox + ABox, se carga       (un World nuevo en       ejecuciones, trazas,
+    una vez al arrancar)         RAM por solicitud)      mensajes, Shapley, llamadas
+```
+
+**Modelo de datos híbrido.** La ontología guarda el conocimiento declarativo (plan,
+seriación, axiomas) y SQLite los datos operativos (cada ejecución y su auditoría). Una
+escritura en SQLite tarda menos de 1 ms. Una inferencia de HermiT tarda ~0.8 s, por eso
+solo se ejecuta para validar.
+
+**Inferencia efímera (reasoning offloading).** Para cada validación se crea un `World` de
+owlready2 nuevo en memoria. Se le agregan la solicitud y un axioma de cierre del kárdex, se
+le pregunta a HermiT solo si es **consistente** (`-k`; clasificar todo tardaba ~12 s) y
+después se descarta. La ontología en disco nunca cambia y una solicitud no contamina a la
+siguiente.
+
+**Cómo HermiT detecta un error de seriación.** `poblar` agrega un axioma por cada materia
+seriada (35 en total):
+
+```
+PropuestaCon_X ≡ PropuestaCarga ⊓ ∃incluyeGrupo.(Grupo ⊓ ∃esOfertaDe.{X})
+PropuestaCon_X ⊑ ∀propuestaPara.(∃haAprobado.{P})        (P = prerrequisito de X)
+```
+
+El validador agrega `alumno : ∀haAprobado.{materias de su kárdex}`. OWL trabaja con mundo
+abierto, y este axioma cierra el kárdex para ese alumno. Si la solicitud incluye X y el
+alumno no aprobó P, la ontología queda **inconsistente** y la operación se rechaza,
+indicando el axioma violado.
 
 | Agente | Qué hace |
 |---|---|
 | **Historial** | Lee el kárdex y descarta las materias ya aprobadas, las que no tienen sus prerrequisitos y las que no se ofertan. Da prioridad a las reprobadas y a las materias "llave" |
 | **Carga** (3 contratistas) | Arman combinaciones de materias, cada uno con su estrategia: **Avance** (prioridad académica), **Equilibrio** (meta de créditos y pocas materias difíciles) y **Preferencias** (intereses, turno y modalidad). Cada uno manda sus 2 mejores ofertas |
 | **Horarios** | Interpreta la petición en lenguaje natural y asigna grupos sin choques que respeten turno, modalidad y días libres |
+| **Validador** | Revisa con HermiT que la propuesta ganadora, o cualquier solicitud del alumno, no viole los axiomas de la ontología. También revisa créditos, choques de horario y oferta. Si la ontología queda inconsistente, rechaza la operación y da la justificación |
 | **Manager** | Coordina el Contract Net (`cfp` → `propose` → `accept`/`reject` → `inform`), califica todas las ofertas con la misma función y elige la mejor |
 
 **Función de evaluación:** `Score = 0.30·Avance + 0.25·Horario + 0.25·Carga + 0.20·Preferencias`
@@ -60,8 +104,50 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Java solo se necesita para la opción `--razonador` (HermiT). Ollama solo se necesita para
-usar el LLM.
+Java se necesita para HermiT (Agente Validador y opción `--razonador`). Ollama solo se
+necesita para usar el LLM y CrewAI.
+
+## Backend y demostración en vivo
+
+```bash
+python main.py api          # http://127.0.0.1:8077  (página)  ·  /docs  (Swagger)
+```
+
+El puerto se cambia con `CARGA_PORT` y la base con `CARGA_DB` (por defecto
+`salidas/carga.db`). La página tiene tres pestañas:
+
+1. **Recomendar carga:** ejecuta el MAS completo y muestra la carga, el veredicto del
+   validador, la licitación, los mensajes FIPA-ACL, las trazas y las gráficas de Shapley.
+2. **Validador semántico:** arma una solicitud con clic en las materias (las de borde rojo
+   no cumplen la seriación) y la valida con HermiT.
+3. **Auditoría y Shapley:** muestra las métricas (tasa de éxito, CRUD contra inferencia),
+   las ejecuciones guardadas en SQLite con su detalle y la bitácora de llamadas a la API,
+   donde aparecen las `@tool` de CrewAI.
+
+Enlaces directos para la demo: `/#rec=A002`, `/#val=A001:LIIS2105,LIIS2112,LIIB2104,LICB2102,LIIN2104`
+y `/#aud`.
+
+| Minuto | Qué mostrar | Cómo |
+|---|---|---|
+| 1 · Entorno | FastAPI, SQLite y la ontología cargada | `python main.py api` y luego `/salud` o los indicadores de la página |
+| 2 · Caso exitoso | La Crew, la `@tool`, el endpoint y el registro en SQLite | `python main.py crew A002 -p "quiero algo ligero y sin viernes"` (en la terminal de la API se ve cada `[api] POST … ← crewai @tool …`) |
+| 3 · Rechazo semántico | HermiT detecta la inconsistencia y el Validador la frena | `python main.py crew A001 -m LIIS2105,LIIS2112,LIIB2104,LICB2102,LIIN2104` o `/#val=…` |
+| 4–5 · Auditoría | Trazas en SQLite y valores de Shapley | pestaña **Auditoría y Shapley** (`/#aud`) |
+
+Resultado del caso 3: `RECHAZADA · HermiT: INCONSISTENTE · LIIN2104 viola la seriación:
+requiere LIIB2104 · axioma PropuestaCon_LIIN2104 ⊑ ∀propuestaPara.(∃haAprobado.{LIIB2104})`.
+
+### Pruebas
+
+```bash
+python -m pytest -q          # 26 pruebas, ~12 s (las de HermiT se saltan si no hay Java)
+```
+
+Prueban la ontología (los 35 axiomas y la inversa de la seriación), las reglas académicas,
+el Contract Net (que la ganadora sea válida y que el orden de mensajes FIPA sea correcto),
+Shapley (eficiencia Σφ = v(N), coalición vacía), el validador (acepta, rechaza y confirma
+que la ontología no cambia), la API con SQLite y que las herramientas de CrewAI lleguen a
+los endpoints. Cada prueba usa su propia base temporal.
 
 ## Uso
 
@@ -188,14 +274,18 @@ python main.py experimento              # compara el MAS contra otros sistemas
    > - Además clasifica las materias seriadas, los grupos vespertinos y matutinos, y los grupos en línea.
 
    ```bash
-   # Orquestación con CrewAI (varios minutos)
+   # Orquestación con CrewAI (varios minutos). Necesita la API levantada: python main.py api
    python main.py crew A001
    python main.py crew A002 -p "quiero carga ligera y sin viernes" --proceso jerarquico
+   python main.py crew A001 -m LIIS2105,LIIS2112,LIIB2104,LICB2102,LIIN2104   # rechazo
    ```
 
-   > **Resultado:** cada agente de CrewAI llama a su herramienta (historial, carga, horarios
-   > y coordinación) y resume su parte. La recomendación final es la misma del Contract Net
-   > (A001: 92.29/100); el LLM solo la redacta.
+   > **Resultado:** cada agente de CrewAI llama a su herramienta `@tool` (historial, carga,
+   > horarios, validación y coordinación) y cada herramienta hace una petición HTTP con
+   > httpx a la API. La recomendación final es la misma del Contract Net (A001: 92.29/100);
+   > el LLM solo la redacta, y el servidor guarda la redacción únicamente si pasa el filtro
+   > anti-alucinación. Con `-m`, el Agente Validador revisa esa solicitud y la rechaza si
+   > viola la seriación.
 
    ```bash
    # Experimento que agrega el "LLM solo" a la comparación (~5 min)
@@ -234,13 +324,19 @@ demo.ipynb               demostración paso a paso
 iniciar_ollama_cpu.sh    servidor de Ollama solo con CPU
 datos/                   plan de estudios y datos de prueba
 ontologia/               ontología base y ontología poblada
+tests/                   pruebas unitarias (pytest)
 carga/
-  agentes.py             los 6 agentes (4 roles)
+  api.py                 backend FastAPI (asíncrono)
+  web/index.html         página de demostración (sin dependencias externas)
+  db.py                  persistencia y auditoría en SQLite
+  validador.py           AgenteValidador: HermiT en RAM (inferencia efímera)
+  agentes.py             los agentes especialistas y el Manager
   contract_net.py        protocolo Contract Net y valores de Shapley
   kb.py                  acceso a la ontología (owlready2, SPARQL, HermiT)
   preferencias.py        lenguaje natural → preferencias
   evaluacion.py          reglas académicas y función de evaluación
-  sistema.py · crew.py   orquestación (Python o CrewAI)
+  sistema.py             orquestación en Python
+  crew.py                Crew de CrewAI: @tool → httpx → API
   experimento.py         comparación contra otros sistemas
   poblar.py · persistencia.py · trazas.py · reporte.py · llm.py · config.py
 ```
