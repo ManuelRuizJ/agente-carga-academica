@@ -83,3 +83,16 @@ def test_herramientas_crewai_llaman_a_la_api(cliente):
     assert "PROPUESTA GANADORA" in fn["coordinar_carga"]("A001")
     rutas = {l["ruta"] for l in db.llamadas() if l["cliente"].startswith("crewai @tool")}
     assert {"/agentes/historial", "/agentes/carga", "/agentes/horarios", "/validar"} <= rutas
+
+
+def test_guardia_del_veredicto():
+    from carga.crew import _explicacion_fiel
+    v = {"aceptada": False, "materias": ["LIIS2105", "LIIN2104"],
+         "hallazgos": [{"origen": "HermiT", "materia": "LIIN2104", "motivo": "viola la seriación"}]}
+    assert _explicacion_fiel("No puedes inscribir LIIN2104 porque te falta LIIB2104.", v)
+    # el caso que vimos con llama3.2: dice que SÍ puede inscribir la materia rechazada
+    assert not _explicacion_fiel("Puede inscribirse en LIIS2105, LIIN2104 y LICB2102.", v)
+    assert not _explicacion_fiel("La solicitud fue rechazada.", v)          # no nombra la materia
+    ok = {"aceptada": True, "materias": ["LIIS2105"], "hallazgos": []}
+    assert _explicacion_fiel("Puedes inscribir todas las materias.", ok)
+    assert not _explicacion_fiel("La solicitud fue rechazada.", ok)

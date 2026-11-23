@@ -182,13 +182,17 @@ async def agente_historial(req: PeticionAlumno):
     est = _alumno(req.matricula)
     k = kb()
     el, desc = await run_in_threadpool(AgenteHistorial().analizar, k, est)
-    validas = "; ".join(f"{c} {k.materias[c].nombre} ({k.materias[c].creditos} cr, prioridad {p})"
-                        for c, p in sorted(el.items(), key=lambda x: -x[1]))
+    # Resumen corto para el LLM (en CPU cada token del prompt cuesta); el JSON trae todo
+    orden = sorted(el.items(), key=lambda x: -x[1])
+    validas = "; ".join(f"{c} {k.materias[c].nombre} ({k.materias[c].creditos} cr)" for c, _ in orden[:8])
+    validas += f" y {len(orden) - 8} más" if len(orden) > 8 else ""
+    sin_req = sum(m.startswith("falta") for m in desc.values())
     return {"validas": el, "descartadas": desc,
             "resumen": (f"Alumno {est.nombre} ({est.matricula}), semestre {est.semestre}, promedio "
                         f"{est.promedio}. Aprobadas: {len(est.aprobadas)}. Reprobadas: "
                         f"{', '.join(est.reprobadas) or 'ninguna'}.\nMATERIAS VÁLIDAS: {validas}\n"
-                        f"DESCARTADAS: {'; '.join(f'{c}: {m}' for c, m in desc.items()) or 'ninguna'}")}
+                        f"DESCARTADAS: {len(desc)} ({sin_req} por falta de prerrequisito, "
+                        f"{len(desc) - sin_req} porque no se ofertan)")}
 
 
 def _ofertas(est, peticion):

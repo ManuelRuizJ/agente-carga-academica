@@ -105,13 +105,41 @@ def herramientas(api: ClienteAPI, peticion: str, estado: dict):
 
 
 def _limpiar(texto: str) -> str:
-    """Quita muletillas típicas de modelos pequeños ("Lo siento, hubo un error…")."""
+    """Quita muletillas típicas de modelos pequeños: disculpas, saludos de carta
+    ("Estimado Luis,") y firmas ("Atentamente, [Tu nombre]")."""
     import re
-    lineas = texto.strip().splitlines()
-    while lineas and re.match(r"^\s*(lo siento|disculpa|perd[oó]n|a continuaci[oó]n|aqu[ií] (est[aá]|tienes))",
-                              lineas[0], re.I):
+    lineas = [x for x in texto.strip().splitlines()]
+    inicio = r"^\s*(lo siento|disculpa|perd[oó]n|a continuaci[oó]n|aqu[ií] (est[aá]|tienes)|estimad[oa]|hola|querid[oa])"
+    while lineas and (not lineas[0].strip() or re.match(inicio, lineas[0], re.I)):
         lineas.pop(0)
+    final = r"^\s*(atentamente|saludos|cordialmente|un saludo|\[.*\])[\s,.!]*$"
+    while lineas and (not lineas[-1].strip() or re.match(final, lineas[-1], re.I)):
+        lineas.pop()
     return "\n".join(lineas).strip() or texto.strip()
+
+
+def _explicacion_fiel(texto: str, v: dict) -> bool:
+    """Guardia anti-alucinación para el veredicto: si se rechazó, el texto debe
+    decirlo y nombrar las materias problemáticas; si se aceptó, no debe negarlo."""
+    from .preferencias import _norm
+    t = _norm(texto)
+    negacion = any(x in t for x in ("no puede", "no podra", "no es posible", "no se puede", "rechaz",
+                                    "inconsisten", "no cumple", "no podemos"))
+    if v["aceptada"]:
+        return not negacion
+    culpables = {h["materia"] for h in v["hallazgos"] if h["materia"] in v["materias"]}
+    return negacion and all(_norm(c) in t for c in culpables)
+
+
+def _explicacion_validacion(v: dict) -> str:
+    if v["aceptada"]:
+        return ("Puedes inscribir las materias solicitadas: HermiT confirmó que la solicitud es "
+                "consistente con la ontología y se cumplen las reglas institucionales.")
+    motivos = "; ".join(f"{h['materia']} {h['motivo']}" for h in v["hallazgos"])
+    return (f"No es posible inscribir la solicitud tal como está: {motivos}. "
+            + ("HermiT encontró que la ontología se vuelve inconsistente con esa solicitud. "
+               if v["consistente"] is False else "")
+            + "Ajusta las materias señaladas y vuelve a intentarlo.")
 
 
 def _imprimir_validacion(v):
@@ -186,8 +214,11 @@ def ejecutar_crew(matricula, peticion="", proceso="secuencial", usar_llm=True, m
     from crewai.tools import tool
     logging.getLogger("crewai.llms.base_llm").setLevel(logging.ERROR)   # aviso de conteo de tokens
 
-    t = {nombre: tool(nombre)(f) for nombre, f in fn.items()}
-    llm = LLM(model=f"ollama/{llm_local.modelo}", base_url=llm_local.url, temperature=0.1, max_tokens=500)
+    # El Validador no parafrasea: su respuesta ES el veredicto de HermiT
+    # (un 3B a veces contesta "lo siento, no puedo…" en vez de reportarlo).
+    t = {nombre: tool(nombre, result_as_answer=(nombre == "validar_inscripcion"))(f)
+         for nombre, f in fn.items()}
+    llm = LLM(model=f"ollama/{llm_local.modelo}", base_url=llm_local.url, temperature=0.1, max_tokens=300)
     comun = dict(llm=llm, verbose=True, max_iter=3, allow_delegation=False, cache=True)
 
     a_hist = Agent(role="Analista de historial académico y requisitos",
@@ -220,32 +251,34 @@ def ejecutar_crew(matricula, peticion="", proceso="secuencial", usar_llm=True, m
     m = matricula
     t_hist = Task(description=f"Usa la herramienta consultar_historial_academico con matricula '{m}'. "
                               "Resume en español qué materias puede cursar y cuáles no y por qué.",
-                  expected_output="Lista breve de materias válidas y descartadas.", agent=a_hist)
+                  expected_output="Máximo 3 oraciones.", agent=a_hist, context=[])
     t_val = Task(description=f"Usa la herramienta validar_inscripcion con matricula '{m}'. Reporta en "
                              "español si la solicitud fue ACEPTADA o RECHAZADA y copia la justificación lógica.",
-                 expected_output="Veredicto (ACEPTADA/RECHAZADA) y justificación.", agent=a_val)
+                 expected_output="Veredicto (ACEPTADA/RECHAZADA) y justificación, máximo 3 oraciones.",
+                 agent=a_val, context=[])
     if modo_validar:
         t_fin = Task(description=f"Eres el coordinador. El alumno '{m}' pidió inscribir: "
                                  f"{', '.join(materias)}. Con el veredicto del validador, explica al alumno en "
                                  "español, en un párrafo corto, si puede inscribirlas y por qué. No inventes "
-                                 "materias ni requisitos.",
+                                 "materias ni requisitos. No saludes ni firmes.",
                      expected_output="Un párrafo con la decisión y su justificación.",
-                     agent=a_man, context=[t_hist, t_val])
+                     agent=a_man, context=[t_val])
         tareas, agentes = [t_hist, t_val, t_fin], [a_hist, a_val]
     else:
         t_carga = Task(description=f"Usa la herramienta evaluar_carga_academica con matricula '{m}'. "
                                    "Resume en español las combinaciones con sus créditos.",
-                       expected_output="Combinaciones de materias con total de créditos.", agent=a_carga)
+                       expected_output="Máximo 3 oraciones.", agent=a_carga, context=[])
         t_hor = Task(description=f"Usa la herramienta analizar_horarios_y_preferencias con matricula '{m}'. "
                                  "Resume en español si hay choques y cómo se respetan las preferencias.",
-                     expected_output="Reporte breve de compatibilidad de horarios.", agent=a_hor)
+                     expected_output="Máximo 3 oraciones.", agent=a_hor, context=[])
         t_fin = Task(description=f"Eres el coordinador. El protocolo Contract Net ya adjudicó la carga para '{m}'. "
                                  f"RESULTADO OFICIAL (no lo cambies, puedes confirmarlo con la herramienta "
                                  f"coordinar_carga):\n{estado['oficial']}\n\nRedacta para el estudiante, en español, "
                                  "2 párrafos cortos (máximo 120 palabras) que expliquen POR QUÉ se recomienda esa "
-                                 "carga, usando solo esas materias. No describas días ni horas, no uses listas ni JSON.",
+                                 "carga, usando solo esas materias. No describas días ni horas, no uses listas ni JSON, "
+                                 "no saludes ni firmes.",
                        expected_output="Recomendación final en lenguaje natural, 2 párrafos, sin listas.",
-                       agent=a_man, context=[t_hist, t_carga, t_hor, t_val], tools=[t["coordinar_carga"]])
+                       agent=a_man, context=[t_val], tools=[t["coordinar_carga"]])
         tareas, agentes = [t_hist, t_carga, t_hor, t_val, t_fin], [a_hist, a_carga, a_hor, a_val]
 
     if proceso == "jerarquico":
@@ -268,10 +301,15 @@ def ejecutar_crew(matricula, peticion="", proceso="secuencial", usar_llm=True, m
         fn["validar_inscripcion"](matricula)
 
     if modo_validar:
-        _imprimir_validacion(estado["validacion"])
-        if texto:
+        v = estado["validacion"]
+        _imprimir_validacion(v)
+        if texto and _explicacion_fiel(texto, v):
             print(f"\n Coordinador (CrewAI, {proceso}):\n {texto}")
-        return estado["validacion"]
+        else:
+            if texto:
+                print("\n⚠ La explicación de CrewAI contradecía el veredicto de HermiT; se usa la del Manager.")
+            print(f"\n Coordinador (plantilla):\n {_explicacion_validacion(v)}")
+        return v
 
     fuente = None
     if texto:
@@ -282,6 +320,6 @@ def ejecutar_crew(matricula, peticion="", proceso="secuencial", usar_llm=True, m
         else:
             print(f"⚠ La redacción de CrewAI no pasó el filtro del servidor ({r['motivo']}); "
                   "se usa la del Manager.")
-            texto = None
+            texto, fuente = None, "plantilla del Manager (la redacción de CrewAI no pasó el filtro)"
     _imprimir_recomendacion(rec, texto, fuente)
     return rec

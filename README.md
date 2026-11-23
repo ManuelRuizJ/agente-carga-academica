@@ -134,13 +134,17 @@ y `/#aud`.
 | 3 · Rechazo semántico | HermiT detecta la inconsistencia y el Validador la frena | `python main.py crew A001 -m LIIS2105,LIIS2112,LIIB2104,LICB2102,LIIN2104` o `/#val=…` |
 | 4–5 · Auditoría | Trazas en SQLite y valores de Shapley | pestaña **Auditoría y Shapley** (`/#aud`) |
 
+Tiempos medidos con `llama3.2` solo en CPU: caso exitoso **~2 min 15 s** (5 tareas, 10 llamadas
+al LLM) y rechazo **~1 min** (la API responde en ~2 s; el resto es el LLM). Con `--sin-llm`
+las mismas herramientas llaman a la API en segundos, como respaldo si el LLM se alenta.
+
 Resultado del caso 3: `RECHAZADA · HermiT: INCONSISTENTE · LIIN2104 viola la seriación:
 requiere LIIB2104 · axioma PropuestaCon_LIIN2104 ⊑ ∀propuestaPara.(∃haAprobado.{LIIB2104})`.
 
 ### Pruebas
 
 ```bash
-python -m pytest -q          # 26 pruebas, ~12 s (las de HermiT se saltan si no hay Java)
+python -m pytest -q          # 27 pruebas, ~12 s (las de HermiT se saltan si no hay Java)
 ```
 
 Prueban la ontología (los 35 axiomas y la inversa de la seriación), las reglas académicas,
