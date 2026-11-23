@@ -115,9 +115,19 @@ def buscar_materia(texto: str, materias: dict) -> str | None:
 def _por_reglas(texto: str, materias: dict) -> dict:
     t = _norm(texto)
     r = {}
-    if re.search(r"\b(ligera|liger[oa]|poca[s]?|pocas materias|tranquil|no .*saturar|relajad)", t):
+    # "lo máximo / lo más que se pueda / todas las que pueda" = el tope institucional;
+    # "lo mínimo / lo menos posible" = el mínimo. "máximo 5 materias" NO cuenta:
+    # ahí "máximo" es un límite de materias, no una carga pesada.
+    tope = re.search(r"(maxim[oa]s?(?!\s*(de\s*)?\d)|lo mas (que )?(se )?pued|lo mas posible|"
+                     r"todas las (materias )?que (se )?pued|al tope|al maximo)", t)
+    minimo = re.search(r"(minim[oa]s?(?!\s*(de\s*)?\d)|lo menos (posible|que (se )?pued))", t)
+    if tope:
+        r["tipo_carga"], r["creditos_tope"] = "pesada", "max"
+    elif minimo:
+        r["tipo_carga"], r["creditos_tope"] = "ligera", "min"
+    elif re.search(r"\b(ligera|liger[oa]|poca[s]?|pocas materias|tranquil|no .*saturar|relajad)", t):
         r["tipo_carga"] = "ligera"
-    elif re.search(r"\b(pesada|muchas|adelantar|maxim[oa]|cargad[oa]|lo mas posible)", t):
+    elif re.search(r"\b(pesada|muchas|adelantar|cargad[oa])", t):
         r["tipo_carga"] = "pesada"
     elif re.search(r"\b(normal|regular|equilibrad)", t):
         r["tipo_carga"] = "normal"
@@ -259,6 +269,12 @@ def construir_preferencias(est, materias: dict, texto: str = "", llm=None,
                     p["peso_turno"] = max(p["peso_turno"], 3)   # lo dijo explícitamente
                 if campo == "modalidad":
                     p["peso_modalidad"] = max(p["peso_modalidad"], 3)
+        # "lo máximo posible" sin cifra: la meta es el tope (o el mínimo) institucional
+        if reglas.get("creditos_tope") and not p["fuente"].get("creditos_objetivo"):
+            alto = reglas["creditos_tope"] == "max"
+            p["creditos_objetivo"] = ((limites[1] if alto else limites[0]) if limites else
+                                      config.CARGA_TIPO["pesada" if alto else "ligera"]["creditos"])
+            p["fuente"]["creditos_objetivo"] = "petición (reglas)"
 
     # Una materia ya aprobada no puede ser "de interés" para este periodo
     for k in ("materias_interes", "materias_evitar"):

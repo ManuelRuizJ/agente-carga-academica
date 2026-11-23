@@ -145,7 +145,7 @@ requiere LIIB2104 · axioma PropuestaCon_LIIN2104 ⊑ ∀propuestaPara.(∃haApr
 ### Pruebas
 
 ```bash
-python -m pytest -q          # 32 pruebas, ~12 s (las de HermiT se saltan si no hay Java)
+python -m pytest -q          # 37 pruebas, ~12 s (las de HermiT se saltan si no hay Java)
 ```
 
 Prueban la ontología (los 35 axiomas y la inversa de la seriación), las reglas académicas,

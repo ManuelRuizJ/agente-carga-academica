@@ -70,6 +70,10 @@ def test_shapley_contratistas_eficiencia(sesion_a001):
     ("unos 52 créditos por favor", 52),
     ("quiero 70 créditos", 60),          # se ajusta al máximo institucional
     ("solo 10 creditos", 24),            # y al mínimo
+    ("quiero llevar la maxima cantidad de materias posibles", 60),
+    ("lo más que se pueda", 60),
+    ("quiero llevar todas las materias que pueda", 60),
+    ("lo mínimo posible", 24),
 ])
 def test_meta_explicita_de_creditos(kb, texto, esperado):
     from carga.preferencias import construir_preferencias
@@ -87,3 +91,10 @@ def test_pedir_60_creditos_da_carga_sin_choques(kb):
         assert conflictos(kb, g.grupos) == []
         assert kb.creditos_min <= g.creditos(kb) <= kb.creditos_max
         assert g.creditos(kb) > 40           # más que una carga normal
+
+
+def test_maximo_de_materias_no_es_carga_pesada(kb):
+    from carga.preferencias import construir_preferencias
+    p = construir_preferencias(kb.estudiante("A001"), kb.materias, "máximo 5 materias", None,
+                               (kb.creditos_min, kb.creditos_max))
+    assert p["max_materias"] == 5 and p["tipo_carga"] != "pesada"
