@@ -275,6 +275,10 @@ def construir_preferencias(est, materias: dict, texto: str = "", llm=None,
             p["creditos_objetivo"] = ((limites[1] if alto else limites[0]) if limites else
                                       config.CARGA_TIPO["pesada" if alto else "ligera"]["creditos"])
             p["fuente"]["creditos_objetivo"] = "petición (reglas)"
+            if not alto and not p["fuente"].get("max_materias"):
+                # lo mínimo = los créditos mínimos en el menor número de materias
+                p["max_materias"] = -(-p["creditos_objetivo"] // max(m.creditos for m in materias.values()))
+                p["fuente"]["max_materias"] = "petición (reglas)"
 
     # Una materia ya aprobada no puede ser "de interés" para este periodo
     for k in ("materias_interes", "materias_evitar"):
@@ -295,6 +299,19 @@ def construir_preferencias(est, materias: dict, texto: str = "", llm=None,
             p["fuente"]["tipo_carga"] = explicita
         if not p["fuente"].get("max_materias", "").startswith("petición"):
             p["max_materias"] = None        # el tope guardado era para otra meta
+
+    # Número de materias explícito ("quiero 3 materias") sin cifra de créditos:
+    # la meta no puede pasar de lo que alcanzan esas materias (3 × 8 = 24, no 40).
+    if (p["fuente"].get("max_materias", "").startswith("petición") and not explicita):
+        tope_cr = p["max_materias"] * max(m.creditos for m in materias.values())
+        actual = p["creditos_objetivo"] or config.CARGA_TIPO.get(
+            p["tipo_carga"], config.CARGA_TIPO["normal"])["creditos"]
+        if tope_cr < actual:
+            obj = max(limites[0], tope_cr) if limites else tope_cr
+            p["creditos_objetivo"] = obj
+            if not p["fuente"].get("tipo_carga", "").startswith("petición"):
+                p["tipo_carga"] = "ligera" if obj <= 32 else "pesada" if obj >= 46 else "normal"
+                p["fuente"]["tipo_carga"] = p["fuente"]["max_materias"]
 
     meta = config.CARGA_TIPO.get(p["tipo_carga"], config.CARGA_TIPO["normal"])
     p["creditos_objetivo"] = p["creditos_objetivo"] or meta["creditos"]

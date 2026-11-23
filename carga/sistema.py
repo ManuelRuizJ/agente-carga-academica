@@ -67,6 +67,24 @@ def correr_contract_net(s: Sesion):
         previo = s.prefs.get("creditos_ajustados")
         nota = f"con {pedido} no hubo horario sin choques; se bajó a {s.prefs['creditos_objetivo']}"
         s.prefs["creditos_ajustados"] = f"{previo}; {nota}" if previo else nota
+
+    # Si con las materias pedidas ("quiero 2 materias") no se alcanzan los
+    # créditos mínimos, el Manager permite una materia más y vuelve a licitar.
+    pedidas = s.prefs["max_materias"]
+    tope = max(10, pedidas)
+    while ((s.resultado.ganadora is None
+            or s.resultado.ganadora.creditos(s.kb) < s.kb.creditos_min)
+           and s.prefs["max_materias"] < tope):
+        s.prefs["max_materias"] += 1
+        s.trazas.mensaje("cfp", "AgenteManager", "AgenteCarga",
+                         f"no se alcanzan {s.kb.creditos_min} créditos; nueva licitación con "
+                         f"máximo {s.prefs['max_materias']} materias")
+        s.resultado = ejecutar(s.kb, s.est, s.prefs, s.elegibles_reales, trazas=s.trazas)
+    if s.prefs["max_materias"] != pedidas:
+        previo = s.prefs.get("creditos_ajustados")
+        nota = (f"con {pedidas} materias no se alcanzan los {s.kb.creditos_min} créditos mínimos; "
+                f"se subió a {s.prefs['max_materias']}")
+        s.prefs["creditos_ajustados"] = f"{previo}; {nota}" if previo else nota
     return s.resultado
 
 

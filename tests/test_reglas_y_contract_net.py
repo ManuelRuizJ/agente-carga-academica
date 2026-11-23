@@ -80,7 +80,7 @@ def test_meta_explicita_de_creditos(kb, texto, esperado):
     est = kb.estudiante("A001")
     p = construir_preferencias(est, kb.materias, texto, None, (kb.creditos_min, kb.creditos_max))
     assert p["creditos_objetivo"] == esperado
-    assert p["max_materias"] >= -(-esperado // 6)
+    assert p["max_materias"] >= -(-esperado // 8)      # 8 = créditos de la materia más grande
 
 
 def test_pedir_60_creditos_da_carga_sin_choques(kb):
@@ -98,3 +98,23 @@ def test_maximo_de_materias_no_es_carga_pesada(kb):
     p = construir_preferencias(kb.estudiante("A001"), kb.materias, "máximo 5 materias", None,
                                (kb.creditos_min, kb.creditos_max))
     assert p["max_materias"] == 5 and p["tipo_carga"] != "pesada"
+
+
+@pytest.mark.parametrize("texto, n_max, cr_obj", [
+    ("quiero llevar 3 materias", 3, 24),     # 3 materias no alcanzan 40: la meta baja a 24
+    ("quiero llevar minima", 3, 24),         # lo mínimo = 24 créditos en el menor número de materias
+    ("máximo 5 materias", 5, 40),            # 5 materias sí alcanzan 40: no cambia
+])
+def test_numero_de_materias_y_meta_coherentes(kb, texto, n_max, cr_obj):
+    from carga.preferencias import construir_preferencias
+    p = construir_preferencias(kb.estudiante("A001"), kb.materias, texto, None,
+                               (kb.creditos_min, kb.creditos_max))
+    assert (p["max_materias"], p["creditos_objetivo"]) == (n_max, cr_obj)
+
+
+def test_pocas_materias_suben_hasta_el_minimo_de_creditos(kb):
+    from carga import sistema
+    s = sistema.nueva_sesion("A001", "quiero 2 materias", usar_llm=False, eco=False, kb=kb)
+    g = sistema.correr_contract_net(s).ganadora
+    assert g.creditos(kb) >= kb.creditos_min and len(g.materias) == 3
+    assert "no se alcanzan" in s.prefs["creditos_ajustados"]
