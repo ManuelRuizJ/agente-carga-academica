@@ -28,9 +28,10 @@ ESQUEMA = {
         "materias_interes": {"type": "array", "items": {"type": "string"}},
         "materias_evitar": {"type": "array", "items": {"type": "string"}},
         "max_materias": {"type": ["integer", "null"]},
+        "creditos_objetivo": {"type": ["integer", "null"]},
     },
     "required": ["tipo_carga", "turno", "modalidad", "dias_libres",
-                 "materias_interes", "materias_evitar", "max_materias"],
+                 "materias_interes", "materias_evitar", "max_materias", "creditos_objetivo"],
 }
 
 _DIAS = {"lunes": "Lunes", "martes": "Martes", "miercoles": "Miercoles",
@@ -144,6 +145,11 @@ def _por_reglas(texto: str, materias: dict) -> dict:
     if m:
         r["max_materias"] = int(m.group(1))
 
+    # "quiero llevar 60 creditos", "unos 50 cr", "52 créditos"
+    m = re.search(r"\b(\d{1,3})\s*(creditos|credito|cr)\b", t)
+    if m:
+        r["creditos_objetivo"] = int(m.group(1))
+
     interes, evitar = [], []
     frases = re.split(r"[.,;]| y | pero ", t)
     for f in frases:
@@ -168,7 +174,8 @@ _SISTEMA = (
     "- modalidad: presencial | en_linea | hibrida\n"
     "- dias_libres: días en los que NO quiere clases\n"
     "- materias_interes / materias_evitar: nombres de materias tal como aparecen en el catálogo\n"
-    "- max_materias: número máximo de materias si lo dice explícitamente"
+    "- max_materias: número máximo de materias si lo dice explícitamente\n"
+    "- creditos_objetivo: número de créditos si lo dice explícitamente"
 )
 
 
@@ -202,11 +209,17 @@ def _por_llm(texto: str, materias: dict, llm) -> dict | None:
     mm = d.get("max_materias")
     if isinstance(mm, int) and 1 <= mm <= 8:
         limpio["max_materias"] = mm
+    co = d.get("creditos_objetivo")
+    if isinstance(co, int) and 1 <= co <= 120 and re.search(rf"\b{co}\b", texto):   # anti-alucinación
+        limpio["creditos_objetivo"] = co
     return limpio
 
 
 # ------------------------------------------------------------------- API
-def construir_preferencias(est, materias: dict, texto: str = "", llm=None) -> dict:
+def construir_preferencias(est, materias: dict, texto: str = "", llm=None,
+                           limites: tuple | None = None) -> dict:
+    """limites = (créditos mínimos, máximos) de la ontología: una meta explícita
+    ("quiero 60 créditos") se ajusta a ese rango institucional."""
     guardadas = est.preferencias
     tipo, prio_c, cobj, maxm = guardadas.get("carga", ("normal", 1, None, None))
     turno, prio_t = guardadas.get("turno", (None, 1))
@@ -229,7 +242,8 @@ def construir_preferencias(est, materias: dict, texto: str = "", llm=None) -> di
         else:
             p["interpretado_por"] = "reglas (sin LLM)"
         for campo in ("tipo_carga", "turno", "modalidad", "dias_libres",
-                      "materias_interes", "materias_evitar", "max_materias"):
+                      "materias_interes", "materias_evitar", "max_materias",
+                      "creditos_objetivo"):
             val, fuente = None, None
             if llm_r and llm_r.get(campo):
                 val, fuente = llm_r[campo], "petición (LLM)"
@@ -250,15 +264,34 @@ def construir_preferencias(est, materias: dict, texto: str = "", llm=None) -> di
     for k in ("materias_interes", "materias_evitar"):
         p[k] = [c for c in p[k] if c not in est.aprobadas]
 
+    # Meta explícita de créditos: se ajusta al rango institucional y, si no dijo
+    # el tipo de carga, se deduce de la cifra (60 créditos = carga pesada).
+    explicita = p["fuente"].get("creditos_objetivo")
+    if explicita:
+        pedido = p["creditos_objetivo"]
+        if limites:
+            p["creditos_objetivo"] = max(limites[0], min(limites[1], pedido))
+        if p["creditos_objetivo"] != pedido:
+            p["creditos_ajustados"] = f"pidió {pedido}, el rango permitido es {limites[0]}-{limites[1]}"
+        if not p["fuente"].get("tipo_carga", "").startswith("petición"):
+            obj = p["creditos_objetivo"]
+            p["tipo_carga"] = "ligera" if obj <= 32 else "pesada" if obj >= 46 else "normal"
+            p["fuente"]["tipo_carga"] = explicita
+        if not p["fuente"].get("max_materias", "").startswith("petición"):
+            p["max_materias"] = None        # el tope guardado era para otra meta
+
     meta = config.CARGA_TIPO.get(p["tipo_carga"], config.CARGA_TIPO["normal"])
     p["creditos_objetivo"] = p["creditos_objetivo"] or meta["creditos"]
-    p["max_materias"] = p["max_materias"] or meta["max_materias"]
+    # materias de ~6 créditos en promedio: 60 créditos piden unas 10 materias
+    p["max_materias"] = p["max_materias"] or max(meta["max_materias"], -(-p["creditos_objetivo"] // 6))
     p["max_dificiles"] = meta["max_dificiles"]
     return p
 
 
 def describir(p: dict) -> str:
     partes = [f"carga {p['tipo_carga']} (~{p['creditos_objetivo']} créditos, máx. {p['max_materias']} materias)"]
+    if p.get("creditos_ajustados"):
+        partes[0] += f" [{p['creditos_ajustados']}]"
     if p["turno"]:
         partes.append(f"turno {p['turno']}")
     if p["modalidad"]:

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from . import config
 from .agentes import AgenteHorarios, AgenteManager
 from .contract_net import ejecutar, shapley_contratistas, valores_shapley
-from .evaluacion import analizar_elegibilidad
+from .evaluacion import analizar_elegibilidad, conflictos
 from .kb import BaseConocimiento
 from .llm import ClienteLLM
 from .persistencia import guardar_en_ontologia
@@ -48,6 +48,25 @@ def nueva_sesion(matricula, peticion="", usar_llm=True, eco=True, kb=None, llm=N
 
 def correr_contract_net(s: Sesion):
     s.resultado = ejecutar(s.kb, s.est, s.prefs, s.elegibles_reales, trazas=s.trazas)
+    # Si el alumno pidió una cifra alta de créditos y con ella todas las
+    # propuestas chocan de horario, el Manager vuelve a licitar con una meta
+    # 4 créditos menor (sin bajar de la meta de una carga normal).
+    pedido = s.prefs["creditos_objetivo"]
+    piso = min(pedido, config.CARGA_TIPO["normal"]["creditos"])
+    while (s.prefs["fuente"].get("creditos_objetivo") and s.resultado.ganadora
+           and conflictos(s.kb, s.resultado.ganadora.grupos)
+           and s.prefs["creditos_objetivo"] - 4 >= piso):
+        s.prefs["creditos_objetivo"] -= 4
+        s.prefs["max_materias"] = max(config.CARGA_TIPO["normal"]["max_materias"],
+                                      -(-s.prefs["creditos_objetivo"] // 6))
+        s.trazas.mensaje("cfp", "AgenteManager", "AgenteCarga",
+                         f"todas las propuestas chocan de horario; nueva licitación con "
+                         f"meta {s.prefs['creditos_objetivo']} créditos")
+        s.resultado = ejecutar(s.kb, s.est, s.prefs, s.elegibles_reales, trazas=s.trazas)
+    if s.prefs["creditos_objetivo"] != pedido:
+        previo = s.prefs.get("creditos_ajustados")
+        nota = f"con {pedido} no hubo horario sin choques; se bajó a {s.prefs['creditos_objetivo']}"
+        s.prefs["creditos_ajustados"] = f"{previo}; {nota}" if previo else nota
     return s.resultado
 
 

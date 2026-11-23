@@ -63,3 +63,27 @@ def test_shapley_contratistas_eficiencia(sesion_a001):
     s = sesion_a001
     from carga.contract_net import CONTRATISTAS
     assert sum(s.phi_c.values()) == pytest.approx(s.v_c[frozenset(CONTRATISTAS)], abs=0.05)
+
+
+@pytest.mark.parametrize("texto, esperado", [
+    ("quiero llevar 60 creditos", 60),
+    ("unos 52 créditos por favor", 52),
+    ("quiero 70 créditos", 60),          # se ajusta al máximo institucional
+    ("solo 10 creditos", 24),            # y al mínimo
+])
+def test_meta_explicita_de_creditos(kb, texto, esperado):
+    from carga.preferencias import construir_preferencias
+    est = kb.estudiante("A001")
+    p = construir_preferencias(est, kb.materias, texto, None, (kb.creditos_min, kb.creditos_max))
+    assert p["creditos_objetivo"] == esperado
+    assert p["max_materias"] >= -(-esperado // 6)
+
+
+def test_pedir_60_creditos_da_carga_sin_choques(kb):
+    from carga import sistema
+    for m in ("A001", "A002"):
+        s = sistema.nueva_sesion(m, "quiero llevar 60 creditos", usar_llm=False, eco=False, kb=kb)
+        g = sistema.correr_contract_net(s).ganadora
+        assert conflictos(kb, g.grupos) == []
+        assert kb.creditos_min <= g.creditos(kb) <= kb.creditos_max
+        assert g.creditos(kb) > 40           # más que una carga normal

@@ -100,7 +100,8 @@ class AgenteHorarios:
 
     def interpretar_preferencias(self, kb, est, texto, llm):
         """Única tarea con LLM de los especialistas: lenguaje natural → JSON."""
-        return construir_preferencias(est, kb.materias, texto, llm)
+        return construir_preferencias(est, kb.materias, texto, llm,
+                                      (kb.creditos_min, kb.creditos_max))
 
     def _mejor_asignacion(self, kb, materias, prefs):
         opciones = [kb.grupos_de(c) for c in materias]

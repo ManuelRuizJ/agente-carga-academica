@@ -104,7 +104,8 @@ def _alumno(m):
 
 
 def _prefs(est, peticion):
-    return construir_preferencias(est, kb().materias, peticion, None)
+    k = kb()
+    return construir_preferencias(est, k.materias, peticion, None, (k.creditos_min, k.creditos_max))
 
 
 # ------------------------------------------------------------------ página y salud
