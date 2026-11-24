@@ -96,3 +96,18 @@ def test_guardia_del_veredicto():
     ok = {"aceptada": True, "materias": ["LIIS2105"], "hallazgos": []}
     assert _explicacion_fiel("Puedes inscribir todas las materias.", ok)
     assert not _explicacion_fiel("La solicitud fue rechazada.", ok)
+
+
+def test_base_borrada_con_la_api_encendida_se_recrea():
+    """Si se borra la base de SQLite con la API corriendo, la siguiente llamada
+    recrea las tablas en vez de fallar con 'no such table'."""
+    from fastapi.testclient import TestClient
+    from carga import config
+    from carga.api import app
+    with TestClient(app) as c:
+        assert c.get("/salud").status_code == 200
+        for sufijo in ("", "-wal", "-shm"):
+            config.DB.with_name(config.DB.name + sufijo).unlink(missing_ok=True)
+        r = c.get("/salud")
+        assert r.status_code == 200
+        assert c.get("/auditoria").status_code == 200

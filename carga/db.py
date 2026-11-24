@@ -76,8 +76,14 @@ def conexion():
     """Una conexión por operación (seguro con los hilos de FastAPI)."""
     ruta = _ruta()
     ruta.parent.mkdir(parents=True, exist_ok=True)
+    # Si alguien borró la base con la API encendida, se recrea el esquema aquí
+    # mismo en lugar de fallar con "no such table".
+    nueva = not ruta.exists() or ruta.stat().st_size == 0
     con = sqlite3.connect(ruta, timeout=10)
     con.row_factory = sqlite3.Row
+    if nueva:
+        con.execute("PRAGMA journal_mode = WAL")
+        con.executescript(ESQUEMA)
     con.execute("PRAGMA foreign_keys = ON")
     try:
         yield con
