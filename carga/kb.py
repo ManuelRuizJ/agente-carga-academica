@@ -77,7 +77,7 @@ class BaseConocimiento:
             from .poblar import poblar
             poblar(verbose=True)
         self.mundo = ow.World()
-        self.onto = self.mundo.get_ontology(ruta.resolve().as_uri()).load()
+        self.onto = self.mundo.get_ontology(str(ruta.resolve())).load()
         self.o = self.onto.get_namespace(config.NS)
         self._cargar()
 
@@ -169,7 +169,7 @@ class BaseConocimiento:
         """Ejecuta HermiT (Java) y devuelve los miembros de las clases definidas."""
         ow.reasoning.JAVA_MEMORY = 512   # MB; suficiente y no satura la RAM
         mundo = ow.World()
-        onto = mundo.get_ontology(config.ONTO_POBLADA.resolve().as_uri()).load()
+        onto = mundo.get_ontology(str(config.ONTO_POBLADA.resolve())).load()
         o = onto.get_namespace(config.NS)
         with onto:
             ow.sync_reasoner_hermit(mundo, infer_property_values=False, debug=0)

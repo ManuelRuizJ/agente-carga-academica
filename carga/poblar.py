@@ -32,7 +32,7 @@ def _se_traslapan(bloques_a, bloques_b) -> bool:
 
 def poblar(destino=config.ONTO_POBLADA, verbose=True):
     mundo = World()
-    onto = mundo.get_ontology(config.ONTO_BASE.resolve().as_uri()).load()
+    onto = mundo.get_ontology(str(config.ONTO_BASE.resolve())).load()
     o = onto.get_namespace(config.NS)
 
     with o:

@@ -17,7 +17,7 @@ from . import config
 
 def guardar_en_ontologia(kb, est, resultado, phi, trazas, destino, phi_c=None):
     mundo = ow.World()
-    onto = mundo.get_ontology(config.ONTO_POBLADA.resolve().as_uri()).load()
+    onto = mundo.get_ontology(str(config.ONTO_POBLADA.resolve())).load()
     o = onto.get_namespace(config.NS)
     alumno = o[est.iri]
     periodo = o[kb.periodo_iri] if kb.periodo_iri else None
