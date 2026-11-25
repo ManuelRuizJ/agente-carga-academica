@@ -100,6 +100,21 @@ def test_maximo_de_materias_no_es_carga_pesada(kb):
     assert p["max_materias"] == 5 and p["tipo_carga"] != "pesada"
 
 
+@pytest.mark.parametrize("texto, tipo", [
+    ("ando chambeando, poquitas porfa", "ligera"),
+    ("trabajo medio tiempo", "ligera"),
+    ("no tengo mucho tiempo este semestre", "ligera"),
+    ("quiero terminar rapido la carrera", "pesada"),
+    ("me quiero graduar pronto", "pesada"),
+    ("quiero avanzar mucho", "pesada"),
+])
+def test_frases_coloquiales_de_carga(kb, texto, tipo):
+    from carga.preferencias import construir_preferencias
+    p = construir_preferencias(kb.estudiante("A001"), kb.materias, texto, None,
+                               (kb.creditos_min, kb.creditos_max))
+    assert p["tipo_carga"] == tipo
+
+
 @pytest.mark.parametrize("texto, n_max, cr_obj", [
     ("quiero llevar 3 materias", 3, 24),     # 3 materias no alcanzan 40: la meta baja a 24
     ("quiero llevar minima", 3, 24),         # lo mínimo = 24 créditos en el menor número de materias

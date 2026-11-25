@@ -125,9 +125,11 @@ def _por_reglas(texto: str, materias: dict) -> dict:
         r["tipo_carga"], r["creditos_tope"] = "pesada", "max"
     elif minimo:
         r["tipo_carga"], r["creditos_tope"] = "ligera", "min"
-    elif re.search(r"\b(ligera|liger[oa]|poca[s]?|pocas materias|tranquil|no .*saturar|relajad)", t):
+    elif re.search(r"\b(ligera|liger[oa]|poca[s]?|poquit|pocas materias|tranquil|no .*saturar|relajad|"
+                   r"trabaj|chamb|poco tiempo|no tengo (mucho )?tiempo|medio tiempo)", t):
         r["tipo_carga"] = "ligera"
-    elif re.search(r"\b(pesada|muchas|adelantar|cargad[oa])", t):
+    elif re.search(r"\b(pesada|muchas|adelantar|avanzar (mucho|rapido)|cargad[oa]|"
+                   r"(terminar|acabar|graduar(me)?|titular(me)?|salir) (la carrera )?(rapido|pronto|antes))", t):
         r["tipo_carga"] = "pesada"
     elif re.search(r"\b(normal|regular|equilibrad)", t):
         r["tipo_carga"] = "normal"
