@@ -161,7 +161,7 @@ class AgenteValidador:
             ow.reasoning.JAVA_MEMORY = 512
             mundo = ow.World()                      # sin filename → solo RAM
             try:
-                onto = mundo.get_ontology(config.ONTO_POBLADA.resolve().as_uri()).load()
+                onto = mundo.get_ontology(str(config.ONTO_POBLADA.resolve())).load()
                 o = onto.get_namespace(config.NS)
                 alumno = o[est.iri]
                 with onto:
@@ -201,9 +201,10 @@ def hermit_consistente(mundo) -> bool:
     try:
         mundo.save(f, format="ntriples")
         f.close()
+        ruta_ontologia = "file:///" + f.name.replace("\\", "/")
         p = subprocess.run([ow.JAVA_EXE, "-Xmx512M", "-cp", _HERMIT_CP,
-                            "org.semanticweb.HermiT.cli.CommandLine", "-k", "file://" + f.name],
-                           capture_output=True, text=True, timeout=120)
+                    "org.semanticweb.HermiT.cli.CommandLine", "-k", ruta_ontologia],
+                   capture_output=True, text=True, timeout=120)
     finally:
         os.unlink(f.name)
     if p.returncode == 0 and "is satisfiable" in p.stdout:
